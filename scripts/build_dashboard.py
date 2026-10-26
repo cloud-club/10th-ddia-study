@@ -179,7 +179,7 @@ def build_graph(notes: list[dict]) -> dict:
     for note in notes:
         member_id = f"member:{note['member']}"
         note_id = f"note:{note['id']}"
-        nodes[member_id] = {"id": member_id, "type": "member", "label": note["member"]}
+        nodes[member_id] = {"id": member_id, "type": "member", "label": note["member"], "member": note["member"], "avatar": f"https://github.com/{quote(note['member'], safe='')}.png?size=160"}
         nodes[note_id] = {"id": note_id, "type": "note", "label": note["title"], "url": note["url"]}
         edges[(member_id, note_id, "authored")] = {
             "source": member_id, "target": note_id, "type": "authored", "label": "작성",
@@ -225,6 +225,7 @@ def build_dashboard_data(
     members = [
         {
             "id": member_id,
+            "avatar": f"https://github.com/{quote(member_id, safe='')}.png?size=160",
             "note_count": len(member_notes),
             "latest_date": max((note["created"] for note in member_notes), default=""),
             "xp": len(member_notes) * 40,

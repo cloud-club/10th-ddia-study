@@ -161,7 +161,8 @@ window.DDIAGraph = (function () {
       .attr('x', -inner).attr('y', -inner)
       .attr('width', inner * 2).attr('height', inner * 2)
       .attr('clip-path', (d) => `url(#clip-${key}-${cssId(d.id)})`)
-      .attr('preserveAspectRatio', 'xMidYMid slice');
+      .attr('preserveAspectRatio', 'xMidYMid slice')
+      .on('error', function () { d3.select(this).remove(); });
 
     nodeSel.filter((d) => LABELED.has(d.type)).append('text')
       .attr('text-anchor', 'middle')

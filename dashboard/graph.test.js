@@ -7,6 +7,12 @@ const notes = [
  {id:'a/2',member:'a',title:'Two',created:'invalid',tags:['solo']},
  {id:'b/1',member:'b',title:'Three',created:'2026-10-23',tags:['shared']}
 ];
+test('member photos survive both generated and source graph paths', () => {
+ const fallback=model.graphForNotes(notes).nodes.find(n=>n.id==='member:a');
+ assert.equal(fallback.avatar,'https://github.com/a.png?size=160');
+ const source={nodes:[{id:'member:a',type:'member',label:'a',avatar:'https://github.com/a.png?size=160'},{id:'note:a/1',type:'note',label:'One'}],edges:[{source:'member:a',target:'note:a/1',type:'authored'}]};
+ assert.equal(model.graphForNotes([notes[0]],source).nodes.find(n=>n.type==='member').avatar,fallback.avatar);
+});
 test('graph maps actual authors and keeps complete document tags', () => {
  const graph=model.graphForNotes(notes);
  assert.equal(graph.nodes.filter(n=>n.type==='member').length,2);

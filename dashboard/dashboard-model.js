@@ -21,7 +21,7 @@
   const map=new Map(), links=[];
   notes.forEach(n=>{
    const member=`member:${n.member}`, id=`note:${n.id}`;
-   map.set(member,{id:member,type:'member',label:n.member,member:n.member});
+   map.set(member,{id:member,type:'member',label:n.member,member:n.member,avatar:`https://github.com/${encodeURIComponent(n.member)}.png?size=160`});
    map.set(id,{id,type:'note',label:n.title,url:n.url,member:n.member,tags:[...(n.tags||[])]});
    links.push({source:member,target:id,type:'authored'});
    new Set(n.tags||[]).forEach(tag=>{const topic=`topic:${tag}`;map.set(topic,{id:topic,type:'topic',label:tag});links.push({source:id,target:topic,type:'tagged'});});

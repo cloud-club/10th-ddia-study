@@ -49,6 +49,10 @@ class BuildDashboardTests(unittest.TestCase):
             self.assertEqual(len(data["members"]), 1)
             self.assertEqual(data["members"][0]["id"], "alice")
             self.assertEqual(data["members"][0]["note_count"], 1)
+            self.assertEqual(data["members"][0]["avatar"], "https://github.com/alice.png?size=160")
+            person = next(n for n in data["graph"]["nodes"] if n["type"] == "member")
+            self.assertEqual(person["avatar"], data["members"][0]["avatar"])
+            self.assertEqual(person["member"], "alice")
             self.assertEqual(len(data["notes"]), 1)
             note = data["notes"][0]
             self.assertEqual(note["title"], "복제와 일관성")

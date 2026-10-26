@@ -7,10 +7,15 @@
  function link(text,url,cls='') {const n=el('a',cls,text);try{const u=new URL(url,location.href);if(!url||!/^https?:$/.test(u.protocol))return el('span',cls,text);n.href=url;if(/^https?:/i.test(url)){n.target='_blank';n.rel='noopener noreferrer';}return n;}catch{return el('span',cls,text);}}
  const tags=values=>{const list=el('ul','tags');(values||[]).forEach(t=>list.append(el('li','',`#${t}`)));return list;};
  const date=value=>M.validDate(value)?value:'날짜 미기재';
+ function avatarFor(id, url) {
+  const box=el('span','avatar',String(id||'?').slice(0,1).toUpperCase());
+  const img=el('img');img.alt='';img.width=42;img.height=42;img.loading='lazy';img.referrerPolicy='no-referrer';
+  img.onerror=()=>img.remove();img.src=url||`https://github.com/${encodeURIComponent(id)}.png?size=160`;box.append(img);return box;
+ }
  function renderFeed() {
   const feed=Array.isArray(state.data.feed)?state.data.feed:state.data.notes.map(n=>({...n,date:n.created}));
   $('#feed').replaceChildren(...feed.slice(0,6).map((f,i)=>{
-   const item=el('li',`post${i===0?' is-new':''}`),head=el('header','post__head'),avatar=el('span','avatar',String(f.member||'?').slice(0,1).toUpperCase()),who=el('div');
+   const item=el('li',`post${i===0?' is-new':''}`),head=el('header','post__head'),avatar=avatarFor(f.member),who=el('div');
    who.append(el('strong','',f.member),el('small','',`${date(f.date)} / 읽기 노트`));head.append(avatar,who);
    const h=el('h3');h.append(link(f.title,f.url));item.append(head,h);if(f.summary)item.append(el('p','post__quote',f.summary));item.append(tags(f.tags),link('원문 노트 ↗',f.url,'source-link'));return item;
   }));if(!feed.length)$('#feed').append(el('li','empty','아직 중계할 노트가 없습니다.'));
@@ -19,7 +24,7 @@
   const notes=state.data.notes;
   $('#member-grid').replaceChildren(...state.data.members.map(raw=>{
    const m=M.memberStats(raw,notes),own=M.filterNotes(notes,{member:m.id}),card=el('article','card'),head=el('header','card__head'),who=el('div');
-   who.append(el('small','eyebrow','READING MEMBER'),el('h3','',m.id));head.append(el('span','avatar',m.id.slice(0,1).toUpperCase()),who,el('span','level',`Lv. ${m.level}`));card.append(head);
+   who.append(el('small','eyebrow','READING MEMBER'),el('h3','',m.id));head.append(avatarFor(m.id,m.avatar),who,el('span','level',`Lv. ${m.level}`));card.append(head);
    card.append(el('p','card__summary',`${m.note_count}편의 노트로 읽기의 흔적을 남겼습니다.`));
    const xp=el('div','xp'),meta=el('div','xp__meta');meta.append(el('span','',`${m.xp} XP`),el('span','',`${m.xp_in_level} / 100 → Lv. ${m.level+1}`));const bar=el('div','xp__bar'),fill=el('div','xp__fill');fill.style.width=`${m.xp_in_level}%`;bar.append(fill);xp.append(meta,bar);card.append(xp);
    const counts=el('dl','counts');[[m.note_count,'노트'],['—','커밋 미집계'],[date(m.latest_date),'최근 작성']].forEach(([v,k])=>{const pair=el('div');pair.append(el('dt','',k),el('dd','',String(v)));counts.append(pair);});card.append(counts);
