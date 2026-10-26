@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 230" role="img" aria-labelledby="title desc">
+<title id="title">Wild boar — DDIA reading companion</title><desc id="desc">Original black ink drawing of a wild boar with bristled back, long snout, curved tusk and fine engraved hatching on warm paper.</desc>
+<defs>
+ <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(24)"><path d="M0 0V7" stroke="#25231f" stroke-width=".8"/></pattern>
+ <pattern id="fine" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-32)"><path d="M0 0V4" stroke="#25231f" stroke-width=".55"/></pattern>
+ <path id="body" d="M66 139C44 126 44 106 58 86L53 76 69 78 67 65 82 69 87 54 98 62 107 47 117 56 131 43 139 54 155 44 160 55 178 47 184 59C205 59 225 69 241 86L261 100 283 113 309 118 317 132 306 145 275 147 254 158 226 159C205 174 177 178 145 171L115 168 91 157Z"/>
+ <clipPath id="animal"><use href="#body"/></clipPath>
+</defs>
+<g fill="none" stroke="#25231f" stroke-linejoin="round" stroke-linecap="round">
+ <path d="M62 99C36 89 26 103 34 113C42 120 48 108 39 105" stroke-width="2"/>
+ <path d="M91 147L82 182 68 199 87 199 104 182 119 159M130 163L135 190 128 204 147 204 151 183 150 164M208 158L216 184 208 202 227 202 235 180 232 153M242 145L257 170 260 189 278 189 271 166 264 145" fill="#f6f2e7" stroke-width="2"/>
+ <path d="M85 178L96 181M134 185L148 187M216 183L231 185M258 175L273 174"/>
+ <use href="#body" fill="#f6f2e7" stroke-width="2.4"/>
+ <g clip-path="url(#animal)">
+  <path d="M43 107Q135 64 243 106L281 138Q215 187 98 158Z" fill="url(#hatch)" stroke="none"/>
+  <path d="M56 136Q145 132 198 153L231 170 139 180 74 160Z" fill="url(#fine)" stroke="none"/>
+  <path d="M70 94Q126 67 179 72M66 104Q128 73 192 83M63 117Q118 87 163 90M80 128Q122 107 165 107M85 141Q128 122 154 126M171 85Q194 95 201 120M181 82Q211 98 215 128M195 85Q221 100 225 124M153 144Q181 151 201 140" stroke-width="1"/>
+  <path d="M70 86L80 78M86 77L96 69M102 71L114 62M121 65L132 59M139 64L151 59M157 66L170 60M183 72L192 68" stroke-width="1.3"/>
+ </g>
+ <path d="M233 104L221 72 242 81 252 107" fill="#f6f2e7" stroke-width="2"/>
+ <path d="M237 98L229 81 241 87" fill="url(#fine)" stroke-width="1"/>
+ <path d="M246 114Q258 109 264 115M270 128L298 129M275 140L303 138" stroke-width="1.5"/>
+ <circle cx="258" cy="117" r="2.5" fill="#25231f" stroke="none"/>
+ <path d="M304 120Q297 132 306 144M309 127L312 130M309 136L312 134" stroke-width="1.4"/>
+ <path d="M279 143Q281 159 296 153Q284 153 287 136Z" fill="#fffdf6" stroke-width="1.4"/>
+ <path d="M220 140Q225 152 240 155M111 151Q104 162 100 175M168 156Q195 164 217 152" stroke-width="1.2"/>
+ <path d="M66 207H112M124 211H164M193 209H241M250 199H289" opacity=".5"/>
+</g>
+<text x="180" y="226" text-anchor="middle" fill="#766d61" font-family="Georgia,serif" font-size="9" letter-spacing="3">SUS SCROFA · FIELD NOTES</text>
+</svg>

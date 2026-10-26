@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="theme-color" content="#c8233d"><meta name="description" content="함께 읽는 DDIA. 노트, 참고자료, 사람과 주제가 이어지는 스터디 현황판.">
+ <title>DDIA Dashboard</title><link rel="icon" href="./favicon.svg" type="image/svg+xml">
+ <link rel="stylesheet" href="./style.css?v=20261025-boar-4">
+ <script defer src="./vendor/d3.v7.9.0.min.js"></script><script defer src="./dashboard-model.js?v=20261025-no-readings-3"></script><script defer src="./graph.js?v=20261025-no-readings-3"></script><script defer src="./app.js?v=20261025-no-readings-3"></script>
+</head>
+<body>
+ <a class="skip-link" href="#feed">본문으로 건너뛰기</a>
+ <header class="masthead">
+  <div class="masthead__top"><a class="brand" href="./">CLOUD CLUB / READING ROOM</a><span>DDIA STUDY DASHBOARD</span></div>
+  <div class="masthead__body"><div><p class="eyebrow">DESIGNING DATA-INTENSIVE APPLICATIONS</p><h1>DDIA<br><em>Dashboard</em></h1><p class="masthead__caption">각자의 읽기가 모여, 하나의 지식이 되도록.</p></div>
+   <img class="press-mark boar-mark" src="./boar.svg" width="360" height="230" alt="판화풍 멧돼지 일러스트">
+   <aside class="digest"><span class="eyebrow">현황 요약 / FROM THE NOTES</span><p id="digest">기록을 불러오는 중입니다.</p><p class="digest__caption">노트의 메타데이터로 집계합니다.</p></aside>
+  </div>
+  <ul class="stats" id="stats" aria-label="스터디 통계"><li>색인 불러오는 중…</li></ul>
+ </header>
+ <main>
+  <div class="preview-banner" id="preview-banner" hidden><strong>DEMO EDITION</strong> 예시 노트로 미리 보는 현황판입니다. 실제 참여 기록이 아닙니다.</div>
+  <div id="load-error" class="load-error" role="alert" hidden></div>
+  <nav class="section-nav" aria-label="대시보드 섹션"><a href="#broadcast">중계석</a><a href="#knowledge">지식그래프</a><a href="#members">멤버</a><a href="#recent">최근 활동</a></nav>
+  <section id="broadcast" class="section"><div class="section-heading"><div><p class="eyebrow">01 / FROM THE READING ROOM</p><h2>중계석</h2></div><p>누가 무엇을 읽었는지, 노트에서 직접 전합니다.</p></div><ol class="posts" id="feed"><li class="empty">기록을 불러오는 중…</li></ol></section>
+  <section id="knowledge" class="section"><div class="section-heading"><div><p class="eyebrow">02 / A NETWORK OF IDEAS</p><h2>스터디 지식그래프</h2></div><p>멤버 → 노트 → 주제. 원을 끌어 연결을 살펴보세요.<br>공통 주제부터 표시하고, 노트를 누르면 태그 전체가 펼쳐집니다.</p></div>
+   <div class="toolbar" role="search" aria-label="노트와 그래프 검색"><label class="search-box"><span class="sr-only">노트 검색</span><input id="search" type="search" placeholder="제목, 요약, 멤버, 태그 검색" autocomplete="off"></label><label><span class="sr-only">작성자 필터</span><select id="member-filter"><option value="all">모든 멤버</option></select></label><label><span class="sr-only">정렬</span><select id="sort-filter"><option value="newest">최신 작성순</option><option value="oldest">오래된 순</option><option value="title">제목순</option></select></label><button id="clear-filters" type="button">필터 초기화 ↺</button></div><div id="topic-filters" class="topic-filters" aria-label="주제별 필터"></div>
+   <article id="graph-panel" class="panel panel--graph"><div class="graph-topline"><span class="eyebrow">FIG. 01 / PEOPLE, NOTES &amp; TOPICS</span><span id="graph-count" aria-live="polite"></span></div><div class="graph" id="knowledge-graph"></div><div class="graph__foot"><ul class="legend"><li><i class="dot dot--member"></i>멤버</li><li><i class="dot dot--note"></i>노트</li><li><i class="dot dot--topic"></i>주제</li></ul><span class="graph__hidden" hidden></span><label class="switch"><input type="checkbox" class="graph__toggle"> 주제 전부 보기</label><button type="button" id="clear-focus">선택 해제</button></div><p class="graph__empty" hidden>노트가 쌓이면 연결이 나타납니다.</p></article>
+   <p class="map-note">두 명 이상이 다룬 주제를 우선 표시하며, 세 개보다 적으면 노트 연결 수가 많은 주제로 채웁니다. 이 지도는 작성·태그 관계이며 의미적 추론이 아닙니다.</p>
+   <details class="note-index"><summary>읽기 노트 색인 <span id="result-count"></span></summary><div id="note-list" class="note-list" aria-live="polite"></div></details>
+  </section>
+  <section id="members" class="section"><div class="section-heading"><div><p class="eyebrow">03 / THE PEOPLE BEHIND THE PAGES</p><h2>멤버</h2></div><p>노트 1편 = 40 XP · 100 XP마다 레벨 업.<br>활동 칸은 노트 작성일 기준이며, 커밋 수는 집계하지 않습니다.</p></div><div class="members" id="member-grid"></div></section>
+  <section id="recent" class="section"><div class="section-heading"><div><p class="eyebrow">04 / THE LATEST ENTRIES</p><h2>최근 활동</h2></div><p>노트 작성일 기준. Git 커밋 기록은 제공되지 않습니다.</p></div><ol class="activity panel" id="activity"></ol></section>
+ </main>
+ <footer class="footer"><div><p class="footer__brand">DDIA / A SHARED READING ARCHIVE</p><p id="build-meta">데이터를 불러오는 중…</p></div><a href="../CONTRIBUTING.md">노트 작성 방법 ↗</a></footer>
+</body></html>
