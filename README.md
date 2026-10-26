@@ -1,5 +1,7 @@
 # DDIA Study Notes
 
+대시보드: https://cloud-club.github.io/10th-ddia-study/
+
 **Designing Data-Intensive Applications (DDIA)** 스터디에서 각자 읽고 정리한 노트를 모으는 공간입니다. 참여자는 본인 GitHub ID 폴더에 Markdown 노트를 추가하고, 대시보드에서 작성 현황과 주제를 함께 볼 수 있습니다.
 
 ## 노트 올리는 방법
@@ -46,6 +48,8 @@ Python 표준 라이브러리만 사용합니다.
 python3 -m unittest discover -s scripts -p 'test_*.py' -v
 python3 scripts/validate_study.py
 python3 scripts/build_dashboard.py
+python3 scripts/verify_dashboard.py
+node --test dashboard/graph.test.js
 python3 -m http.server 4178
 ```
 
@@ -76,4 +80,4 @@ python3 -m http.server 4178
 
 ## 참여 현황
 
-참여자별 노트가 추가되면 대시보드가 폴더와 프론트매터를 읽어 자동으로 집계합니다. `members/example/notes/`에는 테스트 노트 4편이 있으며, 동일한 경로·검증·빌드 규칙으로 집계됩니다. `example`은 실제 참여자가 아닌 테스트용 작성자입니다.
+참여자별 노트가 추가되면 대시보드가 폴더와 프론트매터를 읽어 자동으로 집계합니다. 테스트용 참여자와 노트는 제거된 상태로 시작합니다.
