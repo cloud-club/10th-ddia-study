@@ -44,12 +44,11 @@
  async function init(){
   try{
    const res=await fetch(`./data.json?v=${Date.now()}`,{cache:'no-store'});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();if(!Array.isArray(data.notes)||!Array.isArray(data.members))throw new Error('노트 데이터 형식 오류');state.data=data;
-   $('#preview-banner').hidden=!data.preview;
    $('#digest').textContent=`${data.members.length}명의 멤버, ${data.notes.length}편의 노트. ${data.topics?.length||0}개의 주제로 서로의 읽기를 잇고 있습니다.`;
    $('#stats').replaceChildren(...[[data.members.length,'멤버'],[data.notes.length,'읽기 노트'],[data.topics?.length||0,'주제']].map(([v,k])=>{const li=el('li');li.append(el('strong','',String(v).padStart(2,'0')),el('span','',k));return li;}));
    data.members.forEach(m=>{const o=el('option','',m.id);o.value=m.id;$('#member-filter').append(o);});
    renderFeed();renderMembers();renderActivity();renderTopicButtons();renderGraphAndNotes();
-   $('#build-meta').textContent=`색인 갱신 ${data.generated_at||'날짜 미기재'} · ${data.preview?'예시 데이터':'Markdown 노트 기준'}`;
+   $('#build-meta').textContent=`색인 갱신 ${data.generated_at||'날짜 미기재'} · Markdown 노트 기준`;
   }catch(error){$('#load-error').hidden=false;$('#load-error').textContent=`데이터를 불러오지 못했습니다 (${error.message}). data.json을 확인한 뒤 새로고침해 주세요.`;$('#feed').replaceChildren(el('li','empty','노트를 표시할 수 없습니다.'));$('#digest').textContent='현황 데이터를 확인할 수 없습니다.';$('#stats').textContent='통계 확인 불가';$('#build-meta').textContent='데이터 로딩 실패';$('#knowledge-graph').textContent='그래프 데이터를 확인할 수 없습니다.';}
  }
  $('#search').oninput=e=>{state.query=e.target.value;if(state.data)renderGraphAndNotes();};$('#member-filter').onchange=e=>{state.member=e.target.value;if(state.data)renderGraphAndNotes();};$('#sort-filter').onchange=e=>{state.sort=e.target.value;if(state.data)renderGraphAndNotes();};

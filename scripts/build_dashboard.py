@@ -198,7 +198,6 @@ def build_dashboard_data(
     repo_url: str = "",
     branch: str = "",
     generated_at: str | None = None,
-    include_demo: bool = False,
 ) -> dict:
     root = root.expanduser().resolve()
     members_root = root / "members"
@@ -215,20 +214,6 @@ def build_dashboard_data(
                 note_paths.append(path)
 
     notes = [parse_note(path, root, repo_url, branch) for path in note_paths]
-    if include_demo:
-        examples_root = root / "examples"
-        for example_path in sorted(examples_root.rglob("*.md")):
-            relative = example_path.relative_to(examples_root)
-            if any(part.startswith((".", "_")) for part in relative.parts) or example_path.name == "README.md":
-                continue
-            notes.append(
-                parse_note(
-                    example_path, root, repo_url, branch,
-                    member_id="example",
-                    url_path=example_path.relative_to(root).as_posix(),
-                    note_id=f"example/{relative.with_suffix('').as_posix()}",
-                )
-            )
     notes.sort(key=lambda item: (item["created"], item["member"].casefold(), item["path"]), reverse=True)
 
     by_member: dict[str, list[dict]] = {}
@@ -281,7 +266,6 @@ def build_dashboard_data(
         "members": members,
         "topics": topics,
         "notes": notes,
-        "preview": include_demo,
         "graph": build_graph(notes),
         "feed": feed,
         "readings": readings,
@@ -294,7 +278,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, help="output JSON path (default: <root>/dashboard/data.json)")
     parser.add_argument("--repo-url", default=os.environ.get("GITHUB_REPOSITORY_URL", ""))
     parser.add_argument("--branch", default=os.environ.get("DASHBOARD_BRANCH", ""))
-    parser.add_argument("--demo", action="store_true", help="include examples/**/*.md in this local preview")
     args = parser.parse_args(argv)
 
     repo_url = args.repo_url.strip()
@@ -304,7 +287,7 @@ def main(argv: list[str] | None = None) -> int:
             repo_url = f"https://github.com/{repository}"
     branch = args.branch.strip() or os.environ.get("GITHUB_REF_NAME", "").strip()
     output = args.output or (args.root / "dashboard" / "data.json")
-    data = build_dashboard_data(args.root, repo_url=repo_url, branch=branch, include_demo=args.demo)
+    data = build_dashboard_data(args.root, repo_url=repo_url, branch=branch)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     totals = data["totals"]

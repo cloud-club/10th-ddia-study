@@ -71,55 +71,21 @@ class BuildDashboardTests(unittest.TestCase):
             self.assertEqual(data["topics"], [])
             self.assertEqual(json.loads(json.dumps(data, ensure_ascii=False)), data)
 
-    def test_demo_mode_includes_example_note_without_changing_default_index(self) -> None:
+    def test_builder_has_no_separate_demo_mode(self) -> None:
+        import inspect
+        self.assertNotIn("include_demo", inspect.signature(build_dashboard.build_dashboard_data).parameters)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            examples = root / "examples"
-            examples.mkdir()
-            (examples / "sample-note.md").write_text(
-                "---\n"
-                "type: note\n"
-                "author: example\n"
-                "created: 2026-10-24\n"
-                "status: completed\n"
-                "tags:\n"
-                "  - replication\n"
-                "  - consistency\n"
-                "---\n\n"
-                "# 복제본 지연과 읽기 일관성\n\n"
-                "## 한 줄 요약\n\n"
-                "비동기 복제에서는 쓰기 직후 다른 복제본에서 이전 값을 읽을 수 있다.\n",
-                encoding="utf-8",
-            )
-
-            default_data = build_dashboard.build_dashboard_data(root, generated_at="2026-10-24T00:00:00+00:00")
-            demo_data = build_dashboard.build_dashboard_data(
-                root, include_demo=True, generated_at="2026-10-24T00:00:00+00:00"
-            )
-
-            self.assertEqual(default_data["totals"], {"members": 0, "notes": 0, "topics": 0})
-            self.assertEqual(demo_data["totals"], {"members": 1, "notes": 1, "topics": 2})
-            self.assertEqual(demo_data["notes"][0]["member"], "example")
-            self.assertEqual(demo_data["notes"][0]["url"], "../examples/sample-note.md")
-            self.assertEqual(demo_data["notes"][0]["title"], "복제본 지연과 읽기 일관성")
-
-    def test_demo_discovers_additional_examples_without_polluting_default(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            folder = root / "examples" / "chapter-07"
+            folder = root / "members" / "example" / "notes"
             folder.mkdir(parents=True)
-            (folder / "isolation.md").write_text(
-                "---\ntype: note\nauthor: example\ncreated: 2026-10-24\nstatus: draft\ntags: [consistency]\n---\n# 격리 수준\n",
+            (folder / "01-replication.md").write_text(
+                "---\ntype: note\nauthor: example\ncreated: 2026-10-24\nstatus: completed\ntags: [replication]\n---\n# 테스트 노트\n",
                 encoding="utf-8",
             )
-            default = build_dashboard.build_dashboard_data(root)
-            demo = build_dashboard.build_dashboard_data(root, include_demo=True)
-            self.assertEqual(default["notes"], [])
-            self.assertEqual(demo["notes"][0]["id"], "example/chapter-07/isolation")
-            self.assertEqual(demo["notes"][0]["url"], "../examples/chapter-07/isolation.md")
-            self.assertTrue(demo["preview"])
-            self.assertFalse(default["preview"])
-            self.assertEqual(default["graph"], {"nodes": [], "edges": []})
+            data = build_dashboard.build_dashboard_data(root)
+            self.assertEqual(data["totals"], {"members": 1, "notes": 1, "topics": 1})
+            self.assertEqual(data["notes"][0]["url"], "../members/example/notes/01-replication.md")
+            self.assertNotIn("preview", data)
 
     def test_member_progress_feed_and_sources_come_from_notes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
