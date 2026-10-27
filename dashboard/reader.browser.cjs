@@ -65,6 +65,20 @@ test('HTML uses opaque no-script sandbox, restrictive CSP, preserved styles and 
  const outside=p.locator('#document-links a');assert.equal(await outside.count(),1);assert.match(await outside.getAttribute('href'),/reader.html\?note=test%2Ftwo$/);
  await p.close();
 });
+test('HTML opens in a new tab as a full-viewport document without reader chrome',async()=>{
+ const p=await pageFor(html.id);
+ const link=p.getByRole('link',{name:'새 탭으로 열기',exact:true});
+ assert.equal(await link.getAttribute('target'),'_blank');
+ await p.context().route('**/data.json*',route=>route.fulfill({json:data}));
+ const popupPromise=p.waitForEvent('popup');await link.click();const popup=await popupPromise;
+ await popup.locator('body.html-standalone iframe').waitFor();
+ assert.equal(await popup.locator('.room-bar').isVisible(),false);
+ assert.equal(await popup.locator('.note-header').isVisible(),false);
+ const box=await popup.locator('iframe').boundingBox(),size=popup.viewportSize();
+ assert.equal(box.x,0);assert.equal(box.y,0);assert.equal(box.width,size.width);assert.equal(box.height,size.height);
+ assert.equal(await popup.locator('iframe').getAttribute('sandbox'),'');
+ await popup.close();await p.close();
+});
 test('missing note and fetch errors show accessible recovery states',async()=>{
  const p=await pageFor('missing');assert.match(await p.locator('#reader-status').textContent(),/찾을 수 없습니다/);assert.equal(await p.locator('#note-article').isVisible(),false);await p.close();
  const q=await pageFor(first.id,{failure:true});assert.match(await q.locator('#reader-status').textContent(),/503/);assert.equal(await q.locator('#retry').isVisible(),true);await q.close();

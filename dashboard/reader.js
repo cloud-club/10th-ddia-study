@@ -106,6 +106,10 @@
     const html=htmlDocument(note,data.notes), frame=root.document.createElement('iframe');
     frame.setAttribute('sandbox','');frame.title=`${note.title} · HTML 문서`;frame.referrerPolicy='no-referrer';frame.srcdoc=html.srcdoc;body.replaceChildren(frame);
     $('#html-notice').hidden=false;
+    const standalone=new URLSearchParams(root.location.search).get('view')==='html';
+    $('#html-toolbar').hidden=false;
+    const openURL=new URL(root.location.href);openURL.searchParams.set('view','html');$('#html-open').href=openURL.href;
+    if(standalone)root.document.body.classList.add('html-standalone');
     if(html.links.length){const nav=$('#document-links');nav.hidden=false;html.links.forEach(item=>{const a=root.document.createElement('a');a.textContent=item.text;a.href=item.href;if(new URL(item.href).origin!==root.location.origin){a.target='_blank';a.rel='noopener noreferrer';}nav.append(a);});}
    } else body.replaceChildren(markdown(note,data.notes));
    status.hidden=true;$('#note-article').hidden=false;
