@@ -92,6 +92,80 @@ class ReaderTests(unittest.TestCase):
         html.write_text('<p>No metadata</p>')
         self.assertTrue(any('missing YAML frontmatter' in e for e in validate.validate_notes(self.root)))
 
+    def test_rejects_existing_assets_that_are_not_published(self):
+        for target in ['secret.png', '.hidden.png', '_draft.png', 'private/leak.png',
+                       'assets/credentials/leak.png', 'report.pdf', 'report(1).pdf']:
+            for name, markup in [('one.md', '![asset](<{}>)'),
+                                 ('one.md', '[asset]({})'),
+                                 ('one.md', '<img src="{}">'),
+                                 ('one.md', '[asset][ref]\n\n[ref]: {}'),
+                                 ('one.md', '![ref][]\n\n[ref]: {}'),
+                                 ('one.md', '[ref]\n\n[ref]: {}'),
+                                 ('one.md', '![asset](<{}> "asset")'),
+                                 ('one.html', '<img src="{}">'),
+                                 ('one.html', '<a href="{}">asset</a>')]:
+                with self.subTest(target=target, name=name, markup=markup):
+                    asset = self.folder / target
+                    asset.parent.mkdir(parents=True, exist_ok=True)
+                    asset.write_text('not public')
+                    note = self.note(name, markup.format(target))
+                    errors = validate.validate_notes(self.root)
+                    self.assertTrue(any('not published' in error for error in errors), errors)
+                    note.unlink()
+
+    def test_markdown_destinations_preserve_spaces_parentheses_and_titles(self):
+        for markup in ['![asset](<private/secret diagram.png>)',
+                       "[asset](report(1).pdf 'download')"]:
+            with self.subTest(markup=markup):
+                self.assertEqual(len(validate.local_links(markup)), 1)
+        self.assertEqual(validate.local_links('![asset](<한 글.png>)'), ['한 글.png'])
+        self.assertEqual(validate.local_links('[asset](diagram(1).svg)'), ['diagram(1).svg'])
+
+    def test_accepts_published_assets_encoded_paths_and_nested_parent_links(self):
+        for name in ['diagram.svg', 'app.js', 'module.mjs', '한 글.png']:
+            (self.folder / name).write_text('public')
+        self.note('other.md')
+        nested = self.folder / 'nested'
+        nested.mkdir()
+        (nested / 'one.md').write_text(META + '\n'.join([
+            '![diagram](../diagram.svg#figure)',
+            '[code](../app.js)', '[module](../module.mjs?version=1)',
+            '![encoded](../%ED%95%9C%20%EA%B8%80.png)',
+            '[note](../other.md#heading)', '<img src="../diagram.svg">',
+        ]))
+        self.assertEqual(validate.validate_notes(self.root), [])
+
+    def test_rejects_symlink_assets_hidden_under_excluded_directory(self):
+        self.note(body='![asset](private/alias.png)')
+        private = self.folder / 'private'
+        private.mkdir()
+        target = self.folder / 'public.png'
+        target.write_text('public')
+        (private / 'alias.png').symlink_to(target)
+        self.assertTrue(any('symlink' in error.lower() for error in validate.validate_notes(self.root)))
+
+    def test_verifier_rejects_missing_emitted_markdown_assets(self):
+        for markup in ['![asset]({})', '[asset]({})', '<img src="{}">',
+                       '[asset][ref]\n\n[ref]: {}', '![ref][]\n\n[ref]: {}',
+                       '[ref]\n\n[ref]: {}']:
+            with self.subTest(markup=markup):
+                asset = self.folder / '한 글.svg'
+                asset.write_text('<svg/>')
+                self.note(body=markup.format('%ED%95%9C%20%EA%B8%80.svg#figure'))
+                build.main(['--root', str(self.root)])
+                dashboard = self.root / 'dashboard'
+                for name in ['index.html', 'reader.html']:
+                    (dashboard / name).write_text('<p>Reader</p>')
+                old_root, old_dashboard = verify.ROOT, verify.DASHBOARD
+                verify.ROOT, verify.DASHBOARD = self.root, dashboard
+                try:
+                    verify.main()
+                    (dashboard / 'content' / asset.relative_to(self.root)).unlink()
+                    with self.assertRaisesRegex(AssertionError, 'Missing asset'):
+                        verify.main()
+                finally:
+                    verify.ROOT, verify.DASHBOARD = old_root, old_dashboard
+
     def test_verifier_checks_reader_assets_and_exported_notes(self):
         self.note()
         build.main(['--root', str(self.root), '--repo-url', 'https://github.com/org/repo'])

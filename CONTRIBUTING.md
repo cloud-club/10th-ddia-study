@@ -13,7 +13,7 @@ members/<github-id>/
 ```
 
 - 파일 하나에는 질문 또는 개념 하나를 정리합니다.
-- 파일명은 읽기 순서를 위한 두 자리 번호와 소문자 kebab-case를 사용합니다.
+- 파일명은 읽기 순서를 위한 두 자리 번호와 소문자 kebab-case를 권장합니다. 주차별 하위 폴더와 한글 이름도 사용할 수 있습니다.
 - 챕터 폴더나 더 깊은 하위 폴더도 가능합니다.
 - 다른 사람의 폴더는 직접 수정하지 않습니다. 제안은 PR 코멘트로 남깁니다.
 - 필요하면 본인 폴더의 `README.md`에 소개나 노트 목차를 추가할 수 있습니다. 대시보드는 `notes/` 아래 메타데이터가 있는 Markdown(`.md`)과 HTML(`.html`, `.htm`)을 재귀적으로 집계합니다.
@@ -35,7 +35,7 @@ tags: []
 - `author`는 `members/<github-id>/`의 ID와 같아야 합니다.
 - `created`는 노트를 처음 작성한 날짜(`YYYY-MM-DD`)입니다.
 - `status`는 `draft` 또는 `completed` 중 하나입니다.
-- `tags`는 소문자 영문 YAML 목록입니다. 아직 정하지 않았다면 `tags: []`로 둡니다.
+- `tags`는 YAML 목록이어야 합니다. 검색 일관성을 위해 소문자 영문을 권장하며, 집계 시 영문은 소문자로 변환합니다. 아직 정하지 않았다면 `tags: []`로 둡니다.
 - 제목은 본문의 첫 `# 제목`에서 읽습니다. `## 한 줄 요약` 아래 첫 문단은 대시보드 카드에 표시됩니다.
 
 ## 내부 리더와 HTML 노트
@@ -66,7 +66,7 @@ summary: 저장 구조의 차이를 설명합니다.
 
 ```bash
 python3 scripts/validate_study.py
-python3 scripts/build_dashboard.py --repo-url https://github.com/cloud-club/ddia-study --branch main
+python3 scripts/build_dashboard.py --repo-url https://github.com/cloud-club/10th-ddia-study --branch main
 python3 scripts/verify_dashboard.py
 python3 -m http.server 8000 --directory dashboard
 ```

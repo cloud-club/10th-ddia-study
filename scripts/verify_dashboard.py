@@ -6,6 +6,7 @@ from urllib.parse import quote, unquote, urlsplit
 
 from note_files import checked_path
 from build_dashboard import parse_frontmatter
+from validate_study import local_links
 
 ROOT = Path(__file__).resolve().parent.parent
 DASHBOARD = ROOT / "dashboard"
@@ -20,16 +21,19 @@ class Assets(HTMLParser):
         for key, value in attrs:
             if key not in {"src", "href"} or not value:
                 continue
-            url = urlsplit(value)
-            if url.scheme or url.netloc or not url.path:
-                continue
-            try:
-                target = checked_path(self.base / unquote(url.path), DASHBOARD)
-            except ValueError as error:
-                raise AssertionError(f"Asset outside Pages artifact or symlink: {value}") from error
-            if target.is_dir():
-                target = target / "index.html"
-            assert target.is_file(), f"Missing asset: {value}"
+            self.check_target(value)
+
+    def check_target(self, value):
+        url = urlsplit(value)
+        if url.scheme or url.netloc or not url.path:
+            return
+        try:
+            target = checked_path(self.base / unquote(url.path), DASHBOARD)
+        except ValueError as error:
+            raise AssertionError(f"Asset outside Pages artifact or symlink: {value}") from error
+        if target.is_dir():
+            target = target / "index.html"
+        assert target.is_file(), f"Missing asset: {value}"
 
 
 def main():
@@ -59,6 +63,11 @@ def main():
         assert note["format"] in {"markdown", "html"}
         if note["format"] == "html":
             Assets(exported.parent).feed(note["content"])
+        else:
+            _, body = parse_frontmatter(exported.read_text(encoding="utf-8"))
+            assets = Assets(exported.parent)
+            for value in local_links(body):
+                assets.check_target(value)
     print("Dashboard artifact: PASS", data["totals"])
 
 

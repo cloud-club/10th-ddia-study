@@ -1,0 +1,11 @@
+{
+  "name": "ddia-study-dashboard",
+  "private": true,
+  "scripts": {
+    "test": "node --test dashboard/*.test.js tests/*.test.cjs",
+    "test:browser": "node --test dashboard/reader.browser.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
+}

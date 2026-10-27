@@ -11,9 +11,11 @@ from html.parser import HTMLParser
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_dashboard import parse_frontmatter  # noqa: E402
-from note_files import note_paths, checked_path
+from note_files import note_paths, checked_path, public_files, PUBLIC_TYPES, NOTE_TYPES
 
-LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+LINK_RE = re.compile(
+    r'''!?\[[^\]]*\]\(\s*(<[^>\n]*>|(?:\\.|[^\\()\s]|\([^()\n]*\))+)
+        (?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)''', re.VERBOSE)
 ALLOWED_STATUS = {"draft", "completed"}
 
 
@@ -27,18 +29,24 @@ class HTMLLinks(HTMLParser):
 
 
 def local_links(body: str, html: bool = False) -> list[str]:
+    parser = HTMLLinks()
+    parser.feed(body)
     if html:
-        parser = HTMLLinks()
-        parser.feed(body)
         return parser.targets
-    return [match.group(1).strip("<>") for match in LINK_RE.finditer(body)]
+    targets = [match.group(1).strip("<>") for match in LINK_RE.finditer(body)]
+    # Reference-style images/links keep their destinations in definitions.
+    targets.extend(match.group(1).strip("<>") for match in re.finditer(
+        r"(?m)^ {0,3}\[[^\]\n]+\]:[ \t]*(<[^>\n]+>|[^\s]+)", body))
+    return parser.targets + targets
 
 
 def validate_notes(root: Path) -> list[str]:
     root = root.expanduser().resolve()
     errors: list[str] = []
     try:
-        paths = note_paths(root)
+        files = public_files(root)
+        paths = [path for path in files if path.suffix.lower() in NOTE_TYPES]
+        published = {path.resolve() for path in files if path.suffix.lower() in PUBLIC_TYPES}
     except ValueError as error:
         return [str(error)]
     for path in paths:
@@ -83,6 +91,8 @@ def validate_notes(root: Path) -> list[str]:
                 continue
             if not candidate.is_file():
                 errors.append(f"{relative}: missing local link target '{target}'")
+            elif candidate.resolve() not in published:
+                errors.append(f"{relative}: local link target is not published '{target}'")
 
     return errors
 

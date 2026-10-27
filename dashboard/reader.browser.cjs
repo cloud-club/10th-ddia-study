@@ -12,7 +12,10 @@ const first={id:'test/nested',title:'질문에서 시작하는 읽기',member:'r
 const second={...first,id:'test/two',title:'두 번째 노트',asset_base:'./content/members/reader-test/notes/',source_url:'https://github.com/example/repo/blob/main/members/reader-test/notes/two.md',url:'./reader.html?note=test%2Ftwo',content:'## 질문\n\n다음 질문입니다.'};
 const html={...first,id:'test/html',title:'HTML 원문',format:'html',path:'members/reader-test/notes/nested/원본 chapter.html'};
 delete html.content; // HTML rendering must use the exported original, not inline index content.
-const originalHTML='<!doctype html><html><head><meta charset="utf-8"><style>body{background:rgb(12, 34, 56);color:white}.original{font-size:29px}</style><link rel="stylesheet" href="original.css"></head><body><p class="original">Original style</p><img src="figure.svg"><svg id="diagram" viewBox="0 0 100 50"><rect width="100" height="50" fill="red"/></svg><form id="chapter-form"><label>Chapter <input name="chapter" value="1"></label><button>Next chapter</button></form><output id="chapter"></output><a href="#part">section</a><h2 id="part">Part</h2><script src="chapter.js"></script></body></html>';
+const originalHTML='<!doctype html><html><head><meta charset="utf-8"><style>body{background:rgb(12, 34, 56);color:white}.original{font-size:29px}</style><link rel="stylesheet" href="original.css"></head><body><p class="original">Original style</p><img src="figure.svg"><svg id="diagram" viewBox="0 0 100 50"><rect width="100" height="50" fill="red"/></svg><form id="chapter-form"><label>Chapter <input name="chapter" value="1"></label><button>Next chapter</button></form><output id="chapter"></output><a href="#part">section</a><div style="height:1800px"></div><h2 id="part">Part</h2><div style="height:1800px"></div><h2 id="later">Later</h2><div style="height:1800px"></div><script src="chapter.js"></script></body></html>';
+html.source_url='https://github.com/example/repo/blob/main/'+html.path.split('/').map(encodeURIComponent).join('/');
+first.content+='\n\n[HTML section](%EC%9B%90%EB%B3%B8%20chapter.html#part)';
+second.content='Introductory paragraph.\n\n'.repeat(90)+second.content+'\n\nFollowing paragraph.\n\n'.repeat(90);
 const chapterJS='window.originalExecuted=true;let chapter=Number(localStorage.getItem("reader-chapter")||1);const output=document.querySelector("#chapter");output.textContent=chapter;document.querySelector("#chapter-form").onsubmit=event=>{event.preventDefault();output.textContent=++chapter;localStorage.setItem("reader-chapter",chapter);};';
 async function contentRoute(route){
  const pathname=decodeURIComponent(new URL(route.request().url()).pathname);
@@ -33,7 +36,7 @@ async function pageFor(id,options={}){
  await page.route('**/data.json*',route=>options.failure?route.fulfill({status:503,body:'unavailable'}):route.fulfill({json:data}));
  // Context routes also serve the very first navigation and assets of raw-HTML popups.
  await page.context().route('**/content/**',contentRoute);
- await page.goto(`${base}/reader.html?note=${encodeURIComponent(id)}`);
+ await page.goto(`${base}/reader.html?note=${encodeURIComponent(id)}${options.hash||''}`);
  await page.locator(options.failure||id==='missing'?'#reader-status[role=alert]':'#note-article:not([hidden])').waitFor();return page;
 }
 test('Markdown GFM, metadata, relative assets, safe DOM, and heading anchors',async()=>{
@@ -95,6 +98,43 @@ test('new tab opens raw original HTML with working UI and shared persistent stor
  await popup.reload();await popup.waitForFunction(()=>window.originalExecuted===true);assert.equal(await popup.locator('#chapter').textContent(),'3');
  await f.goto(f.url());await f.waitForFunction(()=>window.originalExecuted===true);assert.equal(await f.locator('#chapter').textContent(),'3');
  await popup.close();await p.close();
+});
+async function assertScrolledTo(frame,id){
+ await frame.waitForFunction(id=>{const el=document.getElementById(id);const y=el?.getBoundingClientRect().top;return scrollY>500&&y>=-1&&y<innerHeight;},id,{timeout:5000});
+}
+test('HTML deep links scroll the original iframe and raw new tab to the anchor',async()=>{
+ const p=await pageFor(html.id,{hash:'#part'});
+ const iframe=p.locator('#note-body iframe'),link=p.locator('#html-open');
+ assert.ok((await iframe.getAttribute('src')).endsWith('#part'));
+ const f=await iframe.elementHandle().then(h=>h.contentFrame());await assertScrolledTo(f,'part');
+ assert.equal(await link.getAttribute('href'),f.url());
+ const popupPromise=p.context().waitForEvent('page');await link.click();const popup=await popupPromise;
+ await popup.waitForLoadState();assert.ok(popup.url().endsWith('#part'));await assertScrolledTo(popup,'part');
+ await popup.close();await p.close();
+});
+test('HTML hash changes after load forward to iframe and raw link without resetting executable state',async()=>{
+ const p=await pageFor(html.id),f=await p.locator('iframe').elementHandle().then(h=>h.contentFrame());
+ await f.waitForFunction(()=>window.originalExecuted===true);
+ await f.evaluate(()=>window.preservedState='kept');
+ await p.evaluate(()=>location.hash='later');
+ await p.waitForFunction(()=>document.querySelector('#html-open').hash==='#later',null,{timeout:5000});
+ await assertScrolledTo(f,'later');assert.ok(f.url().endsWith('#later'));
+ assert.equal(await f.evaluate(()=>window.preservedState),'kept');
+ await p.evaluate(()=>location.hash='part');await assertScrolledTo(f,'part');
+ await p.evaluate(()=>location.hash='');
+ await p.waitForFunction(()=>!document.querySelector('#html-open').hash,null,{timeout:5000});
+ await f.waitForFunction(()=>location.hash==='');await p.close();
+});
+test('Markdown to HTML links retain the fragment and scroll the original',async()=>{
+ const p=await pageFor(first.id);const link=p.getByRole('link',{name:'HTML section',exact:true});
+ assert.equal(await link.getAttribute('href'),`${base}/reader.html?note=test%2Fhtml#part`);
+ await link.click();await p.waitForURL('**/reader.html?note=test%2Fhtml#part');
+ const iframe=p.locator('#note-body iframe');await iframe.waitFor();
+ const f=await iframe.elementHandle().then(h=>h.contentFrame());await assertScrolledTo(f,'part');await p.close();
+});
+test('Markdown deep links still scroll the parent document, with no HTML iframe',async()=>{
+ const p=await pageFor(second.id,{hash:'#%EC%A7%88%EB%AC%B8'});
+ await assertScrolledTo(p,'질문');assert.equal(await p.locator('#note-body iframe').count(),0);assert.equal(await p.locator('#html-toolbar').isVisible(),false);await p.close();
 });
 test('missing note and fetch errors show accessible recovery states',async()=>{
  const p=await pageFor('missing');assert.match(await p.locator('#reader-status').textContent(),/찾을 수 없습니다/);assert.equal(await p.locator('#note-article').isVisible(),false);await p.close();

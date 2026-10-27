@@ -2,11 +2,11 @@
 
 대시보드: https://cloud-club.github.io/10th-ddia-study/
 
-**Designing Data-Intensive Applications (DDIA)** 스터디에서 각자 읽고 정리한 노트를 모으는 공간입니다. 참여자는 본인 GitHub ID 폴더에 Markdown 노트를 추가하고, 대시보드에서 작성 현황과 주제를 함께 볼 수 있습니다.
+**Designing Data-Intensive Applications (DDIA)** 스터디에서 각자 읽고 정리한 노트를 모으는 공간입니다. 참여자는 본인 GitHub ID 폴더에 Markdown 또는 HTML 노트를 추가하고, 대시보드에서 작성 현황과 주제를 함께 볼 수 있습니다.
 
 ## 노트 올리는 방법
 
-1. `members/<github-id>/notes/` 아래에 `01-kebab-case-topic.md` 형식의 파일을 만듭니다.
+1. `members/<github-id>/notes/` 아래에 `01-kebab-case-topic.md` 형식의 Markdown 또는 `.html`/`.htm` 파일을 만듭니다.
 2. [`templates/note-template.md`](templates/note-template.md)를 복사하고 질문, 요약, 핵심 내용, 남은 질문, 참고 자료를 채웁니다.
 3. `author`는 폴더명과 같은 GitHub ID로, `created`는 `YYYY-MM-DD`, `status`는 `draft` 또는 `completed`로 적습니다.
 4. 커밋 전 `python3 scripts/validate_study.py`로 형식을 확인합니다.
@@ -18,7 +18,7 @@ mkdir -p "members/${GH_ID}/notes"
 cp templates/note-template.md "members/${GH_ID}/notes/01-topic.md"
 ```
 
-한 주제의 노트 하나를 기준으로 작성하고, 필요하면 `notes/chapter-03/`처럼 하위 폴더로 나눕니다. 주차나 챕터별 공통 진도는 아직 강제하지 않습니다.
+매주 안내된 범위를 읽고 자료 하나를 작성합니다. 질문·추가로 찾아본 내용·이해하기 어려웠던 점을 중심으로 남기고, 필요하면 `notes/1주차/`처럼 하위 폴더로 나눕니다. HTML 메타데이터 형식은 CONTRIBUTING을 참고하세요.
 
 ## 디렉터리 구조
 
@@ -42,20 +42,23 @@ ddia-study/
 
 ## 대시보드 로컬 미리보기
 
-Python 표준 라이브러리만 사용합니다.
+빌더는 Python 표준 라이브러리만 사용합니다. 단위 테스트에는 Node.js 22+, 브라우저 회귀 검사에는 고정 버전 Playwright를 사용합니다.
 
 ```bash
 python3 -m unittest discover -s scripts -p 'test_*.py' -v
 python3 scripts/validate_study.py
 python3 scripts/build_dashboard.py
 python3 scripts/verify_dashboard.py
-node --test dashboard/graph.test.js
+npm ci --include=dev
+npm test
+npx playwright install chromium
+npm run test:browser
 python3 -m http.server 4178
 ```
 
-브라우저에서 <http://127.0.0.1:4178/dashboard/> 를 엽니다. 빌더는 `members/<id>/notes/`의 Markdown을 읽습니다. 별도 데모 옵션은 없습니다. 생성 데이터 `dashboard/data.json`은 Git에 올리지 않으며 CI에서 다시 빌드합니다.
+브라우저에서 <http://127.0.0.1:4178/dashboard/> 를 엽니다. 빌더는 `members/<id>/notes/`의 Markdown/HTML/HTM을 읽고 필요한 공개 자산을 `dashboard/content/`에 복사합니다. 별도 데모 옵션은 없습니다. 생성 데이터 `dashboard/data.json`은 Git에 올리지 않으며 CI에서 다시 빌드합니다.
 
-`main`에 반영되면 [`.github/workflows/deploy-dashboard.yml`](.github/workflows/deploy-dashboard.yml)이 노트를 검사하고 GitHub Pages 대시보드를 빌드·배포합니다. PR에서는 테스트와 노트 검증만 실행하고 배포하지 않습니다.
+`main`에 반영되면 [`.github/workflows/deploy-dashboard.yml`](.github/workflows/deploy-dashboard.yml)이 노트를 검사하고 GitHub Pages 대시보드를 빌드·배포합니다. PR에서도 단위·브라우저 테스트, 노트 검증, 빌드와 산출물 검사를 실행하되 배포하지 않습니다. CI는 `npm ci`와 잠금 파일로 브라우저 테스트 의존성을 설치합니다.
 
 ## 공개 저장소 안전 수칙
 

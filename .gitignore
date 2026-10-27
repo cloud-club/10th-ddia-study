@@ -17,3 +17,4 @@ exports/
 
 dashboard/data.json
 dashboard/content/
+node_modules/

@@ -7,7 +7,14 @@
    const picked = new Set(), nodes=[];
    source.nodes.forEach(n=>{
     if(n.type!=='note') return;
-    const note=notes.find(x=>n.id===`note:${x.id}`||n.id===x.id||(n.url&&n.url===x.url)||n.label===x.title);
+    // Identity is authoritative: a shared title must never resurrect a filtered sibling.
+    let note=notes.find(x=>n.id===`note:${x.id}`||n.id===x.id);
+    const stableID=typeof n.id==='string'&&(n.id.startsWith('note:')||n.id.includes('/'));
+    if(!note&&!stableID) note=notes.find(x=>n.url&&n.url===x.url);
+    if(!note&&!stableID&&!(n.url&&notes.some(x=>x.url))) {
+     const candidates=notes.filter(x=>n.label===x.title&&(!n.member||n.member===x.member));
+     if(candidates.length===1) note=candidates[0];
+    }
     if(note){nodes.push({...n,member:note.member,tags:note.tags||[],url:note.url||n.url});picked.add(n.id);}
    });
    const ids=new Set(picked), links=source.edges.filter(l=>{

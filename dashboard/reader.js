@@ -75,6 +75,7 @@
   const boundary=new URL('./content/members/',page);
   const url=new URL('./content/'+segments.map(encodeURIComponent).join('/'),page);
   if (!/^https?:$/.test(url.protocol) || url.origin !== new URL(page).origin || !url.pathname.startsWith(boundary.pathname)) throw new Error('HTML 원본 경로 오류');
+  url.hash=new URL(page).hash;
   return url.href;
  }
  async function init() {
@@ -102,6 +103,11 @@
     frame.title=`${note.title} · 원본 HTML`;frame.src=url;body.replaceChildren(frame);
     $('#html-notice').hidden=false;$('#html-toolbar').hidden=false;
     $('#html-open').href=url;
+    root.addEventListener('hashchange',()=>{
+     const target=originalHTMLURL(note);
+     // Fragment-only navigation keeps the original document and executable state alive.
+     frame.src=target;$('#html-open').href=target;
+    });
    } else body.replaceChildren(markdown(note,data.notes));
    status.hidden=true;$('#note-article').hidden=false;
    if(root.location.hash){let id;try{id=decodeURIComponent(root.location.hash.slice(1));}catch{id='';}root.document.getElementById(id)?.scrollIntoView();}

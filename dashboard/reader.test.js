@@ -37,6 +37,15 @@ test('original HTML URL encodes filenames within same-origin content/members',()
  assert.equal(R.originalHTMLURL({path:'members/alice/notes/100%.html'},page),'https://example.org/study/content/members/alice/notes/100%25.html');
  for(const path of [undefined,'','/members/a.html','https://evil.test/members/a.html','//evil.test/a.html','members/../a.html','members/a/../../a.html','members/a/./b.html','members/a\\b.html','members//a.html','members/a/%2e%2e/x.html','members/a/%252e%252e/x.html','members/a/%2f/x.html','members/a/\u0000.html','members-evil/a.html']) assert.throws(()=>R.originalHTMLURL({path},page),/경로/,String(path));
 });
+test('original HTML URL forwards the reader fragment without treating it as a filename',()=>{
+ const html={path:'members/alice/notes/chapter.html'};
+ assert.equal(R.originalHTMLURL(html,page+'#part'),'https://example.org/study/content/members/alice/notes/chapter.html#part');
+ assert.equal(R.originalHTMLURL(html,page+'#%ED%95%9C%EA%B8%80'),'https://example.org/study/content/members/alice/notes/chapter.html#%ED%95%9C%EA%B8%80');
+});
+test('Markdown links to indexed HTML preserve the section fragment',()=>{
+ const html={id:'html',source_url:'https://github.com/org/repo/blob/main/members/alice/notes/chapter/original.html',asset_base:note.asset_base};
+ assert.equal(R.resolveURL('original.html#part',note,[html],page),'https://example.org/study/reader.html?note=html#part');
+});
 test('HTML is not sanitized or wrapped in standalone reader chrome',()=>{
  const js=fs.readFileSync(`${__dirname}/reader.js`,'utf8');
  const css=fs.readFileSync(`${__dirname}/reader.css`,'utf8');
@@ -44,7 +53,8 @@ test('HTML is not sanitized or wrapped in standalone reader chrome',()=>{
  assert.doesNotMatch(js,/htmlDocument|\.srcdoc\s*=|Content-Security-Policy|html-standalone/);
  assert.doesNotMatch(css,/html-standalone/);
  assert.match(html,/원본 HTML/);assert.match(html,/스크립트/);assert.match(html,/저장소/);assert.doesNotMatch(html,/차단됩니다|읽기 전용/);
- for(const asset of ['reader.css','reader.js']) assert.ok(html.includes(`${asset}?v=reader-3`));
+ assert.ok(html.includes('reader.css?v=reader-3'));
+ assert.ok(html.includes('reader.js?v=reader-4'));
 });
 test('reader shell loads pinned local dependencies for Markdown',()=>{
  const html=fs.readFileSync(`${__dirname}/reader.html`,'utf8');
