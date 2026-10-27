@@ -73,9 +73,9 @@ python3 -m http.server 8000 --directory dashboard
 
 빌드는 `dashboard/data.json`과 `dashboard/content/members/<id>/notes/`를 생성하며 상대 디렉터리 구조를 보존합니다. `dashboard/content/`는 매 빌드마다 교체되므로 직접 수정하지 않습니다. Pages에는 생성된 `dashboard/` 전체가 필요합니다.
 
-HTML/HTM 원문은 JSON 본문에 포함하고, 생성된 HTML 파일 주소는 스크립트 없는 내부 읽기 화면으로 연결합니다. 따라서 HTML의 스타일·이미지는 표시하지만 JavaScript 동작·폼·문서 내 외부 이동은 제한됩니다. 문서의 링크는 프레임 아래 링크 목록에서 열 수 있습니다.
+HTML/HTM은 메타데이터 주석만 제거한 원본을 배포합니다. 내부 읽기 화면은 해당 파일을 iframe으로 열며, **새 탭으로 열기**도 같은 원본 주소를 사용합니다. HTML의 스크립트·SVG·폼·로컬 저장소를 차단하지 않습니다. HTML은 대시보드와 같은 출처에서 실행되므로 신뢰할 수 있는 파일만 게시하고, PR에서 스크립트와 외부 통신도 검토합니다. Markdown의 안전한 렌더링은 별도로 유지됩니다.
 
-공개 복사는 `.md`, `.html`, `.htm`, 이미지(`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg`, `.avif`, `.ico`, `.bmp`), CSS와 폰트(`.woff`, `.woff2`, `.ttf`, `.otf`, `.eot`)만 허용합니다. JavaScript, 설정, 데이터베이스 등은 복사하지 않으므로 HTML은 외부 스크립트 또는 자체 포함된 코드 없이도 읽을 수 있게 작성합니다. `.`/`_`로 시작하는 경로와 `private`, `raw`, `data`, `exports`, `secrets`, `credentials`, `node_modules` 디렉터리 및 secret/credential/password/token 이름은 제외합니다. 심볼릭 링크는 파일·디렉터리 모두 거부합니다. 확장자 필터는 민감정보 검토를 대체하지 않습니다.
+공개 복사는 `.md`, `.html`, `.htm`, 이미지(`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg`, `.avif`, `.ico`, `.bmp`), CSS와 폰트(`.woff`, `.woff2`, `.ttf`, `.otf`, `.eot`)만 허용합니다. JavaScript(`.js`, `.mjs`)도 함께 복사합니다. 설정·데이터베이스 등은 복사하지 않습니다. `.`/`_`로 시작하는 경로와 `private`, `raw`, `data`, `exports`, `secrets`, `credentials`, `node_modules` 디렉터리 및 secret/credential/password/token 이름은 제외합니다. 심볼릭 링크는 파일·디렉터리 모두 거부합니다. 확장자 필터는 민감정보 검토를 대체하지 않습니다.
 
 ## PR 제출
 

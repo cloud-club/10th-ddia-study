@@ -1,0 +1,1815 @@
+<!--
+---
+type: note
+author: kungbi
+created: 2026-10-27
+status: completed
+title: 1주차 · DDIA — 데이터의 원리를 그림으로 읽기
+summary: DDIA의 12개 장을 그림·예시·체험·퀴즈로 둘러보는 첫 주 학습 자료입니다.
+tags: [week-01, ddia, distributed-systems]
+---
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#b51f2d">
+<meta name="description" content="데이터 중심 애플리케이션 설계, 정독 전 가볍게 감 잡는 12장 미리보기. 짧은 예시와 그림으로 핵심 원리를 살펴보세요.">
+<title>DDIA — 데이터의 원리를 그림으로 읽기</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23b51f2d'/%3E%3Ctext x='10' y='44' font-size='34' fill='%23f5f3ec' font-family='Georgia'%3Ed.%3C/text%3E%3C/svg%3E">
+<style>
+:root{--paper:#faf9f6;--white:#fffefa;--ink:#242120;--muted:#665e59;--line:#d3cec7;--red:#b51f2d;--accent:var(--red);--soft:#f3ece7;--orange:var(--red);--peach:#f6e5e3;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;--serif:"Noto Serif KR",AppleMyungjo,"Nanum Myeongjo",Georgia,serif;--radius:1px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;word-break:keep-all}button,a,input,summary{-webkit-tap-highlight-color:transparent}button,input{font:inherit}button,a{touch-action:manipulation}button{cursor:pointer}a{color:inherit}button:disabled{cursor:default;opacity:.45}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--orange);outline-offset:5px}a{text-decoration:none}button{color:inherit}h1,h2,h3,p{margin:0}button{min-height:44px}small{font-size:13px}::selection{background:#d9e3bc}a.skip{position:fixed;left:16px;top:-100px;z-index:10;padding:10px 20px;background:var(--accent);color:white}a.skip:focus{top:10px}.shell{max-width:1440px;margin:auto;display:grid;grid-template-columns:234px 1fr;min-height:100vh}.sidebar{position:sticky;top:0;height:100dvh;border-right:1px solid var(--line);padding:38px 27px;display:flex;flex-direction:column;gap:38px}.brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:14px;font-weight:700}.brandmark{background:var(--accent);color:var(--paper);font-family:Georgia,serif;font-size:25px;line-height:40px;width:40px;text-align:center;border-radius:3px}.edition{font-family:var(--mono);font-size:10px;letter-spacing:1.7px;color:var(--muted);margin-top:10px}.sidebar nav{display:grid;gap:7px}.navlink{display:flex;align-items:center;gap:13px;padding:11px 12px;min-height:44px;font-size:14px;border-radius:4px}.navlink span{font:11px var(--mono);color:var(--muted)}.navlink:hover,.navlink.active{background:var(--soft);color:var(--accent)}.side-note{font-size:13px;line-height:1.9;color:var(--muted);padding-top:22px;border-top:1px solid var(--line)}.side-bottom{margin-top:auto}.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);gap:6px}.progress-track{height:4px;background:var(--line);margin:12px 0}.progress-fill{height:100%;width:0;background:var(--accent);transition:width .2s}.reset{padding:5px 0;border:0;background:none;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:4px}.main{min-width:0;padding:0 60px}.topline{height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:10px;font-size:12px;color:var(--muted)}.topline .bookname{font-weight:600}.pill{border:1px solid var(--line);border-radius:50px;padding:5px 11px;font-size:11px;white-space:nowrap}.hero{padding:65px 0 50px}.eyebrow{font:11px var(--mono);letter-spacing:2px;color:var(--orange);margin-bottom:20px}.hero h1{font-size:clamp(36px,4.2vw,60px);line-height:1.2;letter-spacing:-2.8px;font-weight:750}.hero h1 em{font-style:normal;color:var(--accent);position:relative}.hero-description{color:var(--muted);max-width:540px;font-size:16px;margin:25px 0}.hero-bottom{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.button{border:1px solid var(--accent);border-radius:4px;background:var(--accent);color:var(--white);padding:10px 20px;min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:22px;font-size:14px;font-weight:600}.button:hover{background:#203e37}.button.secondary{color:var(--accent);background:transparent}.button.secondary:hover{background:var(--soft)}.caption{font-size:12px;color:var(--muted)}.big-idea{display:flex;gap:20px;padding:25px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);align-items:flex-start;margin-bottom:65px}.big-idea .label{font:11px var(--mono);color:var(--orange);white-space:nowrap;padding-top:6px}.big-idea p{font-size:18px;line-height:1.65;font-weight:500;letter-spacing:-.4px}.big-idea p span{color:var(--accent);font-weight:700}section{scroll-margin-top:35px;margin-bottom:80px}.section-heading{display:flex;gap:20px;align-items:baseline;margin-bottom:10px}.section-index{font:12px var(--mono);color:var(--orange)}h2{font-size:27px;line-height:1.4;letter-spacing:-1px}.section-lead{color:var(--muted);font-size:14px;margin-bottom:28px}.map{border-top:1px solid var(--ink)}.map-row{display:grid;grid-template-columns:94px 1fr 130px;align-items:center;gap:20px;padding:25px 4px;border-bottom:1px solid var(--line)}.part-tag{font:11px var(--mono);color:var(--accent);letter-spacing:1px}.part-tag strong{font-family:Georgia,serif;display:block;font-size:36px;font-weight:400;line-height:1.3}.map-row h3{font-size:19px;letter-spacing:-.4px}.map-row p{font-size:13px;color:var(--muted);margin-top:4px}.map-row a{font-size:12px;min-height:44px;display:flex;align-items:center;justify-content:flex-end;gap:14px;color:var(--accent)}.map-row a:hover{text-decoration:underline}.map-foot{font-size:12px;color:var(--muted);padding-top:15px}.chapter-layout{display:grid;grid-template-columns:235px minmax(0,1fr);border:1px solid var(--line);background:var(--white);border-radius:var(--radius);overflow:hidden}.chapter-menu{padding:22px 14px;background:#eeeFE7;border-right:1px solid var(--line)}.menu-group{font:10px var(--mono);letter-spacing:1px;color:var(--muted);padding:14px 11px 8px}.menu-group:first-child{padding-top:0}.chapter-select{display:flex;align-items:center;gap:10px;text-align:left;width:100%;background:transparent;border:0;border-radius:3px;padding:9px 10px;line-height:1.4;min-height:44px;font-size:12px}.chapter-select .num{font:11px var(--mono);width:19px;color:var(--muted);flex-shrink:0}.chapter-select .seen-dot{margin-left:auto;font-size:11px;color:var(--accent)}.chapter-select:hover{background:#e2e6dc}.chapter-select[aria-current="true"]{background:var(--accent);color:var(--white)}.chapter-select[aria-current="true"] .num,.chapter-select[aria-current="true"] .seen-dot{color:#ebeedc}.chapter-body{padding:32px;min-width:0;display:flex;flex-direction:column}.chapter-kicker{font:10px var(--mono);letter-spacing:1.2px;color:var(--orange);margin-bottom:13px}.chapter-title{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:16px}.chapter-question{font-size:27px;line-height:1.5;letter-spacing:-1px;margin-bottom:18px}.chapter-summary{font-size:14px;line-height:1.9;margin-bottom:22px}.example{background:var(--soft);padding:21px 23px;margin-bottom:22px;border-radius:3px}.example-label{font:10px var(--mono);letter-spacing:1px;color:var(--accent);margin-bottom:9px}.example p{font-size:13px;line-height:1.9}.tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 22px}.tag{font-size:11px;border:1px solid var(--line);padding:2px 8px;border-radius:3px;color:var(--muted)}.takeaway{border-top:1px solid var(--line);padding-top:18px;font-size:14px;font-weight:600}.takeaway small{display:block;color:var(--orange);font-size:10px;letter-spacing:1px;margin-bottom:7px;font-weight:500}.deeper{margin-top:18px;font-size:12px;color:var(--muted)}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:8px}summary::before{content:'+';font:16px var(--mono);width:14px}details[open]>summary::before{content:'−'}summary::-webkit-details-marker{display:none}summary{list-style:none}.deeper p{margin:5px 0 12px;font-size:13px;line-height:1.85}.source-line{font-size:11px;color:var(--muted);margin-top:12px}.chapter-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:24px}.page-arrows{display:flex;gap:5px}.arrow-button{background:none;border:1px solid var(--line);border-radius:3px;width:44px;height:44px;font-size:19px}.arrow-button:hover:not(:disabled){background:var(--soft)}.seen-button{font-size:12px;padding:9px 12px;gap:8px}.chapter-caption{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);margin-top:10px}.lab{background:var(--accent);color:var(--paper);border-radius:var(--radius);overflow:hidden}.lab-tabs{display:flex;padding:0 24px;border-bottom:1px solid #ffffff26;gap:24px}.lab-tab{border:0;border-bottom:2px solid transparent;border-radius:0;padding:16px 0;background:none;color:#c5d3c9;font-size:12px;min-height:55px}.lab-tab[aria-selected="true"]{border-bottom-color:#e9d4a6;color:var(--paper)}.lab-content{padding:30px}.lab-content h3{font-size:21px;margin-bottom:8px;letter-spacing:-.4px}.lab-description{font-size:13px;color:#d0dcd1;line-height:1.8;max-width:620px}.segmented{display:flex;gap:7px;flex-wrap:wrap;margin:23px 0}.lab button.control{border:1px solid #ffffff55;border-radius:3px;background:transparent;color:var(--paper);padding:8px 14px;font-size:12px;min-height:44px}.lab button.control[aria-pressed="true"],.lab button.control.primary{background:#e4e9d9;color:#24453c;border-color:#e4e9d9}.lab button.control:hover{border-color:#fff}.nodes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.node{border:1px solid #ffffff3f;border-radius:4px;min-height:115px;padding:16px}.node-name{font:10px var(--mono);color:#bdcdbf;letter-spacing:1px;margin-bottom:14px}.data-pieces{display:flex;flex-wrap:wrap;gap:5px}.data-piece{display:grid;place-items:center;width:30px;height:30px;color:#2c4b42;background:#e7ebd9;border-radius:2px;font:12px var(--mono)}.lab-insight{font-size:13px;border-top:1px solid #ffffff3b;padding-top:18px;line-height:1.8}.lab-note{font-size:10px;color:#c3d3c5;margin-top:15px}.replica-nodes{display:grid;grid-template-columns:1fr auto 1fr;gap:15px;align-items:center;margin:25px 0}.replica-node{border:1px solid #ffffff55;min-width:0;padding:16px;border-radius:3px}.replica-value{font-size:18px}.arrow-label{font-size:11px;color:#c3d3c5;text-align:center}.controls-row{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.batch-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:24px 0}.counter{border:1px solid #ffffff55;padding:17px;border-radius:3px}.counter strong{display:block;font:32px Georgia,serif;margin:8px 0}.counter small{color:#d0dcd1;font-size:11px}.event-log{font:11px var(--mono);color:#cbd8cc;min-height:24px;word-break:break-word}.quiz-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.quiz-score{font:12px var(--mono);color:var(--accent);padding-top:10px;white-space:nowrap}.quiz-item{border-top:1px solid var(--line);padding:23px 0}.quiz-question{font-size:15px;margin-bottom:14px;font-weight:600}.quiz-options{display:flex;gap:9px;flex-wrap:wrap}.quiz-option{font-size:12px;border:1px solid var(--line);background:var(--white);border-radius:4px;padding:10px 15px;min-height:44px;text-align:left}.quiz-option:hover{border-color:var(--accent)}.quiz-option[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--accent)}.quiz-feedback{font-size:12px;color:var(--accent);margin-top:13px;line-height:1.8}.quiz-feedback:empty{display:none}.closing{background:#e8e9dd;border-radius:var(--radius);padding:32px;margin-top:35px}.closing h3{font-size:20px;margin-bottom:10px}.closing p{font-size:14px;color:var(--muted)}.discussion{margin-top:20px;padding-top:18px;border-top:1px solid #c9cebf;font-size:15px;line-height:1.8}.discussion small{display:block;color:var(--accent);font:10px var(--mono);letter-spacing:1px;margin-bottom:9px}.sources{font-size:12px;border-top:1px solid var(--line);padding:18px 0;margin-bottom:30px;color:var(--muted)}.sources p{margin:8px 0;max-width:700px}.sources-list{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin:18px 0}.sources-list div{padding:8px 0;border-bottom:1px solid var(--line);font-size:11px}.sources-list strong{display:block;color:var(--ink);font-weight:500}.footer{border-top:1px solid var(--line);padding:22px 0 35px;font:10px var(--mono);letter-spacing:.6px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}.noscript{padding:20px;background:var(--peach)}
+@media(min-width:1450px){.main{padding:0 80px}}
+@media(max-width:1150px){.shell{grid-template-columns:190px 1fr}.sidebar{padding:30px 18px}.main{padding:0 34px}.chapter-layout{grid-template-columns:190px minmax(0,1fr)}.chapter-body{padding:26px}.chapter-question{font-size:24px}.chapter-select{font-size:11px}}
+@media(max-width:850px){html{scroll-padding-top:90px}.shell{display:block}.sidebar{position:sticky;top:0;z-index:5;height:auto;padding:10px 24px;background:var(--paper);border-right:0;border-bottom:1px solid var(--line);flex-direction:row;justify-content:space-between;align-items:center;gap:12px}.sidebar .edition,.side-note,.side-bottom{display:none}.brandmark{width:31px;line-height:31px;font-size:22px}.brand{font-size:12px}.sidebar nav{display:flex;gap:0}.navlink{font-size:12px;padding:8px 10px;white-space:nowrap}.navlink span{display:none}.main{padding:0 30px;max-width:850px;margin:auto}.topline{height:68px}.hero{padding-top:46px}.hero h1{font-size:48px}.chapter-layout{grid-template-columns:205px minmax(0,1fr)}section{scroll-margin-top:95px}}
+@media(max-width:600px){body{font-size:15px}.sidebar{padding:8px 16px;gap:8px}.brand .brand-word{display:none}.navlink{font-size:11px;padding:8px 8px}.main{padding:0 22px}.topline{font-size:10px;height:61px}.pill{font-size:9px;padding:3px 8px}.hero{padding:42px 0 33px}.hero h1{font-size:39px;letter-spacing:-2px;line-height:1.28}.hero-description{font-size:14px;margin:20px 0 23px}.hero-bottom{gap:12px}.hero-bottom .caption{font-size:11px}.button{font-size:13px;padding:10px 16px}.eyebrow{font-size:10px;letter-spacing:1.5px;margin-bottom:17px}.big-idea{display:block;margin-bottom:46px;padding:22px 0}.big-idea .label{margin-bottom:8px}.big-idea p{font-size:16px}.section-heading{gap:12px}h2{font-size:23px}.section-lead{font-size:13px;margin-bottom:22px}section{margin-bottom:55px}.map-row{grid-template-columns:53px 1fr;gap:15px;padding:19px 0}.part-tag{font-size:9px}.part-tag strong{font-size:29px}.map-row h3{font-size:17px}.map-row p{font-size:12px}.map-row a{grid-column:2;justify-content:flex-start;min-height:44px;margin-top:-12px;font-size:11px}.map-foot{font-size:11px}.chapter-layout{display:block}.chapter-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:15px;border-right:0;border-bottom:1px solid var(--line)}.menu-group{display:none}.chapter-select{padding:8px 5px;display:flex;justify-content:center;gap:3px;font-size:10px;min-height:46px}.chapter-select .num{font-size:11px;width:auto}.chapter-select .menu-title{display:none}.chapter-select .seen-dot{margin-left:2px}.chapter-body{padding:24px 21px}.chapter-question{font-size:25px}.chapter-summary{font-size:13px}.example{padding:18px}.example p{font-size:12px}.chapter-title{font-size:11px}.chapter-caption{font-size:10px;flex-wrap:wrap}.chapter-controls{padding-top:23px}.seen-button{font-size:11px;padding:8px 10px}.lab-tabs{padding:0 18px;gap:16px;justify-content:space-between}.lab-tab{font-size:10px;padding:13px 0}.lab-content{padding:24px 20px}.lab-content h3{font-size:19px}.lab-description{font-size:12px}.nodes{gap:7px}.node{padding:12px 9px}.node-name{font-size:9px}.data-piece{width:23px;height:25px;font-size:10px}.lab-insight{font-size:12px}.lab button.control{font-size:11px;padding:8px 11px}.replica-nodes{grid-template-columns:1fr;gap:10px}.arrow-label{padding:0}.replica-value{font-size:18px}.batch-grid{gap:10px}.counter{padding:14px}.counter .node-name{font-size:10px}.quiz-intro{gap:8px}.quiz-score{font-size:10px}.quiz-question{font-size:14px}.quiz-options{display:grid}.quiz-option{font-size:12px}.closing{padding:24px}.closing h3{font-size:18px}.closing p,.discussion{font-size:13px}.sources-list{grid-template-columns:1fr}.footer{font-size:9px;flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
+@media print{.sidebar,.chapter-controls,.lab,.quiz-options,.reset{display:none}.shell{display:block}.main{padding:0}.chapter-layout{display:block}.chapter-menu{display:none}.hero{padding:20px 0}section{break-inside:avoid}body{background:white;color:black}}
+/* Red ink edition: quiet paper, engraved diagrams, editorial type. */
+::selection{background:#f1c9c9;color:var(--ink)}
+.sidebar{border-top:7px solid var(--red);background:var(--paper)}
+.brand{font-weight:500;font-size:12px;letter-spacing:.3px}.brandmark{border-radius:0;font-style:italic;flex-shrink:0}.edition{font-size:9px;letter-spacing:1.1px}
+.navlink{border-radius:0}.navlink.active{color:var(--red);background:transparent;font-weight:700;text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:1px;text-underline-offset:7px}.navlink:hover{background:var(--soft)}
+.side-note{font-family:var(--serif);font-size:13px;line-height:2}.progress-track{height:3px}
+.topline{height:77px;border-bottom:1px solid var(--ink);color:var(--ink)}.topline .bookname{letter-spacing:.4px}.pill{border-radius:0;border:0;border-bottom:2px solid var(--red);padding:5px 0;color:var(--red)}
+.hero{display:grid;grid-template-columns:1.22fr 1fr;align-items:center;gap:0;padding:38px 0 38px}
+.hero-copy{background:var(--red);color:var(--white);padding:35px 32px 30px;position:relative;z-index:1}
+.hero-copy::before{content:'';position:absolute;left:0;top:-6px;right:0;height:2px;background:var(--red)}
+.eyebrow{font-size:10px;letter-spacing:1.4px;color:var(--white);border-bottom:1px solid #ffffff65;padding-bottom:17px;margin-bottom:25px}
+.hero h1{font-family:var(--serif);font-size:clamp(33px,3.9vw,56px);font-weight:700;line-height:1.35;letter-spacing:-2.6px;white-space:nowrap}.hero h1 em{color:var(--white)}
+.hero-description{color:var(--white);font-size:14px;line-height:1.9;margin:24px 0;max-width:380px}.hero-description br{display:none}
+.hero-bottom{gap:12px}.hero-bottom .caption{color:var(--white);font-size:11px;width:100%;opacity:.9}
+.button{border-radius:0;border-color:var(--red);box-shadow:2px 2px 0 var(--ink);background:var(--red)}.button:hover{background:#8d1420}.button.secondary{box-shadow:none}.button.secondary:hover{background:var(--soft)}
+.hero .button{color:var(--red);background:var(--white);border-color:var(--white);box-shadow:3px 3px 0 #741019}.hero .button:hover{background:#f3e9e4}
+.field-illustration{min-width:0;margin:0;padding:0 0 0 16px;align-self:center}.ink-landscape{display:block;width:100%;height:auto;max-height:420px}.field-illustration figcaption{display:flex;flex-direction:column;gap:3px;text-align:center;color:var(--muted);font-size:11px;margin-top:7px}.field-illustration figcaption span:first-child{font:9px var(--mono);letter-spacing:1.1px}
+.big-idea{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:24px 0;margin-bottom:60px}.big-idea p{font-family:var(--serif);font-size:18px;font-weight:500;line-height:1.85}.big-idea p span{color:var(--ink);text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:1.5px;text-underline-offset:6px;font-weight:700}
+h2{font-family:var(--serif);font-size:28px;font-weight:700;letter-spacing:-1px}.section-index{font-family:Georgia,serif;font-style:italic;font-size:15px}.section-lead{margin-top:7px}.map{border-top:2px solid var(--ink)}
+.part-tag{color:var(--muted);font-size:10px}.part-tag strong{color:var(--red);font-size:31px;width:53px;line-height:53px;border:1px solid var(--ink);border-radius:47% 53% 52% 48%;text-align:center;margin-top:6px}.map-row h3{font-family:var(--serif);font-size:20px}.map-row a{color:var(--red)}
+.chapter-layout{border:1px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 #e4e0d9}.chapter-menu{background:#f0eeea;border-right:1px solid var(--line)}.chapter-select{border-radius:0}.chapter-select:hover{background:#e8e3dd}.chapter-select[aria-current="true"]{background:var(--red)}.chapter-select[aria-current="true"] .num,.chapter-select[aria-current="true"] .seen-dot{color:var(--white)}
+.chapter-kicker{border-bottom:1px solid var(--line);padding-bottom:14px}.chapter-question{font-family:var(--serif);font-weight:700;font-size:28px;line-height:1.6}.chapter-title{font-size:12px}.chapter-summary{font-size:14px}
+.example{position:relative;background:transparent;border:1px solid var(--ink);border-radius:2px 5px 3px 7px;padding:21px 23px;box-shadow:3px 3px 0 #ebe7e1}.example-label{font-size:10px;color:var(--ink);letter-spacing:1.5px}.example-label::before{content:'↳ ';color:var(--red);font-size:15px}.example p{font-size:14px}.tag{border-radius:0;border:0;border-bottom:1px solid var(--line);padding:3px 5px;color:var(--muted)}.takeaway{font-family:var(--serif);font-size:15px;line-height:1.9}.takeaway small{font-family:var(--sans);font-size:11px}.arrow-button{border-color:var(--ink);border-radius:0}
+.lab{position:relative;background:var(--white);color:var(--ink);border:1px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 #e4e0d9}.lab-tabs{border-bottom:1px solid var(--ink);background:#f0eeea}.lab-tab{color:var(--muted);border-bottom-width:3px}.lab-tab[aria-selected="true"]{color:var(--red);border-bottom-color:var(--red);font-weight:700}.lab-content h3{font-family:var(--serif);font-size:23px}.lab-description{color:var(--muted);font-size:14px}.lab button.control{border:1px solid var(--ink);color:var(--ink);background:var(--white);border-radius:1px}.lab button.control[aria-pressed="true"],.lab button.control.primary{background:var(--red);color:var(--white);border-color:var(--red)}.lab button.control:hover:not(:disabled){border-color:var(--red);box-shadow:2px 2px 0 var(--ink)}
+.node,.replica-node,.counter{position:relative;border:1.5px solid var(--ink);border-radius:3px 6px 4px 5px;background:var(--white);box-shadow:3px 3px 0 #ddd7d0;padding-bottom:25px}.node::after,.replica-node::after,.counter::after{content:'';position:absolute;left:0;right:0;bottom:0;height:7px;border-top:1px solid var(--ink);background:repeating-linear-gradient(125deg,transparent 0 3px,#242120 3px 3.65px,transparent 3.65px 6px);opacity:.7}.node-name{color:var(--ink);font-size:11px}.data-piece{color:var(--ink);background:var(--white);border:1px solid var(--ink);border-radius:0;font-family:Georgia,serif;font-style:italic;box-shadow:1px 1px 0 var(--ink)}.lab-insight{border-top:1px dashed var(--ink);font-size:14px}.lab-note{color:var(--muted);font-size:11px}.arrow-label{color:var(--red)}.replica-value{font-family:var(--serif);font-size:22px}.counter small{color:var(--muted)}.counter strong{color:var(--red)}.event-log{color:var(--muted)}
+.quiz-option{border-color:var(--ink);border-radius:0}.quiz-option[aria-pressed="true"]{background:var(--red);color:var(--white);border-color:var(--red)}.quiz-feedback{color:var(--ink)}.closing{border-radius:0;border:1px solid var(--ink);background:var(--white);box-shadow:4px 4px 0 #e4e0d9}.closing h3{font-family:var(--serif);color:var(--red)}.discussion{border-color:var(--ink);font-family:var(--serif)}.footer{border-top:3px double var(--ink)}
+@media(max-width:1150px) and (min-width:851px){.hero-copy{padding:28px 23px}.hero h1{font-size:35px;letter-spacing:-2px}.hero-description{font-size:13px}.field-illustration{padding-left:8px}.hero .button{padding:9px 15px;font-size:12px}.chapter-question{font-size:24px}}
+@media(max-width:850px){.sidebar{border-top:5px solid var(--red);border-bottom:1px solid var(--ink)}.hero{grid-template-columns:1.18fr 1fr;padding:32px 0}.hero-copy{padding:28px 24px}.hero h1{font-size:38px}.hero-description{font-size:13px}.hero .eyebrow{font-size:9px;letter-spacing:.8px}.hero .button{font-size:12px}.field-illustration{padding-left:8px}.topline{height:66px}}
+@media(max-width:600px){.hero{grid-template-columns:1fr;padding:30px 0 23px;gap:16px}.hero-copy{padding:27px 24px}.hero h1{font-size:38px;letter-spacing:-2px;line-height:1.4}.hero-description{font-size:14px;margin:20px 0}.hero .eyebrow{font-size:9px;letter-spacing:1px;margin-bottom:19px;padding-bottom:12px}.hero .button{font-size:13px}.hero-bottom .caption{font-size:10px}.field-illustration{width:100%;max-width:280px;justify-self:center;padding:0}.ink-landscape{max-height:245px}.field-illustration figcaption{font-size:10px;margin-top:0;gap:2px}.field-illustration figcaption span:first-child{font-size:8px}.big-idea{padding:20px 0;margin-bottom:45px}.big-idea p{font-size:16px;line-height:1.9}h2{font-size:23px}.part-tag strong{width:44px;line-height:44px;font-size:26px}.map-row h3{font-size:17px}.chapter-question{font-size:24px}.chapter-summary,.example p{font-size:14px}.example{padding:18px}.chapter-menu{border-right:0;border-bottom:1px solid var(--line)}.chapter-select{font-size:11px}.takeaway{font-size:14px}.lab-content h3{font-size:21px}.lab-description,.lab-insight{font-size:13px}.lab-note{font-size:11px}.node-name{font-size:9px}.counter .node-name{font-size:10px}.node{padding:12px 9px 24px}.quiz-option{font-size:13px}.closing h3{font-size:19px}.sidebar .navlink{padding:8px 7px}.footer{padding-bottom:max(35px,env(safe-area-inset-bottom))}}
+@media(max-width:360px){.hero-copy{padding:25px 19px}.hero h1{font-size:32px;letter-spacing:-1.7px}.hero .eyebrow{font-size:8px}.main{padding:0 18px}.lab-tabs{gap:9px;padding:0 13px}.lab-tab{font-size:9px}.sidebar{padding-left:12px;padding-right:12px}.sidebar .navlink{padding:8px 6px;font-size:10px}}
+@media print{.hero-copy{background:white;color:black}.hero h1 em,.hero .eyebrow,.hero-description,.hero-bottom .caption{color:black}.hero-copy::before{display:none}.field-illustration{max-width:250px}.hero .button{display:none}}
+/* Reading-depth layer. Core explanations remain expanded. */
+.chapter-layout{overflow:visible;align-items:start}
+.chapter-menu{position:sticky;top:24px;align-self:start}
+.chapter-body{scroll-margin-top:25px}
+.chapter-topnav{display:flex;align-items:center;gap:8px;margin:-3px 0 18px}
+.chapter-topnav>span{font:11px var(--mono);color:var(--muted);margin-right:auto}
+.chapter-topnav button{border:1px solid var(--line);background:var(--white);padding:7px 13px;min-height:44px;font-size:12px}
+.chapter-topnav button:hover:not(:disabled){color:var(--red);border-color:var(--red)}
+.lesson-divider{margin:34px 0 32px;padding:21px 0 16px;border-top:3px double var(--ink);border-bottom:1px solid var(--line)}
+.lesson-divider span{display:block;color:var(--red);font:10px var(--mono);letter-spacing:1.5px;margin-bottom:9px}
+.lesson-divider strong{font-size:16px;font-family:var(--serif);font-weight:600}
+.mechanism-lesson{margin:0 0 36px;padding:0 0 25px;border-bottom:1px solid var(--line);scroll-margin-top:80px;min-width:0}
+.lesson-number{font:11px var(--mono);letter-spacing:.6px;color:var(--red);margin-bottom:12px}
+.mechanism-lesson h4{font-family:var(--serif);font-size:22px;line-height:1.65;letter-spacing:-.6px;margin:0 0 16px}
+.mechanism-lesson>p{font-size:15px;line-height:1.95;text-wrap:pretty;margin:0 0 17px}
+.ink-figure{margin:24px 0;padding:0;background:var(--white);border:1px solid var(--ink);box-shadow:3px 3px 0 #e4e0d9;min-width:0}
+.figure-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 15px;border-bottom:1px solid var(--line)}
+.figure-toolbar>span{font:10px var(--mono);color:var(--red);letter-spacing:1px}
+.figure-zoom{border:0;background:transparent;color:var(--ink);font-size:11px;min-height:44px;padding:7px 0 7px 10px}
+.figure-zoom:hover{text-decoration:underline;text-decoration-color:var(--red);text-underline-offset:5px}
+.figure-frame{padding:13px 10px 4px;overflow-x:auto;overscroll-behavior-x:contain;min-width:0}
+.concept-svg{width:100%;height:auto;display:block;max-height:520px;min-width:0}
+.ink-figure figcaption{border-top:1px solid var(--line);padding:14px 17px;font-size:13px;line-height:1.8;color:var(--muted)}
+.lesson-caution{margin:20px 0 8px;padding:15px 0;border-top:1px dashed var(--line);display:grid;grid-template-columns:80px 1fr;gap:12px}
+.lesson-caution span{color:var(--red);font-size:11px;font-weight:700;padding-top:2px}
+.lesson-caution p{font-size:13px;line-height:1.85;color:var(--muted)}
+.lesson-source{font-size:11px;color:var(--muted);margin-top:8px}
+.lesson-source p{margin:5px 0 10px;font-size:11px}
+.chapter-bridge{padding:23px;background:#f3ece7;border-top:1px solid var(--ink);margin:0 0 22px}
+.chapter-bridge span{display:block;font-size:11px;color:var(--red);margin-bottom:9px}
+.chapter-bridge p{font-family:var(--serif);font-size:15px;line-height:1.9}
+#figure-dialog{width:min(940px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 40px);padding:22px;border:1px solid var(--ink);border-radius:0;background:var(--paper);color:var(--ink);overscroll-behavior:contain;box-shadow:8px 8px 0 #24212044}
+#figure-dialog::backdrop{background:#242120bb}
+.dialog-heading{display:flex;gap:18px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ink);padding-bottom:16px}
+.dialog-heading h2{font-size:23px;line-height:1.5}
+#close-figure{min-width:75px;flex-shrink:0;min-height:44px;font-size:13px;background:var(--red);color:var(--white);border:1px solid var(--red);padding:8px 12px}
+.zoom-help{font-size:12px;color:var(--muted);margin:14px 0 0}
+#figure-dialog-drawing{overflow:auto;max-height:65dvh;padding:12px 0;overscroll-behavior:contain}
+#figure-dialog-drawing svg{min-width:560px;max-height:none;width:100%;height:auto}
+#figure-dialog-caption{font-size:14px;line-height:1.8;border-top:1px solid var(--line);padding-top:15px}
+@media(min-width:1151px){.chapter-layout{grid-template-columns:220px minmax(0,1fr)}.chapter-body{padding:32px 36px}}
+@media(max-width:850px){.chapter-menu{top:82px}.chapter-body{scroll-margin-top:90px}.hero h1{font-size:35px}}
+@media(max-width:600px){.chapter-menu{position:static}.chapter-body{padding:24px 18px;scroll-margin-top:80px}.lesson-divider strong{font-size:15px}.mechanism-lesson h4{font-size:21px}.mechanism-lesson>p{font-size:15px;line-height:1.95}.lesson-caution{grid-template-columns:1fr;gap:5px}.lesson-caution p{font-size:13px}.figure-frame{padding:12px 4px 5px}.figure-frame .concept-svg{min-width:360px}.figure-toolbar{padding:5px 12px}.figure-toolbar>span::after{content:' · 좌우로 밀어보기';letter-spacing:0}.ink-figure figcaption{font-size:13px;padding:13px}.chapter-bridge{padding:19px}.chapter-bridge p{font-size:14px}.dialog-heading h2{font-size:18px}#figure-dialog{padding:16px;width:calc(100vw - 20px);max-width:calc(100vw - 20px)}#figure-dialog-caption{font-size:13px}.hero h1{font-size:36px}}
+@media(max-width:360px){.hero h1{font-size:30px}.chapter-topnav button{padding:7px 10px;font-size:11px}.mechanism-lesson h4{font-size:20px}}
+@media print{.chapter-menu,.figure-zoom,.chapter-topnav{display:none}.chapter-layout{display:block}.figure-frame{overflow:visible}.figure-frame .concept-svg{min-width:0}.ink-figure{break-inside:avoid}.mechanism-lesson{break-inside:auto}#figure-dialog{display:none}.figure-toolbar>span::after{content:''}}
+
+/* Causal context comes before detailed mechanisms and optional terminology. */
+.chapter-context{margin:24px 0 18px;padding:22px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--line)}.context-kicker{font:10px var(--mono);letter-spacing:1px;color:var(--red);margin-bottom:8px}.chapter-context>h4{font:600 22px/1.5 var(--serif);letter-spacing:-.6px;margin:0 0 13px}.context-intro{font-size:14px;line-height:1.95;margin:0 0 20px}.context-steps{list-style:none;padding:0;margin:0}.context-steps li{display:grid;grid-template-columns:29px minmax(0,1fr);gap:11px;margin:0;padding:17px 0;border-top:1px solid var(--line)}.context-step-number{font:italic 15px Georgia,serif;color:var(--red);padding-top:3px}.context-steps h5{font-size:15px;line-height:1.7;margin:0 0 7px}.context-steps p{font-size:14px;line-height:1.95;margin:0;overflow-wrap:anywhere}.context-takeaway{font-size:14px;line-height:1.9;background:var(--soft);padding:16px;margin:12px 0}.context-takeaway strong{display:block;font-size:11px;color:var(--red);margin-bottom:6px}.context-provenance{font-size:11px;line-height:1.85;color:var(--muted);margin:14px 0 4px}.context-sources{font-size:11px;color:var(--muted)}.context-sources p{font-size:12px;line-height:1.8;margin:10px 0}details.chapter-scope>summary{font-size:13px;font-weight:600;color:var(--red)}.scope-hint{font-size:12px;line-height:1.85;color:var(--muted);margin:6px 0 12px}
+@media(max-width:600px){.chapter-context{padding:18px 0;margin-top:20px}.chapter-context>h4{font-size:20px}.context-steps li{grid-template-columns:23px minmax(0,1fr);gap:8px;padding:15px 0}.context-steps h5{font-size:15px}.context-steps p,.context-intro{font-size:14px;line-height:1.95}.context-takeaway{padding:13px}}
+
+/* Extended experimental workbench: black ink diagrams, red actions. */
+.workbench-heading{margin:48px 0 24px;padding-top:28px;border-top:3px double var(--ink)}
+.workbench-heading .section-index{font:10px var(--mono);letter-spacing:1px;margin-bottom:13px}
+.workbench-heading h3{font-family:var(--serif);font-size:24px;line-height:1.65;margin:0 0 12px}
+.workbench-heading>p{font-size:14px;color:var(--muted);line-height:1.9;max-width:700px}
+.workbench-filterbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}
+#lab-level-filters{display:flex;gap:5px;flex-wrap:wrap}
+#lab-level-filters button{background:transparent;border:1px solid var(--line);padding:8px 16px;min-height:44px;font-size:12px}
+#lab-level-filters button[aria-pressed="true"]{background:var(--ink);color:var(--white);border-color:var(--ink)}
+#lab-filter-count{font:11px var(--mono);color:var(--muted);white-space:nowrap}
+.workbench{border:1px solid var(--ink);display:grid;grid-template-columns:200px minmax(0,1fr);background:var(--white);align-items:start;box-shadow:4px 4px 0 #e4e0d9}
+#lab-catalog{display:grid;padding:14px 10px;gap:4px;background:#f0eeea;position:sticky;top:25px}
+.lab-choice{display:flex;flex-direction:column;gap:5px;background:transparent;border:0;border-bottom:1px solid var(--line);padding:13px 11px;text-align:left;font-size:13px;line-height:1.7;min-height:64px}
+.lab-choice-meta{font-size:10px;color:var(--muted)}
+.lab-choice:hover{background:#e8e3dd}.lab-choice[aria-pressed="true"]{background:var(--red);color:var(--white);border-color:var(--red)}.lab-choice[aria-pressed="true"] .lab-choice-meta{color:var(--white)}
+#lab-active{padding:28px;min-width:0;border-left:1px solid var(--line)}
+#lab-selected-meta{font:11px var(--mono);color:var(--red);margin-bottom:12px}
+#lab-selected-title{font-family:var(--serif);font-size:25px;line-height:1.6;margin:0 0 15px;letter-spacing:-.6px}
+#lab-selected-intro{font-size:14px;line-height:1.9;margin:0 0 18px}
+.lab-goal{display:grid;grid-template-columns:65px 1fr;gap:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:22px}
+.lab-goal span{font-size:11px;color:var(--red);padding-top:2px}.lab-goal p{font-size:13px;line-height:1.8}
+.experiment-mount{font-size:13px;line-height:1.9;min-width:0}
+.experiment-mount *{box-sizing:border-box}
+.experiment-mount button,.experiment-mount select{min-height:44px;font:inherit;border:1px solid var(--ink);border-radius:0;background:var(--white);color:var(--ink);padding:8px 12px;max-width:100%;white-space:normal}
+.experiment-mount button:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.experiment-mount button[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--white)}
+.experiment-mount button:disabled{opacity:.45}
+.experiment-mount select{padding-right:22px}
+.experiment-mount label{display:inline-flex;align-items:center;gap:8px;min-height:44px;flex-wrap:wrap}
+.experiment-mount input[type="checkbox"],.experiment-mount input[type="radio"]{width:20px;height:20px;accent-color:var(--red)}
+.experiment-mount p{margin:10px 0}.experiment-mount h5,.experiment-mount h4{font-size:15px;margin:14px 0 8px}
+.experiment-mount svg{max-width:100%;height:auto}.experiment-mount pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 var(--mono);padding:12px;background:#f0eeea;max-width:100%}.experiment-mount code{font-size:12px;overflow-wrap:anywhere}
+.lab-board{background:#f7f5f0;border:1px solid var(--line);padding:17px;margin:18px 0;min-width:0}
+.lab-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.lab-action{min-height:44px}.lab-action.primary{background:var(--red);color:var(--white);border-color:var(--red)}
+.lab-readout{font-size:14px;line-height:1.8;overflow-wrap:anywhere}
+.lab-step-list{font-size:13px;line-height:1.9;padding-left:23px;margin:15px 0;color:var(--muted)}
+.lab-step-list li{padding:3px 0}
+.lab-hint{color:var(--muted);font-size:12px;line-height:1.85}
+.lab-result{border-top:2px solid var(--ink);padding:15px 0 5px;font-size:14px;line-height:1.9;margin-top:20px}
+.lab-warning{font-size:12px;line-height:1.85;color:var(--muted);border-top:1px dashed var(--line);padding-top:13px;margin-top:18px}
+.lab-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:10px;align-items:stretch}
+.lab-tile{min-width:0;border:1px solid var(--ink);border-radius:2px 4px 3px 5px;background:var(--white);padding:13px;box-shadow:2px 2px 0 #ddd7d0;overflow-wrap:anywhere}
+.lab-tile strong{color:var(--red);font-size:17px}.lab-tile small{font-size:11px}.lab-tile[aria-current="true"]{border-color:var(--red)}
+.experiment-boundary{border-top:1px solid var(--line);padding-top:15px;margin-top:20px;font-size:11px;line-height:1.85;color:var(--muted)}
+@media(max-width:1150px){.workbench{grid-template-columns:175px minmax(0,1fr)}#lab-active{padding:22px}.lab-choice{font-size:12px}}
+@media(max-width:850px){#lab-catalog{top:82px}}
+@media(max-width:700px){.workbench{grid-template-columns:1fr}#lab-catalog{position:static;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;border-bottom:1px solid var(--ink);padding:12px}.lab-choice{min-height:80px;padding:10px;font-size:12px}#lab-active{border-left:0;padding:22px 18px}.workbench-heading h3{font-size:22px}#lab-selected-title{font-size:23px}.lab-goal{grid-template-columns:1fr;gap:4px}.workbench-heading>p{font-size:13px}.lab-board{padding:12px}.lab-tiles{grid-template-columns:repeat(auto-fit,minmax(min(115px,100%),1fr))}.experiment-mount button{font-size:12px;padding:8px 10px}.lab-tile{padding:11px}.lab-readout{font-size:13px}}
+@media(max-width:360px){#lab-level-filters button{padding:8px 12px;font-size:11px}.workbench-filterbar{gap:7px}#lab-filter-count{font-size:10px}.lab-choice{font-size:11px}#lab-active{padding:20px 14px}.lab-tile{padding:9px}}
+.chapter-scope{margin:20px 0 6px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.chapter-scope h4{font-size:13px;margin:0 0 10px;font-weight:600;color:var(--red)}
+.chapter-scope ul{padding-left:18px;margin:0}.chapter-scope li{font-size:13px;line-height:1.85;margin:0 0 9px;overflow-wrap:anywhere}.chapter-scope li:last-child{margin-bottom:0}
+.chapter-scope details{font-size:11px;color:var(--muted);margin-top:5px}.chapter-scope details p{font-size:12px;line-height:1.9;margin:6px 0 0}
+@media(max-width:600px){.chapter-scope{padding:15px 0;margin-top:16px}.chapter-scope li{font-size:13px}}
+/* Three parts: purpose, scope, and one shared service example. */
+.map-row{align-items:start}.part-copy{min-width:0}.map-row>a{align-self:start;margin-top:6px}.map-row .part-summary{font-size:14px;line-height:1.9;color:var(--ink);margin:12px 0 16px}.part-summary strong{font-weight:600}
+.part-topics{list-style:none;padding:0;margin:0 0 16px}.part-topics li{margin:0 0 12px;font-size:13px;line-height:1.85}.part-topics strong{display:block;font-size:12px;color:var(--red);font-weight:600;margin-bottom:3px}.part-topics span{color:var(--muted)}
+.map-row .part-example{border-top:1px dashed var(--line);padding-top:12px;font-size:13px;line-height:1.85;margin:0}.part-example strong{display:block;color:var(--ink);font-size:11px;margin-bottom:4px}.map-row .part-reading-source{font-size:10px;line-height:1.7;margin-top:11px}
+@media(max-width:600px){.map-row{column-gap:12px;row-gap:0;padding:20px 0}.part-copy{display:contents}.part-copy>h3{grid-column:2;align-self:center}.part-copy>.part-summary,.part-copy>.part-topics,.part-copy>.part-example,.part-copy>.part-reading-source{grid-column:1/-1}.map-row .part-summary{margin:14px 0;font-size:14px}.part-topics{margin-bottom:10px}.part-topics li{margin-bottom:10px}.map-row>a{grid-column:1/-1;margin-top:6px;justify-content:flex-start}}
+#quiz-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.quiz-filters{display:flex;gap:5px;flex-wrap:wrap}.quiz-filters button{min-height:44px;padding:8px 12px;background:transparent;border:1px solid var(--line);font-size:12px}.quiz-filters button[aria-pressed="true"]{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.quiz-meta{font:11px var(--mono);color:var(--red);margin-bottom:9px}.quiz-item .quiz-options{display:grid;grid-template-columns:1fr;gap:8px}.quiz-option{line-height:1.7}.quiz-feedback{font-size:13px;line-height:1.9}
+@media(max-width:600px){.quiz-item{padding:18px 0}.quiz-filters button{padding:8px 10px;font-size:11px}.quiz-question{line-height:1.8}.quiz-feedback{font-size:13px}}
+/* A single catalog: no separate three-tab warmup surface. */
+#legacy-labs{border:0;box-shadow:none;background:transparent}
+#legacy-labs .lab-tabs,#legacy-labs .lab-content>h3,#legacy-labs .lab-description{display:none}
+#legacy-labs .lab-content{padding:0}
+#lab-catalog{position:static}
+@media(max-width:600px){
+  .main{padding:0 12px}.topline{height:44px}.hero{padding:16px 0 18px;gap:10px}.hero-copy{padding:22px 18px}.hero-description{margin:14px 0}.hero .eyebrow{margin-bottom:12px;padding-bottom:10px}.hero-bottom{gap:8px}.big-idea{padding:14px 0;margin-bottom:30px}
+  section{margin-bottom:34px}.section-heading{gap:8px;margin-bottom:6px}.section-lead{margin-bottom:16px}.map-row{padding:14px 0}.chapter-menu{padding:10px;gap:4px}.chapter-body{padding:18px 12px}.chapter-kicker{margin-bottom:10px;padding-bottom:10px}.chapter-question{margin-bottom:12px}.chapter-summary{margin-bottom:16px}.example{padding:13px;margin-bottom:16px}.tags{margin-bottom:15px}.lesson-divider{margin:24px 0;padding:15px 0}.mechanism-lesson{margin-bottom:24px;padding-bottom:18px}.ink-figure{margin:18px 0}.chapter-bridge{padding:14px}.closing{padding:18px}
+  .workbench-filterbar{margin-bottom:10px}#lab-catalog{grid-template-columns:repeat(3,minmax(0,1fr));padding:8px;gap:4px}.lab-choice{padding:7px 6px;min-height:62px;font-size:11px;gap:2px;line-height:1.5}.lab-choice-meta{font-size:9px}#lab-active{padding:18px 12px}#lab-selected-meta{margin-bottom:7px}#lab-selected-title{font-size:22px;margin-bottom:10px}#lab-selected-intro{margin-bottom:12px}.lab-goal{padding:10px 0;margin-bottom:14px}.lab-board{padding:10px;margin:12px 0}.lab-step-list{margin:10px 0}.experiment-boundary{margin-top:14px;padding-top:10px}
+}
+@media(max-width:359px){#lab-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}.lab-choice{min-height:54px}}
+@media print{#lab-level-filters,#lab-catalog,.lab-actions{display:none}.workbench{display:block}#lab-active{border:0}.experiment-mount button{display:none}}
+
+/* Group quizzes by the book's three parts. */
+.quiz-part{margin-top:30px;min-width:0}.quiz-part-heading{padding:18px 0;border-top:2px solid var(--ink)}.quiz-part-heading>span{font:11px var(--mono);color:var(--red)}.quiz-part-heading h3{font-size:20px;line-height:1.5;margin:7px 0}.quiz-part-heading p{font-size:13px;color:var(--muted);line-height:1.8}
+@media(max-width:600px){.quiz-part{margin-top:22px}.quiz-part-heading h3{font-size:18px}}
+
+/* Correctness must differ from selection, without relying on color alone. */
+.quiz-option{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.quiz-option-text{min-width:0}.quiz-option-result{font-size:11px;font-weight:700;white-space:nowrap;align-self:center}.quiz-option-result:empty{display:none}
+.quiz-option.is-correct,.quiz-option.is-correct[aria-pressed="true"]{background:#edf6ef;color:#205b34;border:2px solid #39764a}
+.quiz-option.is-wrong,.quiz-option.is-wrong[aria-pressed="true"]{background:#fff0ee;color:#972634;border:2px solid #b51f2d}
+.quiz-feedback[data-result]{padding:14px 16px;border:1px solid;line-height:1.9}.quiz-feedback[data-result="correct"]{background:#edf6ef;color:#205b34;border-color:#39764a}.quiz-feedback[data-result="wrong"]{background:#fff0ee;color:#972634;border-color:#b51f2d}
+.quiz-score{white-space:normal;text-align:right;line-height:1.8;min-width:120px}
+@media(max-width:600px){.quiz-option{flex-direction:column;gap:5px}.quiz-option-result{align-self:flex-start}.quiz-feedback[data-result]{padding:12px}.quiz-score{min-width:88px}}
+
+.quiz-part-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--ink);padding:18px 0;margin-top:10px}.quiz-part-bottom button{min-height:44px;padding:9px 13px;background:var(--white);border:1px solid var(--ink);font-size:13px}.quiz-part-bottom button:not(:disabled):hover{background:var(--ink);color:var(--white)}.quiz-part-bottom span{font:11px var(--mono);color:var(--muted)}
+
+.quiz-optional-notice{padding:16px 18px;margin:18px 0;background:#f6e5e3;border:2px solid var(--red);color:var(--ink)}.quiz-optional-notice strong{display:block;font-size:17px;line-height:1.65;color:var(--red)}.quiz-optional-notice p{font-size:14px;line-height:1.85;margin-top:5px}
+@media(max-width:600px){#study .quiz-intro{display:block}#study .quiz-score{display:block;text-align:left;margin-bottom:12px}.quiz-optional-notice{padding:13px;margin:14px 0}.quiz-optional-notice strong{font-size:16px}}
+
+.book-film{margin:24px 0 36px;padding:24px;border:1px solid var(--ink);background:var(--white);box-shadow:4px 4px 0 #e4e0d9;min-width:0}
+.film-heading{display:flex;justify-content:space-between;gap:15px;align-items:start}.film-kicker{font:10px var(--mono);letter-spacing:1px;color:var(--red)}.film-heading h3{font:600 25px/1.5 var(--serif);letter-spacing:-.8px;margin:8px 0}.film-position{font:12px var(--mono);color:var(--red);white-space:nowrap;padding-top:6px}.film-intro{font-size:13px;color:var(--muted);line-height:1.85;max-width:650px;margin-bottom:22px}
+.film-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}.film-part{min-width:0;padding:18px 14px 15px;position:relative;background:var(--paper);transition:background .3s}.film-part+.film-part{border-left:1px solid var(--line)}.film-part.is-active{background:#f7ede9}.film-part-label{font:11px var(--mono);color:var(--red);display:flex;justify-content:space-between;gap:6px}.film-part-label span{color:var(--muted);font:11px var(--sans)}.film-part h4{font-size:15px;line-height:1.6;margin:8px 0 0;letter-spacing:-.4px}.film-part svg{width:100%;height:auto;display:block;margin:10px 0;color:var(--ink)}.film-ink{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.film-flow{fill:none;stroke:var(--red);stroke-width:1.7;stroke-dasharray:4 4}.film-svg-label{font:12px var(--sans);text-anchor:middle;fill:var(--ink)}.film-dot{fill:var(--red);opacity:0}.book-film.is-playing .film-part.is-active .film-dot{opacity:1}
+.film-chapters{margin:0;padding:0;list-style:none;display:grid;gap:4px}.film-chapters li{font-size:11px;line-height:1.65;padding:4px 3px;overflow-wrap:anywhere}.film-chapters b{font:10px var(--mono);color:var(--muted);margin-right:5px}.film-chapters li.is-active{background:var(--red);color:var(--white)}.film-chapters li.is-active b{color:inherit}.film-question{font-size:12px;line-height:1.8;margin-top:12px;color:var(--muted)}
+.film-narrative{padding:20px 0;min-height:166px}.film-narrative>span{font:11px var(--mono);color:var(--red)}.film-narrative h4{font-size:19px;line-height:1.6;margin:6px 0}.film-narrative p{font-size:14px;line-height:1.9;max-width:760px}.film-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}.film-controls button{font-size:12px;min-height:44px;padding:8px 13px;border:1px solid var(--ink);background:transparent}.film-controls #film-play{background:var(--ink);color:var(--white);min-width:145px}.film-controls span{font-size:11px;color:var(--muted);margin-left:auto}.film-scenes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-top:14px}.film-scenes button{border:0;border-top:3px solid var(--line);background:none;font-size:11px;line-height:1.6;min-height:44px;padding:9px 3px;text-align:left}.film-scenes button[aria-current="step"]{border-color:var(--red);color:var(--red);font-weight:700}.book-film figcaption{font-size:11px;color:var(--muted);line-height:1.85;border-top:1px solid var(--line);padding-top:13px;margin-top:16px}
+@media(max-width:1050px) and (min-width:601px){.book-film{padding:18px}.film-part{padding:15px 9px}.film-part h4{font-size:14px}.film-chapters li{font-size:10px}}
+@media(max-width:600px){.book-film{padding:14px;margin:20px 0 28px}.film-heading h3{font-size:21px}.film-kicker{font-size:9px;letter-spacing:.4px}.film-heading{gap:5px}.film-position{font-size:10px}.film-intro{font-size:13px;margin-bottom:15px}.film-map{grid-template-columns:1fr}.film-part{display:block;padding:14px 10px}.film-part+.film-part{border-left:0;border-top:1px solid var(--line)}.film-part-label,.film-part h4,.film-question{grid-column:1/-1}.film-part h4{font-size:15px;margin-bottom:8px}.film-part svg{max-width:270px;margin:6px auto 12px}.film-chapters{gap:2px}.film-chapters li{font-size:12px;padding:3px;line-height:1.65}.film-question{font-size:11px;margin-top:8px}.film-narrative{min-height:225px;padding:17px 0}.film-narrative h4{font-size:18px}.film-narrative p{font-size:13px}.film-controls span{width:100%;margin:0}.film-scenes{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.film-part{transition:none}.film-dot{display:none}}
+@media print{.film-controls,.film-scenes,.film-position{display:none}.book-film{box-shadow:none}.film-map{grid-template-columns:repeat(3,minmax(0,1fr))}.film-part{display:block}.film-part+.film-part{border-top:0;border-left:1px solid var(--line)}.film-chapters li.is-active{background:transparent;color:var(--ink)}}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+<div class="shell">
+<aside class="sidebar" aria-label="학습 길잡이">
+<div><a class="brand" href="#top" aria-label="DDIA 첫 화면"><span class="brandmark">d.</span><span class="brand-word">DDIA / FIRST LOOK</span></a><div class="edition">NOTES ON DATA & SYSTEMS</div></div>
+<nav aria-label="주요 메뉴"><a class="navlink active" href="#overview"><span>01</span>전체 지도</a><a class="navlink" href="#chapters"><span>02</span>챕터별 이해</a><a class="navlink" href="#study"><span>03</span>스터디 준비</a></nav>
+<div class="side-note">그림으로 흐름을 읽고,<br>왜 그렇게 동작하는지<br>한 걸음 더 이해해보세요.</div>
+<div class="side-bottom"><div class="progress-label"><span>둘러본 챕터</span><span id="progress-text">0 / 12</span></div><div class="progress-track" role="progressbar" aria-label="둘러본 챕터" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><div class="progress-fill"></div></div><button class="reset" id="reset-progress">읽음 표시 초기화</button></div>
+</aside>
+<main class="main" id="main">
+<header class="topline" id="top"><span class="bookname">데이터 중심 애플리케이션 설계</span><span class="pill">정독 전, 원리까지 한 걸음</span></header>
+<div class="hero">
+<div class="hero-copy"><div class="eyebrow">A FIELD GUIDE TO DATA SYSTEMS</div><h1>두꺼운 책,<br><em>그림으로 읽기.</em></h1><p class="hero-description">데이터베이스 하나로 시작한 서비스가 커지면 무슨 일이 생길까요?<br>이 책의 큰 그림을, 작은 예시로 먼저 만나보세요.</p><div class="hero-bottom"><a class="button" href="#overview">전체 흐름부터 보기 <span aria-hidden="true">↗</span></a><span class="caption">12개 챕터 · 원리 설명과 도해</span></div></div>
+<figure class="field-illustration">
+<img class="ink-landscape boar-illustration" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNjAgMjMwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idGl0bGUgZGVzYyI+Cjx0aXRsZSBpZD0idGl0bGUiPldpbGQgYm9hciDigJQgRERJQSByZWFkaW5nIGNvbXBhbmlvbjwvdGl0bGU+PGRlc2MgaWQ9ImRlc2MiPk9yaWdpbmFsIGJsYWNrIGluayBkcmF3aW5nIG9mIGEgd2lsZCBib2FyIHdpdGggYnJpc3RsZWQgYmFjaywgbG9uZyBzbm91dCwgY3VydmVkIHR1c2sgYW5kIGZpbmUgZW5ncmF2ZWQgaGF0Y2hpbmcgb24gd2FybSBwYXBlci48L2Rlc2M+CjxkZWZzPgogPHBhdHRlcm4gaWQ9ImhhdGNoIiB3aWR0aD0iNyIgaGVpZ2h0PSI3IiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoMjQpIj48cGF0aCBkPSJNMCAwVjciIHN0cm9rZT0iIzI1MjMxZiIgc3Ryb2tlLXdpZHRoPSIuOCIvPjwvcGF0dGVybj4KIDxwYXR0ZXJuIGlkPSJmaW5lIiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoLTMyKSI+PHBhdGggZD0iTTAgMFY0IiBzdHJva2U9IiMyNTIzMWYiIHN0cm9rZS13aWR0aD0iLjU1Ii8+PC9wYXR0ZXJuPgogPHBhdGggaWQ9ImJvZHkiIGQ9Ik02NiAxMzlDNDQgMTI2IDQ0IDEwNiA1OCA4Nkw1MyA3NiA2OSA3OCA2NyA2NSA4MiA2OSA4NyA1NCA5OCA2MiAxMDcgNDcgMTE3IDU2IDEzMSA0MyAxMzkgNTQgMTU1IDQ0IDE2MCA1NSAxNzggNDcgMTg0IDU5QzIwNSA1OSAyMjUgNjkgMjQxIDg2TDI2MSAxMDAgMjgzIDExMyAzMDkgMTE4IDMxNyAxMzIgMzA2IDE0NSAyNzUgMTQ3IDI1NCAxNTggMjI2IDE1OUMyMDUgMTc0IDE3NyAxNzggMTQ1IDE3MUwxMTUgMTY4IDkxIDE1N1oiLz4KIDxjbGlwUGF0aCBpZD0iYW5pbWFsIj48dXNlIGhyZWY9IiNib2R5Ii8+PC9jbGlwUGF0aD4KPC9kZWZzPgo8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMyNTIzMWYiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+CiA8cGF0aCBkPSJNNjIgOTlDMzYgODkgMjYgMTAzIDM0IDExM0M0MiAxMjAgNDggMTA4IDM5IDEwNSIgc3Ryb2tlLXdpZHRoPSIyIi8+CiA8cGF0aCBkPSJNOTEgMTQ3TDgyIDE4MiA2OCAxOTkgODcgMTk5IDEwNCAxODIgMTE5IDE1OU0xMzAgMTYzTDEzNSAxOTAgMTI4IDIwNCAxNDcgMjA0IDE1MSAxODMgMTUwIDE2NE0yMDggMTU4TDIxNiAxODQgMjA4IDIwMiAyMjcgMjAyIDIzNSAxODAgMjMyIDE1M00yNDIgMTQ1TDI1NyAxNzAgMjYwIDE4OSAyNzggMTg5IDI3MSAxNjYgMjY0IDE0NSIgZmlsbD0iI2Y2ZjJlNyIgc3Ryb2tlLXdpZHRoPSIyIi8+CiA8cGF0aCBkPSJNODUgMTc4TDk2IDE4MU0xMzQgMTg1TDE0OCAxODdNMjE2IDE4M0wyMzEgMTg1TTI1OCAxNzVMMjczIDE3NCIvPgogPHVzZSBocmVmPSIjYm9keSIgZmlsbD0iI2Y2ZjJlNyIgc3Ryb2tlLXdpZHRoPSIyLjQiLz4KIDxnIGNsaXAtcGF0aD0idXJsKCNhbmltYWwpIj4KICA8cGF0aCBkPSJNNDMgMTA3UTEzNSA2NCAyNDMgMTA2TDI4MSAxMzhRMjE1IDE4NyA5OCAxNThaIiBmaWxsPSJ1cmwoI2hhdGNoKSIgc3Ryb2tlPSJub25lIi8+CiAgPHBhdGggZD0iTTU2IDEzNlExNDUgMTMyIDE5OCAxNTNMMjMxIDE3MCAxMzkgMTgwIDc0IDE2MFoiIGZpbGw9InVybCgjZmluZSkiIHN0cm9rZT0ibm9uZSIvPgogIDxwYXRoIGQ9Ik03MCA5NFExMjYgNjcgMTc5IDcyTTY2IDEwNFExMjggNzMgMTkyIDgzTTYzIDExN1ExMTggODcgMTYzIDkwTTgwIDEyOFExMjIgMTA3IDE2NSAxMDdNODUgMTQxUTEyOCAxMjIgMTU0IDEyNk0xNzEgODVRMTk0IDk1IDIwMSAxMjBNMTgxIDgyUTIxMSA5OCAyMTUgMTI4TTE5NSA4NVEyMjEgMTAwIDIyNSAxMjRNMTUzIDE0NFExODEgMTUxIDIwMSAxNDAiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxwYXRoIGQ9Ik03MCA4Nkw4MCA3OE04NiA3N0w5NiA2OU0xMDIgNzFMMTE0IDYyTTEyMSA2NUwxMzIgNTlNMTM5IDY0TDE1MSA1OU0xNTcgNjZMMTcwIDYwTTE4MyA3MkwxOTIgNjgiIHN0cm9rZS13aWR0aD0iMS4zIi8+CiA8L2c+CiA8cGF0aCBkPSJNMjMzIDEwNEwyMjEgNzIgMjQyIDgxIDI1MiAxMDciIGZpbGw9IiNmNmYyZTciIHN0cm9rZS13aWR0aD0iMiIvPgogPHBhdGggZD0iTTIzNyA5OEwyMjkgODEgMjQxIDg3IiBmaWxsPSJ1cmwoI2ZpbmUpIiBzdHJva2Utd2lkdGg9IjEiLz4KIDxwYXRoIGQ9Ik0yNDYgMTE0UTI1OCAxMDkgMjY0IDExNU0yNzAgMTI4TDI5OCAxMjlNMjc1IDE0MEwzMDMgMTM4IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogPGNpcmNsZSBjeD0iMjU4IiBjeT0iMTE3IiByPSIyLjUiIGZpbGw9IiMyNTIzMWYiIHN0cm9rZT0ibm9uZSIvPgogPHBhdGggZD0iTTMwNCAxMjBRMjk3IDEzMiAzMDYgMTQ0TTMwOSAxMjdMMzEyIDEzME0zMDkgMTM2TDMxMiAxMzQiIHN0cm9rZS13aWR0aD0iMS40Ii8+CiA8cGF0aCBkPSJNMjc5IDE0M1EyODEgMTU5IDI5NiAxNTNRMjg0IDE1MyAyODcgMTM2WiIgZmlsbD0iI2ZmZmRmNiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz4KIDxwYXRoIGQ9Ik0yMjAgMTQwUTIyNSAxNTIgMjQwIDE1NU0xMTEgMTUxUTEwNCAxNjIgMTAwIDE3NU0xNjggMTU2UTE5NSAxNjQgMjE3IDE1MiIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KIDxwYXRoIGQ9Ik02NiAyMDdIMTEyTTEyNCAyMTFIMTY0TTE5MyAyMDlIMjQxTTI1MCAxOTlIMjg5IiBvcGFjaXR5PSIuNSIvPgo8L2c+Cjx0ZXh0IHg9IjE4MCIgeT0iMjI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNzY2ZDYxIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSI5IiBsZXR0ZXItc3BhY2luZz0iMyI+U1VTIFNDUk9GQSDCtyBGSUVMRCBOT1RFUzwvdGV4dD4KPC9zdmc+Cg==" width="360" height="230" alt="검은 펜선과 빗금으로 그린 멧돼지" decoding="sync">
+<figcaption><span>FIG. 01 — THE READING COMPANION</span><span>한 장씩, 함께 읽어가기.</span></figcaption>
+</figure>
+</div>
+<div class="big-idea"><div class="label">THE BIG IDEA</div><p>“어떤 기술이 최고일까?”보다<br><span>“이 선택으로 무엇을 얻고, 무엇을 감수할까?”</span>를 배우는 책.</p></div>
+<noscript><p class="noscript">전체 지도는 그대로 볼 수 있어요. 챕터 미리보기와 개념 체험을 이용하려면 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
+<section id="overview" aria-labelledby="overview-title"><div class="section-heading"><span class="section-index">01 /</span><h2 id="overview-title">책 한 권을, 세 장면으로.</h2></div><p class="section-lead">기초를 이해하고 → 여러 서버의 문제를 다루고 → 데이터 흐름 전체를 연결합니다. 같은 주문 서비스를 세 가지 관점으로 바라보면 파트의 차이가 보여요.</p>
+<figure class="book-film" id="book-film" aria-labelledby="book-film-title">
+  <div class="film-heading"><div><span class="film-kicker">THE WHOLE BOOK / ANIMATED MAP</span><h3 id="book-film-title">주문 하나에서, 데이터 시스템 전체로.</h3></div><span class="film-position" id="film-position">01 / 06</span></div>
+  <p class="film-intro">같은 주문 서비스를 세 가지 관점에서 봅니다. 먼저 저장과 조회, 다음은 여러 서버의 협력, 마지막은 데이터 가공과 활용이에요.</p>
+  <div class="film-map">
+    <div class="film-part" data-film-part="1">
+      <div class="film-part-label">PART 01 <span>1–4장</span></div><h4>데이터를 저장하고 읽기</h4>
+      <svg viewBox="0 0 300 180" role="img" aria-label="주문을 데이터 모델로 표현해 DB에 저장하고 Index로 찾아 읽는 흐름">
+        <defs><marker id="film-arrow-1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="currentColor"/></marker></defs>
+        <path class="film-flow" d="M72 81H121M180 81H230" marker-end="url(#film-arrow-1)"/>
+        <g class="film-ink"><path d="M20 45L65 45L72 52V117H20Z M63 45V55H72 M30 65H59M30 75H59M30 85H51M30 98H57"/><ellipse cx="150" cy="52" rx="29" ry="10"/><path d="M121 52V112C121 126 179 126 179 112V52M121 82C121 96 179 96 179 82"/><path d="M231 52H279V111H231Z M241 64H269M241 77H269M241 90H260"/></g>
+        <g class="film-svg-label"><text x="46" y="148">주문 기록</text><text x="150" y="148">저장 DB</text><text x="255" y="148">Index · 조회</text></g>
+        <circle class="film-dot" r="4"><animateMotion dur="3s" repeatCount="indefinite" path="M72 81H121"/></circle>
+      </svg>
+      <ol class="film-chapters"><li data-film-chapter="1"><b>01</b> 신뢰성·확장성·유지보수성</li><li data-film-chapter="2"><b>02</b> Data Models · Query Languages</li><li data-film-chapter="3"><b>03</b> Storage Engine · Index</li><li data-film-chapter="4"><b>04</b> Encoding · Compatibility</li></ol>
+      <p class="film-question">어떤 모양으로 저장하고, 어떻게 찾고 바꿀까?</p>
+    </div>
+    <div class="film-part" data-film-part="2">
+      <div class="film-part-label">PART 02 <span>5–9장</span></div><h4>여러 서버가 함께 처리하기</h4>
+      <svg viewBox="0 0 300 180" role="img" aria-label="세 서버가 데이터를 복제하거나 나눠 맡으며 통신하는 구조. 동시 요청과 장애에서도 정확성을 고려해야 함">
+        <defs><marker id="film-arrow-2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="currentColor"/></marker></defs>
+        <path class="film-flow" d="M150 66L76 111M150 66L224 111M96 125H204" marker-end="url(#film-arrow-2)"/>
+        <g class="film-ink"><path d="M117 25H183V66H117Z M125 35H175M125 43H152M125 54H138 M30 106H96V147H30Z M38 116H88M38 124H65M38 135H51 M204 106H270V147H204Z M212 116H262M212 124H239M212 135H225"/></g>
+        <g class="film-svg-label"><text x="150" y="16">Server A</text><text x="63" y="168">Server B</text><text x="237" y="168">Server C</text><text x="150" y="101">통신</text></g>
+        <circle class="film-dot" r="4"><animateMotion dur="3s" repeatCount="indefinite" path="M150 66L76 111"/></circle>
+      </svg>
+      <ol class="film-chapters"><li data-film-chapter="5"><b>05</b> Replication</li><li data-film-chapter="6"><b>06</b> Partitioning</li><li data-film-chapter="7"><b>07</b> Transaction · Isolation</li><li data-film-chapter="8"><b>08</b> Network · Clock · Partial Failure</li><li data-film-chapter="9"><b>09</b> Consistency · Consensus</li></ol>
+      <p class="film-question">동시에 요청하거나 서버가 끊겨도 믿을 수 있을까?</p>
+    </div>
+    <div class="film-part" data-film-part="3">
+      <div class="film-part-label">PART 03 <span>10–12장</span></div><h4>데이터로 새 결과 만들기</h4>
+      <svg viewBox="0 0 300 180" role="img" aria-label="주문 원본에서 변경 기록을 전달해 검색과 판매량 통계를 만들고 결과 활용의 책임을 살피는 흐름">
+        <defs><marker id="film-arrow-3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="currentColor"/></marker></defs>
+        <path class="film-flow" d="M76 80H130M162 80H190V40H221M190 80V119H221" marker-end="url(#film-arrow-3)"/>
+        <g class="film-ink"><ellipse cx="48" cy="52" rx="27" ry="9"/><path d="M21 52V107C21 120 75 120 75 107V52M21 80C21 93 75 93 75 80 M131 57H162V102H131Z M138 68H155M138 78H155M138 88H152 M222 21H282V61H222Z M232 31H271M232 41H264M232 51H254 M222 99H282V139H222Z M231 129V118H239V129M245 129V110H253V129M259 129V105H267V129"/></g>
+        <g class="film-svg-label"><text x="48" y="146">주문 원본</text><text x="146" y="127">변경 기록</text><text x="252" y="81">검색</text><text x="252" y="161">판매량 통계</text></g>
+        <circle class="film-dot" r="4"><animateMotion dur="3s" repeatCount="indefinite" path="M76 80H130"/></circle>
+      </svg>
+      <ol class="film-chapters"><li data-film-chapter="10"><b>10</b> Batch Processing</li><li data-film-chapter="11"><b>11</b> Stream Processing</li><li data-film-chapter="12"><b>12</b> Derived Data · 데이터 윤리</li></ol>
+      <p class="film-question">검색·통계를 어떻게 만들고, 책임 있게 활용할까?</p>
+    </div>
+  </div>
+  <div class="film-narrative"><span id="film-scene-tag">PART 01 / 1–2장</span><h4 id="film-scene-title">주문을 어떤 데이터로 표현할까?</h4><p id="film-scene-copy">주문·고객·상품을 어떤 구조로 저장하고 어떤 질의로 읽을지 정합니다. 그 선택을 신뢰성·확장성·유지보수성이라는 기준으로 살펴봐요.</p></div>
+  <div class="film-controls"><button type="button" id="film-play" aria-pressed="false">▶ 전체 흐름 재생</button><button type="button" id="film-restart">처음부터</button><span id="film-state">장면을 고르거나 재생해보세요.</span></div>
+  <nav class="film-scenes" aria-label="전체 흐름 장면 선택"><button type="button" data-film-scene="0" aria-current="step">1 · 표현</button><button type="button" data-film-scene="1">2 · 저장</button><button type="button" data-film-scene="2">3 · 분산</button><button type="button" data-film-scene="3">4 · 정확성</button><button type="button" data-film-scene="4">5 · 계산</button><button type="button" data-film-scene="5">6 · 활용과 책임</button></nav>
+  <figcaption>책의 흐름을 주문 서비스로 연결한 학습용 재구성입니다. 실제 시스템의 실행·성능을 보여주는 영상이나, 모든 서비스가 이 순서대로 커져야 한다는 뜻은 아니에요. 자세한 주제와 근거는 아래 Part별 설명과 각 장에서 확인할 수 있어요.</figcaption>
+</figure>
+
+<div class="map">
+<div class="map-row"><div class="part-tag">PART<strong>01</strong></div><div class="part-copy"><h3>먼저, 잘 담고 잘 꺼내기</h3><p class="part-summary">주문 서비스를 만든다고 해볼게요. 주문을 저장할 수 있게 됐다고 설계가 끝난 것은 아니에요. 고장에도 주문이 남아야 하고, 사용자가 늘어도 감당해야 하며, 새 기능도 추가할 수 있어야 합니다. Part 1은 이 기준을 세운 뒤 <strong>정보의 모양 → 저장·조회 방법 → 형식의 변화</strong>로 질문을 이어갑니다.</p><ul class="part-topics"><li><strong>잘 동작한다는 것은 무엇일까? · 1장</strong><span>고장에도 주문을 지키고, 부하가 늘어도 대응하고, 나중에 바꾸기 쉬워야 합니다. 이후 기술을 비교할 기준부터 세워요.</span></li><li><strong>주문과 고객을 어떤 모양으로 담을까? · 2장</strong><span>함께 읽을 정보는 묶고 싶지만, 여러 곳에 복사하면 변경이 어려워져요. 표·문서·그래프를 어떤 질문에 쓸지 비교합니다.</span></li><li><strong>담은 데이터를 빨리 찾으려면? · 3장</strong><span>파일에 쓰는 것만으로는 조회가 빨라지지 않아요. Index와 저장 구조가 읽기·쓰기·공간 비용을 바꾸는 이유를 봅니다.</span></li><li><strong>새 기능을 넣어도 옛 앱은 읽을 수 있을까? · 4장</strong><span>데이터와 코드가 서로 다른 시점에 바뀔 수 있어요. 새 버전과 옛 버전이 함께 동작할 형식과 약속을 다룹니다.</span></li></ul><p class="part-example"><strong>주문 서비스로 보면</strong>주문·고객 정보를 어떻게 묶고 찾을지, 배송 메모 필드를 추가해도 옛 앱이 읽을 수 있을지 고민하는 단계예요.</p><p class="part-reading-source">파트 소개 근거 · 책 1쪽</p></div><a href="#chapters" data-jump="0">1–4장 살펴보기 <span aria-hidden="true">↗</span></a></div>
+<div class="map-row"><div class="part-tag">PART<strong>02</strong></div><div class="part-copy"><h3>여러 대가 되면, 무엇이 어려울까?</h3><p class="part-summary">한 서버에 데이터가 있으면 그 서버의 장애나 용량 한계가 문제가 됩니다. 복사하거나 나눠 맡기면 도움이 되지만, 이제 서로 다른 값·동시 변경·통신 지연을 다뤄야 해요. Part 2는 <strong>여러 서버를 쓰는 이유 → 그 때문에 드러나는 문제 → 지킬 수 있는 약속</strong>으로 이어집니다. 동시 실행 문제는 한 DB에서도 생길 수 있어요.</p><ul class="part-topics"><li><strong>같은 데이터를 다른 서버에도 두면? · 5장</strong><span>고장에 대비하고 읽기를 나눌 수 있어요. 대신 변경이 늦게 전달되거나 여러 곳의 쓰기가 충돌할 수 있습니다.</span></li><li><strong>전체 데이터가 한 대에 안 들어가면? · 6장</strong><span>서로 다른 데이터를 나눠 맡겨요. 어디로 나누고, 일이 몰리면 어떻게 옮기며, 담당 서버를 어떻게 찾을지 봅니다.</span></li><li><strong>작업이 중간에 실패하거나 요청이 겹치면? · 7장</strong><span>이체의 절반만 성공하거나 두 예약이 겹치지 않게 하려면 어떤 Transaction 보장이 필요한지 살펴봅니다.</span></li><li><strong>다른 서버가 제때 답하지 않는다면? · 8–9장</strong><span>응답·시각·실행 속도를 믿기 어려운 상황을 먼저 본 뒤, 그래도 같은 값과 결정을 따르게 할 절차와 비용을 알아봐요.</span></li></ul><p class="part-example"><strong>주문 서비스로 보면</strong>저장했는데 옛 주문이 보이거나, 마지막 한 자리를 두 사람이 예약하거나, 응답이 없어 주문 성공 여부를 모르는 상황을 다뤄요.</p><p class="part-reading-source">파트 소개 근거 · 책 149–150쪽</p></div><a href="#chapters" data-jump="4">5–9장 살펴보기 <span aria-hidden="true">↗</span></a></div>
+<div class="map-row"><div class="part-tag">PART<strong>03</strong></div><div class="part-copy"><h3>데이터를 가공하고 시스템을 연결하기</h3><p class="part-summary">주문 한 건을 저장하고 읽는 일을 넘어, 쌓인 주문으로 판매량과 검색 화면을 만들고 싶어집니다. Part 3은 <strong>모인 데이터 계산하기 → 새 변경을 계속 반영하기 → 여러 결과를 하나의 흐름으로 맞추기</strong>로 이어져요. 마지막에는 그 결과를 사람에게 적용할 때의 책임으로 질문을 넓힙니다.</p><ul class="part-topics"><li><strong>쌓인 기록에서 결과를 만들려면? · 10장</strong><span>작은 로그 분석에서 시작해 여러 컴퓨터로 계산을 나누고 다른 자료를 연결합니다. 복잡한 계산과 다시 실행하는 방법으로 이어져요.</span></li><li><strong>새 주문도 지금 반영하려면? · 11장</strong><span>작업이 끝날 때까지 기다리지 않고 결과를 계속 갱신해요. 늦게 온 주문과 중복, 장애 뒤 복구 문제가 따라옵니다.</span></li><li><strong>검색·통계·DB가 서로 다른 상태라면? · 12장</strong><span>원본의 변경을 다른 결과들이 어떻게 따라올지 전체 흐름을 봅니다. 끝에서는 정확한 처리뿐 아니라 데이터 사용이 사람에게 미치는 영향도 묻습니다.</span></li></ul><p class="part-example"><strong>주문 서비스로 보면</strong>주문 기록으로 어제의 판매량을 만들고, 새 주문을 인기 상품 화면에 반영하며, 검색 Index와 캐시까지 연결하는 단계예요.</p><p class="part-reading-source">파트 소개 근거 · 책 381–383쪽 · 윤리적 논점 532–536쪽</p></div><a href="#chapters" data-jump="9">10–12장 살펴보기 <span aria-hidden="true">↗</span></a></div>
+</div><p class="map-foot">주문 서비스 예시는 각 파트의 역할을 풀어 쓴 학습용 재구성이에요. 처음부터 분산 시스템을 만들라는 뜻은 아닙니다. 필요한 규모와 요구사항에 맞춰 판단할 기준을 쌓는 순서예요.</p></section>
+<section id="chapters" aria-labelledby="chapters-title"><div class="section-heading"><span class="section-index">02 /</span><h2 id="chapters-title">한 장씩, 원리까지 따라가기.</h2></div><p class="section-lead">각 장의 핵심 원리를 두 개의 그림으로 설명합니다. 문제 → 작동 방식 → 선택의 대가 순서로 읽어보세요. 핵심 용어는 영어로, 설명은 한국어로 표기합니다.</p><div class="chapter-layout"><nav class="chapter-menu" aria-label="12개 챕터 선택" id="chapter-menu"></nav><article class="chapter-body" id="chapter-body" aria-label="선택한 챕터"></article></div><div class="chapter-caption"><span>그림·상황은 원리 설명을 위한 재구성이며 실제 동작 화면은 아닙니다.</span><span id="mobile-progress">둘러본 챕터 0 / 12</span></div></section>
+<section id="study" aria-labelledby="study-title"><div class="quiz-intro"><div><div class="section-heading"><span class="section-index">03 /</span><h2 id="study-title">Part별로 핵심 확인하기.</h2></div><div class="quiz-optional-notice"><strong>선택 사항 · 이 부분은 건너뛰어도 괜찮아요.</strong><p>퀴즈는 필수가 아닙니다. 복습하고 싶을 때만 원하는 Part를 골라 풀어보세요.</p></div><p class="section-lead">책의 세 Part로 나눈 총 24문제입니다. 각 Part 안에서는 장 순서대로 풀고, 답을 고르면 해설과 책의 관련 쪽수를 확인할 수 있어요.</p></div><span class="quiz-score" id="quiz-score" aria-live="polite">0 / 24</span></div><div id="quiz-toolbar"><div class="quiz-filters" aria-label="문제 Part 선택"><button data-quiz-part-filter="1" aria-pressed="true">Part 1</button><button data-quiz-part-filter="2" aria-pressed="false">Part 2</button><button data-quiz-part-filter="3" aria-pressed="false">Part 3</button></div><button id="reset-quiz" class="reset">답안 초기화</button></div><div id="quiz"></div>
+<div class="closing"><h3>이제, 책의 첫 장으로 돌아가세요.</h3><p>스터디에서는 용어를 전부 설명하려 하지 않아도 좋아요.<br>각 장에서 “어떤 문제를 해결하고, 대신 무엇이 어려워지는지” 하나씩 가져오세요.</p><div class="discussion"><small>A QUESTION TO TAKE WITH YOU</small>우리 서비스에서, 조금 늦게 보여도 괜찮은 데이터와<br>절대로 틀리면 안 되는 데이터는 무엇일까요?</div></div></section>
+<details class="sources" id="sources"><summary>이 가이드의 기준과 책에서 찾아볼 곳</summary><p>마틴 클레프만의 『데이터 중심 애플리케이션 설계』 첨부 한국어 PDF를 바탕으로 만든 비공식 학습 가이드입니다. 목차의 3부·12장 구성과 각 장의 핵심 본문을 확인해, 문제·작동 원리·선택의 대가를 설명하고 도해로 재구성했습니다. 책 전체를 대체하는 요약이나 최신 제품 기능 안내가 아닙니다.</p><p>상황 예시, 그림, 확인 질문은 학습용으로 새로 구성했습니다. 알고리즘 구현·성능 벤치마크가 아니며, 12장의 미래 방향은 저자의 제안이지 유일한 정답이 아닙니다.</p><p>아래 쪽수는 <strong>책에 인쇄된 쪽수</strong>입니다. 이 첨부 파일에서 PDF 뷰어의 페이지 번호는 인쇄 쪽수보다 26 큽니다. 원본 PDF는 이 사이트에 포함하거나 업로드하지 않았습니다.</p><div class="sources-list" id="sources-list"></div><p>읽음 표시는 이 브라우저의 로컬 저장소에만 보관합니다. 서버 전송·계정·추적 도구·외부 글꼴 요청은 없습니다. 저장소가 차단된 환경에서는 현재 화면을 사용하는 동안만 표시가 유지됩니다.</p><button class="reset" id="reset-progress-mobile">읽음 표시 초기화</button></details>
+<footer class="footer"><span>DDIA / FIRST LOOK</span><span>정답을 외우기보다, 좋은 질문을 시작하기.</span></footer>
+</main></div>
+<dialog id="figure-dialog" aria-labelledby="figure-dialog-title"><div class="dialog-heading"><h2 id="figure-dialog-title"></h2><button id="close-figure" aria-label="그림 확대 닫기">닫기 ×</button></div><p class="zoom-help">작은 화면에서는 그림을 좌우로 움직여 읽을 수 있어요.</p><div id="figure-dialog-drawing"></div><p id="figure-dialog-caption"></p></dialog>
+<script id="chapter-data" type="application/json">
+[
+  {
+    "id": 1,
+    "part": 1,
+    "short": "좋은 시스템의 기준",
+    "title": "신뢰할 수 있고 확장 가능하며 유지보수하기 쉬운 애플리케이션",
+    "question": "‘잘 만든 서비스’는 빠르기만 하면 될까요?",
+    "summary": "고장 나도 제대로 동작하고, 사용량이 늘어도 대응하며, 나중에 고치기 쉬워야 해요. 이 세 가지가 책 전체를 관통하는 기준입니다.",
+    "example": "작은 주문 서비스가 있다고 해볼게요. 서버 한 대가 고장 나도 주문을 받는 것, 주문이 몰릴 때 버티는 것, 새 배송 방식을 쉽게 추가하는 것은 서로 다른 과제예요.",
+    "tags": [
+      "Reliability",
+      "Scalability",
+      "Maintainability"
+    ],
+    "takeaway": "성능만이 아니라, 고장·성장·변화까지 생각하기.",
+    "extra": "Scalability는 ‘이 제품은 Scalability가 좋다’는 한마디로 끝나지 않아요. 어떤 부하가 늘어나는지, 어떤 성능을 유지해야 하는지부터 정해야 합니다.",
+    "prompt": "우리 서비스는 고장, 트래픽 증가, 변경 중 무엇에 가장 약할까요?",
+    "sources": [
+      {
+        "pages": [
+          3,
+          4
+        ],
+        "topic": "데이터 시스템의 목적과 세 가지 기준"
+      },
+      {
+        "pages": [
+          11,
+          13
+        ],
+        "topic": "부하와 성능을 기준으로 확장성 생각하기"
+      },
+      {
+        "pages": [
+          20,
+          21
+        ],
+        "topic": "단순성과 발전성"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "part": 1,
+    "short": "Data Models",
+    "title": "Data Models and Query Languages",
+    "question": "같은 데이터를 꼭 같은 모양으로 담아야 할까요?",
+    "summary": "표로 연결할 수도, 문서로 묶을 수도, 관계를 그래프로 표현할 수도 있어요. 무엇을 자주 묻고 바꾸는지에 따라 자연스러운 모델이 달라집니다.",
+    "example": "같은 주문도 ‘주문·고객·상품 표’로 나눌 수 있고, 주문 내용을 문서 하나로 묶을 수도 있어요. ‘친구의 친구가 산 상품’을 따라가고 싶다면 관계 중심 모델도 살펴볼 만하죠.",
+    "tags": [
+      "Relational Model",
+      "Document Model",
+      "Graph Model"
+    ],
+    "takeaway": "어떻게 저장할지 전에, 무엇을 물어볼지 생각하기.",
+    "extra": "SQL과 문서 모델을 완전히 반대편으로 볼 필요는 없어요. 관계형 데이터베이스도 문서를 다룰 수 있습니다. 모델과 특정 제품을 일대일로 외우지 마세요.",
+    "prompt": "우리 화면에서 가장 자주 함께 읽는 데이터는 무엇인가요?",
+    "sources": [
+      {
+        "pages": [
+          27,
+          28
+        ],
+        "topic": "모델에 따라 달라지는 접근과 질의"
+      },
+      {
+        "pages": [
+          42,
+          43
+        ],
+        "topic": "관계형·문서 모델의 통합과 선언형 질의"
+      },
+      {
+        "pages": [
+          50,
+          51
+        ],
+        "topic": "그래프형 데이터 모델"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "part": 1,
+    "short": "Storage & Retrieval",
+    "title": "Storage and Retrieval",
+    "question": "데이터가 많아져도 어떻게 빨리 찾을까요?",
+    "summary": "계속 적어두는 일과 원하는 것을 빠르게 찾는 일은 달라요. 저장소는 Index와 데이터 배치 방식을 골라 읽기·쓰기·공간 사이의 비용을 조절합니다.",
+    "example": "주문을 파일 맨 뒤에 계속 붙이면 기록은 단순해요. 그런데 주문 하나를 찾으려고 매번 파일 전체를 읽는다면? ‘어디에 있는지’를 알려주는 Index가 필요해집니다.",
+    "tags": [
+      "Index",
+      "B-tree · LSM-tree",
+      "OLTP / OLAP"
+    ],
+    "takeaway": "읽기를 편하게 만들면, 쓰고 관리할 일이 늘기도 해요.",
+    "extra": "‘LSM은 무조건 빠르다’처럼 외우지 마세요. 실제 작업부하에 따라 결과가 달라집니다. 주문 한 건 조회와 전체 매출 분석도 서로 다른 접근 패턴이에요.",
+    "prompt": "우리 서비스는 데이터를 쓰는 일이 많나요, 어떤 형태로 읽는 일이 많나요?",
+    "sources": [
+      {
+        "pages": [
+          72,
+          74
+        ],
+        "topic": "추가 전용 로그와 색인의 필요·비용"
+      },
+      {
+        "pages": [
+          85,
+          86
+        ],
+        "topic": "저장소 엔진 비교와 작업부하 의존성"
+      },
+      {
+        "pages": [
+          93,
+          94
+        ],
+        "topic": "트랜잭션 처리와 분석 비교"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "part": 1,
+    "short": "Encoding & Evolution",
+    "title": "Encoding and Evolution",
+    "question": "업데이트 안 한 앱도 계속 쓸 수 있을까요?",
+    "summary": "데이터를 저장하거나 주고받으려면 공통으로 읽을 수 있는 형식이 필요해요. 더 어려운 건 새 버전과 옛 버전이 함께 동작하는 동안 그 약속을 바꾸는 일입니다.",
+    "example": "주문 데이터에 ‘배송 메모’ 필드를 추가한다고 해볼게요. 옛 앱은 모르는 필드를 받아도 괜찮을까요? 새 앱은 배송 메모가 없는 옛 주문도 읽을 수 있을까요?",
+    "tags": [
+      "Encoding",
+      "Schema",
+      "Backward / Forward Compatibility"
+    ],
+    "takeaway": "한 번에 모두 업데이트할 수 없다는 전제로 설계하기.",
+    "extra": "책에서 Backward Compatibility는 새 코드가 옛 데이터를 읽는 것, Forward Compatibility는 옛 코드가 새 데이터를 읽는 것이에요. 데이터 형식뿐 아니라 전달 방식도 함께 다룹니다.",
+    "prompt": "필드를 하나 추가하거나 삭제하면 어떤 소비자가 영향을 받을까요?",
+    "sources": [
+      {
+        "pages": [
+          113,
+          114
+        ],
+        "topic": "단계적 배포와 양방향 호환성"
+      },
+      {
+        "pages": [
+          130,
+          131
+        ],
+        "topic": "스키마와 프로세스 사이 데이터 전달"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "part": 2,
+    "short": "Replication",
+    "title": "Replication",
+    "question": "데이터를 복사해두면 걱정이 끝날까요?",
+    "summary": "같은 데이터를 여러 서버에 두면 장애에 대비하거나 읽기 부하를 나눌 수 있어요. 대신 값이 바뀔 때 복사본들을 어떻게 따라오게 할지가 문제가 됩니다.",
+    "example": "프로필 이름을 바꿨는데 새로고침하니 옛 이름이 보여요. 저장은 성공했지만, 화면이 읽은 Replica에는 아직 변경이 도착하지 않았을 수 있어요.",
+    "tags": [
+      "Leader / Follower",
+      "Synchronous / Asynchronous Replication",
+      "Replication Lag"
+    ],
+    "takeaway": "같은 데이터의 복사본도, 같은 순간에는 다를 수 있어요.",
+    "extra": "Asynchronous Replication은 Follower 반영을 기다리지 않을 수 있지만 지연을 다뤄야 해요. 동기식으로 기다릴 대상을 늘리면 지연이나 장애의 영향도 함께 고려해야 합니다.",
+    "prompt": "내가 방금 쓴 내용을 바로 읽어야 하는 화면은 어디인가요?",
+    "sources": [
+      {
+        "pages": [
+          153,
+          157
+        ],
+        "topic": "복제 목적, 리더·팔로워, 동기·비동기"
+      },
+      {
+        "pages": [
+          163,
+          165
+        ],
+        "topic": "복제 지연과 자신이 쓴 내용 읽기"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "part": 2,
+    "short": "Partitioning",
+    "title": "Partitioning",
+    "question": "데이터가 한 서버에 다 안 들어가면요?",
+    "summary": "같은 것을 복사하는 대신, 서로 다른 데이터를 나눠 맡길 수 있어요. 이렇게 용량과 부하를 나누는 것이 Partitioning입니다. 관건은 한쪽에 일이 몰리지 않도록 나누는 거예요.",
+    "example": "주문을 여러 서버에 분담했는데, 특정 고객의 주문만 유난히 많다면 그 고객 담당 서버가 바쁠 수 있어요. 서버를 늘리는 것만큼 나누는 기준도 중요합니다.",
+    "tags": [
+      "Sharding",
+      "Partition Key",
+      "Hot Spot"
+    ],
+    "takeaway": "Replication은 ‘같은 것 여러 벌’, Partitioning은 ‘나눠 맡기기’.",
+    "extra": "두 방법은 함께 사용할 수 있어요. 주문을 나눈 뒤, 각 조각의 복사본을 별도 서버에 둘 수도 있죠. 여기서 Partitioning은 네트워크가 끊기는 ‘분단’과 다른 말입니다.",
+    "prompt": "어떤 키로 나누면 특정 서버에 일이 몰릴까요?",
+    "sources": [
+      {
+        "pages": [
+          199,
+          202
+        ],
+        "topic": "파티셔닝, 복제와의 조합, 범위 분할"
+      },
+      {
+        "pages": [
+          205,
+          206
+        ],
+        "topic": "쏠린 작업부하와 핫스팟"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "part": 2,
+    "short": "Transaction",
+    "title": "Transaction",
+    "question": "두 사람이 마지막 한 자리를 동시에 예약하면요?",
+    "summary": "여러 작업이 도중에 실패하거나 동시에 실행되면 데이터가 어긋날 수 있어요. Transaction은 이런 문제 일부를 데이터베이스가 대신 다루도록 해주는 약속입니다.",
+    "example": "두 사람이 모두 ‘빈 회의실’이라고 확인한 뒤 예약을 넣으면 겹칠 수 있어요. Transaction으로 묶었다는 사실만 보지 말고, 어떤 Isolation Level과 충돌 방지 장치를 쓰는지도 봐야 합니다.",
+    "tags": [
+      "ACID",
+      "Isolation Level",
+      "Serializable"
+    ],
+    "takeaway": "‘Transaction 사용’과 ‘모든 동시성 문제 해결’은 달라요.",
+    "extra": "전체가 함께 성공하거나 취소되는 Atomicity와, 동시 실행이 서로에게 어떻게 보이는지 정하는 Isolation은 다른 보장이에요. Serializable에서도 대기나 충돌 후 재시도 같은 비용을 고려해야 합니다.",
+    "prompt": "확인하고 저장하는 사이에 다른 요청이 끼어들면 어떻게 되나요?",
+    "sources": [
+      {
+        "pages": [
+          221,
+          224
+        ],
+        "topic": "실패·동시성 문제와 원자성"
+      },
+      {
+        "pages": [
+          249,
+          250
+        ],
+        "topic": "회의실 예약의 쓰기 스큐"
+      },
+      {
+        "pages": [
+          265,
+          267
+        ],
+        "topic": "격리 수준과 직렬성의 보장"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "part": 2,
+    "short": "분산 시스템의 골칫거리",
+    "title": "분산 시스템의 골칫거리",
+    "question": "답이 없으면, 정말 실패한 걸까요?",
+    "summary": "서버가 죽은 건지, 네트워크가 느린 건지, 응답만 사라진 건지 밖에서는 확실히 알기 어려워요. 여러 컴퓨터가 협력할 때는 이런 불확실성부터 받아들여야 합니다.",
+    "example": "주문 완료 버튼을 눌렀는데 응답이 안 와요. 주문이 저장되지 않았을 수도, 저장은 됐지만 응답만 늦었을 수도 있어요. 무작정 다시 보내면 중복 주문이 생길 수 있겠죠.",
+    "tags": [
+      "Partial Failure",
+      "Network Delay",
+      "Clock Skew"
+    ],
+    "takeaway": "응답을 못 받았다는 사실만으로 결과를 확정할 수 없어요.",
+    "extra": "네트워크만 문제가 아니에요. 서버의 시계가 서로 다르거나 프로세스가 잠시 멈추기도 합니다. ‘항상 제시간에 답한다’는 가정을 걷어내는 장입니다.",
+    "prompt": "Timeout 뒤 재시도해도 같은 작업이 중복 실행되지 않나요?",
+    "sources": [
+      {
+        "pages": [
+          273,
+          275
+        ],
+        "topic": "부분 장애와 비결정성"
+      },
+      {
+        "pages": [
+          278,
+          280
+        ],
+        "topic": "응답 손실과 타임아웃의 불확실성"
+      },
+      {
+        "pages": [
+          287,
+          290
+        ],
+        "topic": "시계와 동기화"
+      },
+      {
+        "pages": [
+          295,
+          296
+        ],
+        "topic": "프로세스 중단"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "part": 2,
+    "short": "Consistency / Consensus",
+    "title": "Consistency and Consensus",
+    "question": "여러 서버가 어떻게 같은 결정을 내릴까요?",
+    "summary": "누가 Leader인지, 어떤 순서로 변경을 적용할지 서로 맞춰야 해요. 이 장은 네트워크 문제 속에서도 어떤 Consistency를 보장할 수 있는지, Consensus가 어디에 필요한지 다룹니다.",
+    "example": "Leader 서버가 응답하지 않자 두 서버가 각각 ‘내가 새 Leader’라고 나서면 곤란하겠죠. 모두가 같은 결정을 따르게 하는 절차가 필요합니다.",
+    "tags": [
+      "Linearizability",
+      "Ordering",
+      "Consensus"
+    ],
+    "takeaway": "같은 결론을 보장하려면, 통신과 기다림의 비용이 들어요.",
+    "extra": "Linearizability는 복사본이 하나인 것처럼 연산이 보이게 하는 보장입니다. CAP는 단순히 ‘셋 중 둘 고르기’가 아니라, Network Partition 상황에서 Linearizability와 완전한 Availability를 함께 유지할 수 없다는 이야기예요.",
+    "prompt": "우리 기능은 오래된 값을 보여줘도 될까요, 잠시 멈추는 편이 나을까요?",
+    "sources": [
+      {
+        "pages": [
+          319,
+          322
+        ],
+        "topic": "합의, 리더 선출, 선형성"
+      },
+      {
+        "pages": [
+          335,
+          336
+        ],
+        "topic": "CAP의 범위와 선형성의 비용"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "part": 3,
+    "short": "Batch Processing",
+    "title": "Batch Processing",
+    "question": "어제 쌓인 주문을 한꺼번에 정리한다면?",
+    "summary": "끝이 정해진 입력을 읽어 새로운 결과를 만드는 방식이에요. 큰 데이터를 나눠 처리하고 실패한 작업을 다시 실행하는 방법을 살펴봅니다.",
+    "example": "어제 하루의 주문 파일로 상품별 판매량을 만들어볼까요? 원본을 보존하고 계산을 다시 실행할 수 있게 만들면, 집계 로직을 바꾼 뒤 결과를 재생성하기도 좋아요.",
+    "tags": [
+      "Bounded Input",
+      "MapReduce",
+      "Reprocessing"
+    ],
+    "takeaway": "고정된 입력으로부터, 다시 만들 수 있는 결과를 얻기.",
+    "extra": "Batch Processing이 꼭 ‘밤에 한 번’이라는 뜻은 아니에요. 중요한 건 처리 대상의 끝이 정해져 있다는 것. 안전한 재실행을 위해 외부 부수 효과와 출력 관리도 신경 써야 합니다.",
+    "prompt": "이 계산을 두 번 실행해도 결과나 외부 시스템이 잘못되지 않을까요?",
+    "sources": [
+      {
+        "pages": [
+          385,
+          386
+        ],
+        "topic": "서비스·일괄 처리·스트림 처리 구분"
+      },
+      {
+        "pages": [
+          426,
+          428
+        ],
+        "topic": "불변 입력, 재시도, 한정된 데이터"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "part": 3,
+    "short": "Stream Processing",
+    "title": "Stream Processing",
+    "question": "하루가 끝날 때까지 기다릴 수 없다면요?",
+    "summary": "계속 도착하는 이벤트를 조금씩 처리해 결과를 갱신해요. 끝이 없는 입력이기 때문에 늦게 오거나 중복된 이벤트, 처리 중 장애를 다루는 일이 중요해집니다.",
+    "example": "주문이 생길 때마다 인기 상품 목록을 갱신해요. 그런데 잠깐 끊겼던 네트워크에서 오래된 주문 이벤트가 늦게 도착하면, 어느 시간대의 집계에 넣어야 할까요?",
+    "tags": [
+      "Event",
+      "Event Time",
+      "Change Data Capture (CDC)"
+    ],
+    "takeaway": "계속 흐르는 데이터에서는, 도착 순서와 발생 순서가 다를 수 있어요.",
+    "extra": "데이터베이스의 변경도 Event Stream으로 볼 수 있어요. 변경 내용을 소비해 검색 Index나 캐시를 갱신하는 방식이 다음 장의 데이터 통합으로 이어집니다.",
+    "prompt": "늦게 도착한 이벤트와 같은 이벤트의 재전송을 어떻게 구별할까요?",
+    "sources": [
+      {
+        "pages": [
+          435,
+          436
+        ],
+        "topic": "끝없는 입력과 점진적 처리"
+      },
+      {
+        "pages": [
+          465,
+          467
+        ],
+        "topic": "이벤트 시간과 처리 시간"
+      },
+      {
+        "pages": [
+          477,
+          479
+        ],
+        "topic": "변경 로그, 통합, 내결함성"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "part": 3,
+    "short": "데이터 시스템의 미래",
+    "title": "데이터 시스템의 미래",
+    "question": "여러 도구를, 하나의 믿을 만한 시스템으로?",
+    "summary": "데이터베이스, 검색, 분석을 각각 잘 고르는 것만으로는 끝나지 않아요. 어디에 처음 기록하고 무엇을 거기서 파생시킬지, 전체 데이터 흐름의 정확성을 생각합니다.",
+    "example": "주문 원본은 데이터베이스에, 검색 결과는 검색 엔진에, 매출은 분석 시스템에 있어요. 각각 제멋대로 바꾸지 않고 같은 원본의 변경을 따라가게 만들면 어떨까요?",
+    "tags": [
+      "Derived Data",
+      "전체 흐름의 정확성",
+      "데이터 윤리"
+    ],
+    "takeaway": "도구 하나를 넘어, 전체 흐름과 사람에게 미치는 영향까지.",
+    "extra": "이 장은 저자가 제안하는 방향과 의견을 포함해요. 기술적 정확성뿐 아니라 사생활, 편견, 사람에게 미치는 영향도 설계의 일부로 생각합니다.",
+    "prompt": "우리가 수집한 데이터는 꼭 필요한가요? 잘못된 결과를 고칠 수 있나요?",
+    "sources": [
+      {
+        "pages": [
+          487,
+          490
+        ],
+        "topic": "저자의 관점, 데이터 통합과 파생"
+      },
+      {
+        "pages": [
+          532,
+          536
+        ],
+        "topic": "윤리, 편견, 책임, 사생활"
+      }
+    ]
+  }
+]
+</script>
+<script id="quiz-data" type="application/json">[{"id": "replication-basics", "chapter": 6, "level": "기초", "question": "주문을 고객 ID로 나눠 서로 다른 Partition에 저장하고, 각 Partition은 서버 세 대에 복제합니다. 같은 고객의 주문에만 쓰기가 몰릴 때, 현재 구조에 대한 설명은?", "options": ["장애에 대비한 복사본은 있지만, 해당 고객의 데이터 분할 단위는 그대로다", "고객별로 데이터를 나눴으므로 복사본 중 하나가 없어지면 그 고객의 주문도 유실된다", "복사본 수가 늘었으므로 해당 고객의 쓰기도 서버 세 대에 나뉘어 저장된다"], "answer": 0, "explain": "Partitioning의 분할 단위와 Replication의 복사본 수는 별개예요. 같은 고객의 데이터가 한 Partition에 묶인 조건에서는 복사본을 늘렸다는 사실만으로 쓰기 집중이 분산되지 않습니다. 복제 방식에 따라 쓰기 경로는 달라지며, 복사본 하나의 장애가 곧 유실이라는 뜻도 아니에요.", "sources": [{"pages": [199, 200], "anchor": "각 파티션의 복사본을 여러 노드에 저장"}, {"pages": [201, 202], "anchor": "각 범위들 사이의 경계를 알면"}], "source": "6장 · 책 199–200, 201–202쪽"}, {"id": "timeout-result", "chapter": 8, "level": "중급", "question": "결제 요청을 보낸 뒤 Timeout이 났습니다. 서버가 결제를 저장했는지 확인되지 않았고, 동일 요청 식별자로 처리 결과를 조회할 수 있습니다. 중복 결제를 피하면서 결과를 확인하려면?", "options": ["기존 요청은 완료될 수 있으므로, 새 식별자의 결제를 먼저 완료하고 기존 요청의 응답을 기다린다", "기존 식별자로 결과를 확인하고, 재요청이 필요하면 같은 식별자의 중복 실행을 막는 규칙을 사용한다", "Timeout을 결제 실패로 기록하고, 늦게 도착한 성공 응답은 이전 시도의 결과로 따로 보관한다"], "answer": 1, "explain": "Timeout으로 확인된 것은 응답을 받지 못했다는 사실뿐이에요. 기존 식별자로 결과를 추적하고 중복 방지 규칙을 적용해야 같은 결제가 두 번 실행되는 위험을 줄일 수 있습니다. 새 식별자는 별도 결제로 처리될 수 있고, Timeout을 실패로 확정하면 실제 결제 결과와 기록이 어긋날 수 있어요.", "sources": [{"pages": [279, 279], "anchor": "유일한 정보는 응답을 아직 받지 못했다는 것"}], "source": "8장 · 책 279쪽"}, {"id": "tradeoff", "chapter": 12, "level": "기초", "question": "한 서비스를 위해 검색 엔진과 분석 저장소를 도입했습니다. 각 저장소는 자체 데이터의 정확성을 보장하지만, 주문 변경이 두 시스템에 반영되는 시점은 다릅니다. 아직 따로 설계해야 하는 것은?", "options": ["각 저장소의 Transaction 범위를 늘려 다른 저장소의 처리 지연을 감추는 방법", "검색과 분석의 저장 형식을 하나로 통일해 각 저장소의 질의 결과가 같아지도록 하는 방법", "원본 변경의 전달·순서·재처리와, 반영 전 화면에서 어떤 정보를 보여줄지 정하는 방법"], "answer": 2, "explain": "구성 요소가 각각 정확해도 시스템 사이의 전달과 지연까지 해결되지는 않아요. 전체 데이터 흐름의 보장을 별도로 설계해야 합니다. 검색과 분석은 목적이 달라 결과나 형식을 같게 할 필요가 없고, 한 저장소의 Transaction 범위를 늘린다고 다른 저장소까지 같은 Transaction에 포함되는 것도 아니에요.", "sources": [{"pages": [488, 488], "anchor": "모든 문제를 만족하는 하나의 해결책은 없지만"}], "source": "12장 · 책 488쪽"}, {"id": "fault-tolerance", "chapter": 1, "level": "기초", "question": "서버 장애 전환 시험에서 주문 API는 정상 응답했지만, 장애 직전 저장 성공을 알린 주문이 남아 있는 복사본 어디에도 없고 복구할 수 없었습니다. 서비스 요구사항은 ‘성공 응답한 주문을 보존한다’입니다. 시험 결과의 해석은?", "options": ["응답 지속은 확인했지만, 성공한 주문 보존 요구사항은 충족하지 못했다", "요청을 계속 받았으므로 이번 장애에 대한 요구사항을 충족했다", "주문 유실이 관찰됐으므로 장애 전환 뒤 API 응답도 중단됐다고 판단한다"], "answer": 0, "explain": "Reliability는 정해 둔 기능과 보장을 장애 중에도 지키는지로 판단해요. 이 시험에서는 API가 응답하는 것과 주문을 보존하는 것이 다른 결과를 보였습니다. 응답 지속만으로 성공이라 볼 수 없고, 유실이 있었다고 API 중단까지 관찰된 것은 아닙니다.", "sources": [{"pages": [6, 7], "anchor": "결함은 장애(failure)와 동일하지 않다"}, {"pages": [8, 8], "anchor": "중복된 구성 요소를 대신 사용할"}], "source": "1장 · 책 6–7, 8쪽"}, {"id": "load-definition", "chapter": 1, "level": "기초", "question": "요청량 증가 뒤 앱 서버를 추가했지만 응답 지연은 줄지 않았습니다. 추적 결과 요청 대부분의 시간이 DB 응답을 기다리는 데 쓰였습니다. 이 관측으로 판단할 수 있는 것은?", "options": ["앱 서버 증설의 효과는 확인되지 않았으며, DB 대기 원인은 추가로 구분해야 한다", "데이터가 한 DB에 집중됐으므로 Partitioning으로 요청을 분산해야 한다", "읽기 요청이 DB 처리 용량을 초과했으므로 Read Replica 증설이 적합하다"], "answer": 0, "explain": "DB를 기다린다는 사실만으로 읽기 용량 부족, 비효율적인 질의, Lock 대기 등을 구분할 수는 없어요. Read Replica나 Partitioning은 원인과 부하에 맞으면 유효하지만 이 관측만으로 선택할 근거는 부족합니다. Scalability를 판단할 때는 부하의 종류와 실제 병목을 함께 봐야 해요.", "sources": [{"pages": [11, 11], "anchor": "데이터베이스의 읽기 대 쓰기 비율"}, {"pages": [13, 13], "anchor": "부하 매개변수를 증가시키고 시스템 자원"}, {"pages": [17, 18], "anchor": "범용적이고 모든 상황에 맞는"}, {"pages": [19, 20], "anchor": "시스템 장애, 성능 저하 등의 문제의 원인을 추적"}], "source": "1장 · 책 11, 13, 17–18, 19–20쪽"}, {"id": "document-duplication", "chapter": 2, "level": "중급", "question": "주문 문서마다 상품 이름을 복사해 두었습니다. 요구사항이 ‘주문 당시 이름 보존’에서 ‘모든 주문에 현재 상품 이름 표시’로 바뀌었습니다. 상품 이름 변경 직후의 일시적 표시 지연은 허용합니다. 이 변경에 맞는 설계는?", "options": ["상품 원본의 이름만 수정하고, 기존 주문 조회에는 문서에 복사된 이름을 사용한다", "상품 ID로 현재 이름을 조회하거나, 복사된 이름 전체에 변경을 전파하는 경로를 마련한다", "새 주문에만 현재 이름을 저장하고, 기존 주문의 이름은 각 문서 생성 시각을 기준으로 읽는다"], "answer": 1, "explain": "원본 참조는 조회 시 현재 이름을 가져오고, 변경 전파는 허용된 지연 뒤 복사본을 맞추는 방식이에요. 새 주문에만 적용하거나 원본만 고친 뒤 기존 복사본을 계속 읽으면 바뀐 표시 요구를 충족하지 못합니다. 변경 즉시 모든 조회에 현재 이름이 필요하다면 비동기 전파만으로는 부족해요.", "sources": [{"pages": [30, 32], "anchor": "정보가 한 곳에 있어 질의 하나로 충분하다"}, {"pages": [33, 34], "anchor": "모든 중복 항목을 변경해야 한다"}, {"pages": [38, 39], "anchor": "둘 다 관련 항목은 고유한 식별자로 참조한다"}], "source": "2장 · 책 30–32, 33–34, 38–39쪽"}, {"id": "graph-question", "chapter": 2, "level": "기초", "question": "처음에는 ‘직접 친구’만 조회했지만 이제는 ‘친구 관계를 여러 단계 따라가 특정 회사에 도달하는 경로’를 찾습니다. 탐색 깊이는 요청마다 다릅니다. Graph Model을 검토하는 근거는?", "options": ["경로를 Edge로 저장하면 탐색 깊이가 늘어도 같은 양의 데이터를 읽기 때문이다", "관계 수가 많아지면 Relational Model로 연결 자체를 표현하기 어려워지기 때문이다", "고정 횟수의 Join을 나열하기보다 가변 길이 경로를 질의에 표현하기 자연스럽기 때문이다"], "answer": 2, "explain": "핵심은 가변 길이 연결 패턴의 표현이에요. Relational Model도 관계와 재귀 질의로 이를 표현할 수 있으며, Graph Model이 모든 질의에서 더 빠르다는 뜻은 아닙니다. 탐색 깊이와 연결 수가 늘면 Graph Model에서도 탐색 비용이 커질 수 있어요.", "sources": [{"pages": [50, 52], "anchor": "데이터 간 연결이 더 복잡해지면"}, {"pages": [53, 55], "anchor": "조인 수를 고정할 수 없다"}, {"pages": [43, 44], "anchor": "결과의 패턴만 지정하기 때문에"}], "source": "2장 · 책 50–52, 53–55, 43–44쪽"}, {"id": "latest-log", "chapter": 3, "level": "기초", "question": "Append-Only Log에서 Key별 마지막 기록을 현재 값으로 읽습니다. Hash Index로 단일 Key 조회는 빨라졌지만 ‘주문 ID 구간 전체 조회’는 느립니다. 이 차이를 설명하는 것은?", "options": ["Compaction이 완료되면 Hash Index도 주문 ID 순서로 범위를 탐색할 수 있다", "최신 위치를 저장하는 Index는 단일 Key 조회에만 사용할 수 있고 갱신에는 사용할 수 없다", "Key의 위치를 바로 찾는 기능과 Key 순서대로 범위를 찾는 기능은 다르다"], "answer": 2, "explain": "Hash Index는 Key를 알고 있을 때 최신 기록의 위치를 찾는 데 적합하지만 Key 순서를 유지하지 않으므로 범위 질의에는 불리해요. Compaction은 오래된 중복 기록을 줄이는 작업이지 Hash Index를 정렬 Index로 바꾸는 작업은 아닙니다. 갱신 때는 Index가 새 기록 위치를 가리키도록 바꿀 수 있어요.", "sources": [{"pages": [73, 74], "anchor": "키의 마지막 항목을 살펴봐야 한다"}, {"pages": [75, 76], "anchor": "각 키의 최신 갱신 값만 유지하는 것을 의미한다"}, {"pages": [77, 78], "anchor": "해시 테이블은 범위 질의(range query)에 효율적이지 않다"}], "source": "3장 · 책 73–74, 75–76, 77–78쪽"}, {"id": "lsm-tradeoff", "chapter": 3, "level": "중급", "question": "LSM 기반 저장소에서 쓰기 유입이 늘자 정렬 파일이 쌓이고 Compaction이 뒤처집니다. 단일 Key 읽기 지연도 커졌습니다. 가장 타당한 해석은?", "options": ["파일들이 각각 정렬돼 있으므로, 파일 수가 늘어도 한 Key의 최신값은 파일 하나만 확인하면 찾을 수 있다", "읽기가 확인할 파일이 늘고 병합도 자원을 쓰므로, 쓰기 처리와 병합·읽기 비용을 함께 봐야 한다", "Compaction을 잠시 멈추면 병합의 디스크 경쟁이 줄어드므로, 쌓인 파일 수와 무관하게 읽기 지연을 해결할 수 있다"], "answer": 1, "explain": "파일 하나가 정렬돼 있어도 최신값을 찾으려면 여러 파일을 확인할 수 있고, Compaction도 디스크와 CPU를 사용해요. 병합을 멈추면 당장의 자원 경쟁은 줄일 수 있지만 파일 누적과 읽기 비용은 남습니다. 쓰기·읽기·병합 비용을 함께 보고 조정해야 해요.", "sources": [{"pages": [82, 84], "anchor": "루트에서 시작한다"}, {"pages": [80, 81], "anchor": "분리된 로그를 디스크 상에 유지해야 한다"}, {"pages": [85, 87], "anchor": "작업부하의 세부 사항에 민감하다"}], "source": "3장 · 책 82–84, 80–81, 85–87쪽"}, {"id": "compatibility-direction", "chapter": 4, "level": "기초", "question": "Rolling Upgrade 중 새 Reader가 옛 Writer의 데이터를 읽는 시험은 통과했습니다. 이후 새 Writer가 기록한 데이터를 아직 남아 있는 옛 Reader가 읽다가 실패했습니다. 어떤 호환성 검증이 부족했을까요?", "options": ["새 Reader가 옛 데이터를 읽는 Backward Compatibility 검증", "옛 Reader가 새 데이터를 읽는 Forward Compatibility 검증", "동일 버전 Writer와 Reader 사이의 Encoding 일치 검증"], "answer": 1, "explain": "통과한 것은 새 코드가 옛 데이터를 읽는 Backward Compatibility 방향이에요. 실패는 옛 코드가 새 데이터를 읽는 Forward Compatibility 방향입니다. 같은 버전끼리의 왕복 시험은 필요하지만 Rolling Upgrade 중의 버전 혼합 경로를 대신 검증하지 못해요.", "sources": [{"pages": [114, 114], "anchor": "새로운 코드는 예전 코드가 기록한 데이터를 읽을 수 있어야 한다"}, {"pages": [132, 133], "anchor": "데이터가 코드보다 더 오래 산다"}], "source": "4장 · 책 114, 132–133쪽"}, {"id": "unknown-field-loss", "chapter": 4, "level": "중급", "question": "새 코드가 giftMessage 필드를 추가했습니다. 옛 코드는 이 필드를 무시하고 주문을 읽은 뒤, 자신이 아는 필드만으로 문서를 다시 만들어 전체 교체 저장합니다. 옛 코드가 배송지만 수정하면?", "options": ["읽기는 성공할 수 있지만 전체 교체 시 giftMessage가 사라질 수 있다", "giftMessage를 해석하지 못하므로 배송지 수정 전 읽기에서 실패한다", "배송지는 바뀌지만 giftMessage는 저장소에 기존 값으로 남는다"], "answer": 0, "explain": "질문은 ‘아는 필드만으로 문서를 다시 만들어 전체 교체’하는 경로를 명시했어요. 따라서 모르는 필드는 다음 저장에서 빠질 수 있습니다. 모르는 필드 무시는 읽기 성공을 설명하지만 보존을 보장하지 않아요. 부분 갱신이나 미지 필드를 보존하는 Encoding·라이브러리는 결과가 다를 수 있습니다.", "sources": [{"pages": [122, 123], "anchor": "optional로 하거나 기본값을 가져야 한다"}, {"pages": [123, 123], "anchor": "번호는 절대 다시 사용할 수 없다는 의미다"}, {"pages": [132, 133], "anchor": "알지 못하는 필드가 유실될 수 있다"}], "source": "4장 · 책 122–123, 123, 132–133쪽"}, {"id": "read-own-write", "chapter": 5, "level": "중급", "question": "Leader가 프로필 변경을 승인했습니다. 요청에는 그 변경의 로그 위치가 있고, 읽기 Replica의 적용 위치는 아직 그보다 뒤처져 있습니다. 내 변경을 반영한 읽기를 제공하려면?", "options": ["응답이 빠른 Replica를 골라 읽고, 화면에는 수정 완료 메시지를 유지한다", "Replica가 해당 위치까지 적용한 뒤 읽거나, 변경이 반영된 Leader로 읽기를 보낸다", "Replica의 네트워크 연결이 정상이면 읽고, 옛 값이면 다음 새로고침에서 다시 조회한다"], "answer": 1, "explain": "Read Your Writes는 자신의 성공한 변경을 이후 읽기에서 볼 수 있어야 한다는 보장이에요. 적용 위치를 확인하거나 그 변경을 가진 곳에서 읽는 방법이 조건에 맞습니다. 연결 상태나 응답 속도는 Replica가 어디까지 반영했는지를 보장하지 않고, 수정 완료 메시지도 읽기 결과의 보장을 대신하지 못해요.", "sources": [{"pages": [164, 165], "anchor": "자신이 제출한 모든 갱신을 볼 수 있음"}, {"pages": [165, 165], "anchor": "복제 서버가 따라잡을 때까지 질의를 대기"}], "source": "5장 · 책 164–165, 165쪽"}, {"id": "quorum-limit", "chapter": 5, "level": "심화", "question": "고정 Replica A·B·C 중 A·B가 쓰기에 응답했고, 다음 읽기는 B·C에서 응답받았습니다. 동시 쓰기와 실패한 부분 쓰기를 해결하는 규칙은 주어지지 않았습니다. 이 정보로 확정할 수 있는 것은?", "options": ["읽기 응답이 쓰기 응답 이후이므로 전체 시스템이 Linearizable하다", "B가 양쪽 집합에 포함되지만, 최신값 선택과 동시 쓰기 처리는 별도 규칙이 필요하다", "두 집합이 겹치므로 C에도 이번 쓰기가 반영된 상태다"], "answer": 1, "explain": "교집합 B가 있다는 사실과 시스템 전체의 Linearizability는 다른 주장입니다. C의 반영 여부도 집합 교차만으로 알 수 없어요. Quorum의 겹침은 중요한 조건이지만 버전 선택, 동시 쓰기, 실패 중 일부만 반영된 쓰기 등을 다루는 규칙까지 대신하지 않습니다.", "sources": [{"pages": [181, 183], "anchor": "정족수 일관성의 한계"}, {"pages": [331, 332], "anchor": "선형성과 정족수"}], "source": "5장 · 책 181–183, 331–332쪽"}, {"id": "single-hot-key", "chapter": 6, "level": "중급", "question": "인기 게시물 하나의 좋아요 쓰기가 특정 Shard에 몰립니다. 기존에는 게시물 ID를 해시했습니다. 이제 카운트를 여러 하위 Key로 나누고, 게시물 ID와 하위 Key를 합친 전체 Key를 해시해 Shard를 선택합니다. 각 쓰기는 하위 Key 하나에 배분합니다. 이때 생기는 변화는?", "options": ["쓰기는 분산할 수 있지만 총 좋아요 수를 읽을 때 여러 하위 Key를 합쳐야 한다", "각 하위 Key가 독립 카운트이므로 하나만 읽어도 게시물 전체 좋아요 수를 얻는다", "Key 수만 늘고 원래 게시물 ID가 같으므로 쓰기는 기존 Shard로 모인다"], "answer": 0, "explain": "하위 Key를 분산 기준으로 사용하면 한 인기 Key의 쓰기를 나눌 수 있지만 전체 수를 얻으려면 결과를 합쳐야 해요. 원래 ID 전체만 해시한다면 집중이 유지되지만 문제에서는 분산 단위 자체를 하위 Key로 바꿨습니다. 한 조각의 카운트는 전체 카운트가 아니에요.", "sources": [{"pages": [205, 205], "anchor": "동일한 ID의 해시값은 동일하므로"}, {"pages": [205, 205], "anchor": "데이터를 읽어서 조합해야 하기 때문"}], "source": "6장 · 책 205, 205쪽"}, {"id": "atomic-boundary", "chapter": 7, "level": "중급", "question": "계좌 이체 Transaction 안에서 A 잔액 차감과 B 잔액 증가를 수행하고, 외부 이메일 API의 성공 응답도 받았습니다. 그 뒤 DB Transaction이 Abort됐습니다. 이메일은 DB Transaction에 참여하지 않습니다. 결과는?", "options": ["A의 차감은 남고 B의 증가만 취소될 수 있다", "DB 잔액 변경은 취소되지만 이메일은 이미 발송됐을 수 있다", "A·B 잔액과 이메일 발송이 함께 취소된다"], "answer": 1, "explain": "Atomicity는 해당 DB Transaction의 두 변경이 부분 반영되지 않게 합니다. 하지만 별도 외부 API의 부수 효과까지 되돌리지는 않아요. 그래서 A만 차감된 상태가 남는다고 볼 수 없고, 이메일까지 자동 취소된다고 볼 수도 없습니다. 재시도 시 이메일 중복도 별도로 고려해야 해요.", "sources": [{"pages": [224, 225], "anchor": "이 트랜잭션이 어떤 것도 변경하지 않았음"}, {"pages": [228, 228], "anchor": "전부 반영되거나 아무것도 반영되지 않는"}, {"pages": [232, 232], "anchor": "데이터베이스 외부에도 부수 효과"}], "source": "7장 · 책 224–225, 228, 232쪽"}, {"id": "write-skew-rule", "chapter": 7, "level": "심화", "question": "Snapshot Isolation에서 ‘당직자를 한 명 이상 남긴다’고 검사합니다. 의사 A·B가 같은 Snapshot에서 둘 다 당직임을 읽고 각자 자기 행만 퇴근으로 갱신합니다. DB는 같은 행의 동시 갱신 충돌만 거절합니다. 가능한 결과는?", "options": ["먼저 Commit한 의사의 변경이 다른 Transaction의 Snapshot에 반영돼 한 명이 남는다", "같은 조건을 조회했으므로 같은 행을 수정하지 않아도 하나가 Abort된다", "서로 다른 행을 갱신하므로 둘 다 Commit해 당직자가 없어질 수 있다"], "answer": 2, "explain": "Snapshot은 다른 Transaction이 먼저 Commit했다고 읽는 도중 새 상태로 바뀌지 않아요. 각자 수정한 행도 달라 명시된 충돌 검사로는 막히지 않습니다. 조회한 조건의 충돌까지 감지하는 Serializable 방식이나 적절한 잠금·제약이 필요할 수 있어요. 이것이 Write Skew의 핵심입니다.", "sources": [{"pages": [246, 248], "anchor": "쓰기 스큐를 특징짓기"}, {"pages": [262, 263], "anchor": "뒤처진 전제에 기반한 결정"}], "source": "7장 · 책 246–248, 262–263쪽"}, {"id": "clock-order", "chapter": 8, "level": "중급", "question": "같은 Key에 대해 A가 기록한 값을 읽은 B가 그 값을 수정했습니다. 그런데 B의 Wall Clock이 뒤처져 후속 변경에 더 작은 Timestamp가 붙었습니다. 저장소가 Timestamp가 큰 값만 남기는 Last Write Wins를 사용하면?", "options": ["Causality상 나중인 B의 변경이 더 오래된 값으로 취급돼 버려질 수 있다", "시각 차이가 감지되면 Last Write Wins가 두 값을 보존해 충돌로 반환한다", "B가 A의 메시지를 읽었으므로 Last Write Wins도 B를 나중 변경으로 선택한다"], "answer": 0, "explain": "주어진 선택 규칙은 메시지 관계가 아니라 Timestamp 크기만 봅니다. 따라서 실제로 앞선 변경을 읽고 만든 B의 변경도 작은 시각 때문에 버려질 수 있어요. Causality를 추적하거나 충돌을 보존하는 방식은 다른 설계이며 여기의 Last Write Wins에 자동으로 포함되지 않습니다.", "sources": [{"pages": [288, 288], "anchor": "두 대의 다른 컴퓨터에서 나온 단조 시계"}, {"pages": [291, 292], "anchor": "타임스탬프로 이벤트 순서를 올바르게 정할 수 없다"}, {"pages": [293, 293], "anchor": "이벤트의 상대적인 순서"}], "source": "8장 · 책 288, 291–292, 293쪽"}, {"id": "linear-after-read", "chapter": 9, "level": "심화", "question": "배송지를 서울에서 부산으로 바꾸는 쓰기가 진행 중입니다. 읽기 A가 부산을 반환하고 끝난 뒤 읽기 B가 시작했습니다. 다른 쓰기는 없습니다. Linearizability를 만족하는 B의 결과는?", "options": ["서울도 가능하다. 변경 요청의 성공 응답이 아직 오지 않았을 수 있기 때문이다", "서울도 가능하다. A와 다른 Replica에서 읽었다면 각 Replica의 순서만 맞으면 된다", "부산이어야 한다. A가 새 값을 본 뒤 시작한 B는 옛 값으로 돌아갈 수 없다"], "answer": 2, "explain": "A가 부산을 반환했다면 쓰기의 Linearization Point가 읽기 A의 Linearization Point보다 앞에 있어야 해요. 쓰기가 A 시작 전에 완료됐어야 한다는 뜻은 아닙니다. A가 끝난 뒤 시작한 B는 그 뒤에 놓이므로, 다른 쓰기가 없는 조건에서는 서울을 반환할 수 없어요. 쓰기 응답이 아직 없거나 Replica가 다르다는 사정이 이 보장을 면제하지 않습니다.", "sources": [{"pages": [324, 325], "anchor": "쓰기가 완료된 후 시작하므로"}, {"pages": [326, 327], "anchor": "레지스터(개별 객체)에 실행되는 읽기와 쓰기"}, {"pages": [225, 225], "anchor": "애플리케이션에 특화된 개념"}], "source": "9장 · 책 324–325, 326–327, 225쪽"}, {"id": "consensus-majority", "chapter": 9, "level": "심화", "question": "A·B·C의 Consensus 프로토콜에서 확정에는 과반수 승인이 필요합니다. 옛 Leader A와 B·C 사이의 통신이 끊겼고 B·C는 서로 통신합니다. B·C는 프로토콜에 따라 새 Leader를 선출했습니다. 아직 자신이 Leader라고 믿는 A가 새 요청을 받으면?", "options": ["B·C가 새 Leader를 선출하는 순간 A도 이를 알게 되므로 요청 수신을 중단한다", "새 요청을 로컬에 기록할 수 있어도 현재 필요한 과반수 승인을 받지 못하면 확정할 수 없다", "자신의 이전 Term에서 받은 과반수 승인을 새 요청에도 적용해 확정할 수 있다"], "answer": 1, "explain": "이전 선출 때 받은 표는 이후 모든 요청의 승인이 아니에요. A는 통신이 끊겨 새 Leader를 아직 모를 수 있지만, 새 요청을 확정할 과반수는 얻을 수 없습니다. 로컬 기록과 확정도 구분해야 합니다. 새 Leader는 프로토콜에 따라 기존 확정 이력도 보존해야 해요.", "sources": [{"pages": [365, 365], "anchor": "두 번의 투표를 하는 정족수가 겹쳐야"}, {"pages": [366, 367], "anchor": "네트워크의 과반수 부분만 진행할 수 있고"}, {"pages": [363, 363], "anchor": "프로토콜을 올바르게 따르지 않으면"}], "source": "9장 · 책 365, 366–367, 363쪽"}, {"id": "retry-recompute", "chapter": 10, "level": "중급", "question": "취소 주문을 판매량에 포함한 버그를 고쳤습니다. 원본에는 주문과 취소 기록이 모두 남아 있고, 결과를 다시 만들 수 있습니다. 기존 잘못된 통계를 교체하는 작업으로 적합한 것은?", "options": ["취소 주문을 식별할 정보가 없는 기존 일별 합계만 수정 코드에 입력해 올바른 통계로 변환한다", "원본을 수정 코드로 다시 처리해 새 통계를 검증한 뒤 기존 결과를 교체한다", "수정 코드를 배포하고 이후 주문부터 적용한다. 이미 성공한 과거 집계는 그대로 유지한다"], "answer": 1, "explain": "잘못된 로직이 성공적으로 실행된 과거 결과도 고치려는 작업이므로 이후 주문에만 적용하면 부족해요. 취소 주문을 식별할 정보가 없는 합계만으로는 취소분을 복원할 수 없습니다. 필요한 기록이 남아 있는 원본을 수정 코드로 Reprocessing해 결과를 교체하고, 외부 알림 등 부수 효과는 따로 관리해야 해요.", "sources": [{"pages": [410, 411], "anchor": "입력을 불변으로 처리하고"}, {"pages": [427, 427], "anchor": "태스크는 안전하게 재시도된다"}], "source": "10장 · 책 410–411, 427쪽"}, {"id": "late-event", "chapter": 11, "level": "심화", "question": "Event Time 기준 주문 수를 빠르게 보여줘야 하지만 일부 주문은 늦게 도착하며, 지연의 확정 상한은 없습니다. 늦은 주문도 반영하려면 어떤 결과 발행 정책이 적합할까요?", "options": ["충분히 긴 고정 시간을 기다린 뒤 확정하면, 이후 정정 없이 모든 주문의 포함을 보장한다", "초기 결과를 잠정값으로 발행하고, 늦은 주문은 정정값이나 별도 보정 경로로 반영한다", "Window 종료 후 도착한 주문은 Processing Time 구간에 넣어 기존 Event Time 집계의 정확성을 유지한다"], "answer": 1, "explain": "지연 상한이 없으므로 유한한 시간만 기다려 모든 주문의 도착을 보장할 수는 없어요. 빠른 결과를 원하면서 늦은 주문도 반영하려면 잠정값과 정정·보정 경로가 필요합니다. 도착한 시간대로 옮기면 발생 시간대별 주문 수라는 기준이 바뀝니다. 정정값이 전체값인지 증가분인지도 소비자와 맞춰야 해요.", "sources": [{"pages": [466, 467], "anchor": "이벤트 시간 대 처리 시간"}, {"pages": [468, 468], "anchor": "수정 값을 발행한다"}], "source": "11장 · 책 466–467, 468쪽"}, {"id": "stream-recovery", "chapter": 11, "level": "중급", "question": "집계 상태는 이벤트 100번까지 반영했지만, 장애 뒤 복구된 처리 위치는 90번입니다. 각 이벤트 수량을 단순히 더하는 집계이며 중복 방지 기능은 없습니다. 91번부터 재개하면?", "options": ["처리 위치를 100번으로 바꾸면 외부 시스템의 출력도 동일하게 복구된다", "100번 이후 데이터만 추가되므로 집계 상태와 처리 위치 차이가 자연스럽게 해소된다", "91~100번이 다시 더해질 수 있으므로 상태와 위치를 맞춰 복구하거나 중복 효과를 막아야 한다"], "answer": 2, "explain": "상태에 이미 반영된 구간을 다시 읽어 단순 합산하면 중복됩니다. 상태와 처리 위치의 일관된 Checkpoint나 재실행에 안전한 처리가 필요해요. 상태·위치 관계를 검증하지 않은 위치 변경은 일반적인 복구책이 아니며 외부 출력의 반영 여부까지 알려주지도 않습니다.", "sources": [{"pages": [436, 436], "anchor": "한정되지 않고 점진적으로 처리된다"}, {"pages": [474, 475], "anchor": "출력을 노출하기 전에 태스크가 완료될 때까지 기다리는 것은 해결책으로 사용할 수 없다"}], "source": "11장 · 책 436, 474–475쪽"}, {"id": "derived-lag", "chapter": 12, "level": "중급", "question": "주문 DB의 취소 저장은 성공했고 검색 Index는 변경 로그를 비동기로 읽습니다. 취소 직후 주문 상세 화면에는 확정된 상태를 보여줘야 합니다. 이 요구에 맞는 읽기 경로는?", "options": ["응답이 빠른 저장소를 읽고, 검색과 DB 값이 다르면 다음 조회에서 조정한다", "검색 Index에 주문이 존재하면 그 값을 읽고, 존재하지 않을 때만 주문 DB를 읽는다", "취소 Commit이 반영된 DB 상태에서 읽거나, 검색 Index가 그 변경을 조회 가능한 상태로 반영했음을 확인한 뒤 읽는다"], "answer": 2, "explain": "검색에 주문이 존재한다는 사실이나 응답 속도는 최신 상태의 근거가 아니에요. DB도 지연된 Read Replica나 취소 이전 Snapshot을 읽으면 옛 상태를 볼 수 있습니다. 취소가 반영된 상태를 읽거나 검색의 반영 완료를 확인해야 이 화면의 요구를 충족해요.", "sources": [{"pages": [487, 487], "anchor": "미래에 대한 의견과 고찰은 주관적이다"}, {"pages": [489, 490], "anchor": "파생 데이터 시스템은 대개 비동기로 갱신되기 때문에"}], "source": "12장 · 책 487, 489–490쪽"}, {"id": "ethics-accuracy", "chapter": 12, "level": "중급", "question": "채용 모델이 과거 회사의 합격·탈락 결과를 잘 예측합니다. 과거에는 업무 능력과 무관한 특정 학교 선호가 있었고, 모델도 그 학교에 높은 점수를 줍니다. 이 모델의 채용 적용 여부를 판단하기 위해 추가로 필요한 검증은?", "options": ["학교명을 입력에서 제거한 뒤 과거 합격 예측 정확도가 유지되면 학교 선호의 영향이 제거됐다고 판단한다", "같은 기준으로 기록된 과거 채용 데이터를 더 수집해 예측 정확도가 높아지면 공정성도 개선됐다고 판단한다", "과거 합격 여부와 독립적인 직무 관련 평가 기준으로 성능을 확인하고, 집단별 오류와 불이익을 점검한다"], "answer": 2, "explain": "과거의 불공정한 결정을 잘 재현하는 것과 직무 능력을 공정하게 평가하는 것은 달라요. 학교명을 지워도 학교와 관련된 다른 정보가 대리 변수로 남을 수 있고, 편향된 과거 기록을 더 모은다고 문제가 해결되지는 않습니다. 독립적인 평가와 집단별 영향 점검은 책의 문제 제기를 적용한 검토 예시이며, 이것만으로 공정성이 완성되는 것은 아니에요.", "sources": [{"pages": [532, 532], "anchor": "소프트웨어 엔지니어도 윤리적 책임을 져야 한다"}, {"pages": [533, 535], "anchor": "그 결정에 영향을 받은 사람은 이의를 제기할 수 있다"}, {"pages": [536, 536], "anchor": "사생활과 추적"}], "source": "12장 · 책 532, 533–535, 536쪽"}]</script>
+<script id="chapter-context-data" type="application/json">[{"id": 1, "intro": "책은 데이터베이스 제품을 고르기 전에 ‘좋은 데이터 시스템이란 무엇일까?’부터 묻습니다. 기능이 되는 것만으로는 충분하지 않기 때문이에요.", "steps": [{"title": "고장 나도 사용자의 일은 계속되어야 해요", "text": "서버 한 대가 고장 나도 주문은 안전하게 처리되길 바라죠. 부품에 문제가 생겨도 약속한 기능을 지키는 Reliability가 첫 기준입니다.", "sources": [{"pages": [6, 7], "anchor": "결함은 장애(failure)와 동일하지 않다"}]}, {"title": "사용자가 늘면, 무엇이 힘들어지는지 달라져요", "text": "주문 저장이 많은지, 상품 조회가 많은지에 따라 필요한 대응이 달라집니다. 실제 부하와 응답 시간을 보고 확장을 생각하는 것이 Scalability 이야기예요.", "sources": [{"pages": [11, 11], "anchor": "데이터베이스의 읽기 대 쓰기 비율"}]}, {"title": "같은 기능도 언제 일을 하느냐에 따라 비용이 달라요", "text": "책의 Twitter 사례는 트윗을 쓸 때 팔로워에게 미리 배포할지, 타임라인을 읽을 때 모을지 비교합니다. 팔로워가 매우 많은 계정은 따로 처리하는 Hybrid 방식도 여기서 나와요.", "sources": [{"pages": [12, 13], "anchor": "두 접근 방식의\n혼합형(hybrid)"}]}, {"title": "빠르게 보인다는 말도 더 살펴봐야 해요", "text": "평균 응답이 빨라도 일부 사용자는 오래 기다릴 수 있습니다. 그래서 느린 쪽 요청을 Percentiles로 보고, 운영 중 원인을 찾고 코드를 바꾸기 쉬운 Maintainability까지 좋은 시스템의 기준으로 삼아요.", "sources": [{"pages": [14, 15], "anchor": "꼬리 지연 시간(tail latency)"}, {"pages": [19, 19], "anchor": "운용성(operability)"}]}], "takeaway": "고장·부하 증가·변경을 어떤 조건에서 견뎌야 하는지 정해야, 이후 장의 기술들을 비교할 기준이 생깁니다."}, {"id": 2, "intro": "무엇을 만들지 정했다면, 이제 현실의 정보를 컴퓨터 안에 어떤 모양으로 담을지 결정해야 합니다. 같은 정보라도 모양에 따라 쉬운 질문과 어려운 질문이 달라져요.", "steps": [{"title": "함께 읽을 정보는 한곳에 묶고 싶어요", "text": "예를 들어 고객 프로필을 문서 하나에 모으면 한 번에 꺼내기 편합니다. 그런데 같은 회사 이름을 여러 프로필에 복사하면, 이름이 바뀔 때 여러 곳을 고쳐야 해요. 문서와 표를 비교하는 이유입니다.", "sources": [{"pages": [30, 32], "anchor": "정보가 한 곳에 있어 질의 하나로 충분하다"}, {"pages": [33, 34], "anchor": "모든 중복 항목을 변경해야 한다"}]}, {"title": "형식이 자유로워도 읽는 쪽의 약속은 남아요", "text": "문서에 새 필드를 쉽게 넣을 수 있어도 읽는 코드는 어떤 필드가 어떤 뜻인지 알아야 해요. 저장할 때 형식을 확인할지, 읽을 때 해석할지 비교하면서 Schema-on-Write와 Schema-on-Read가 나옵니다.", "sources": [{"pages": [40, 40], "anchor": "암묵적인 스키마가 있지만"}]}, {"title": "어떻게 찾을지도 표현해야 해요", "text": "‘이 조건에 맞는 고객을 찾아줘’라고 원하는 결과를 쓰는 Declarative Query와, 데이터를 어떤 순서로 계산할지 코드로 표현하는 방식을 비교해요. 이 맥락에서 MapReduce Query도 소개합니다.", "sources": [{"pages": [43, 44], "anchor": "결과의 패턴만 지정하기 때문에"}, {"pages": [47, 49], "anchor": "선언형 질의 언어도 완전한 명령형 질의 API도 아닌"}]}, {"title": "연결을 여러 번 따라가려면 다른 표현이 편할 수 있어요", "text": "친구의 친구를 계속 따라가거나 사람·회사·장소의 연결을 찾으려면 Graph Model을 검토할 수 있어요. Triple Store·RDF·SPARQL·Datalog는 이런 관계와 질문을 표현하는 다른 방법들로 등장합니다.", "sources": [{"pages": [50, 52], "anchor": "데이터 간 연결이 더 복잡해지면"}, {"pages": [57, 63], "anchor": "트리플 저장소 모델은 속성 그래프 모델과 거의 동등하다"}]}], "takeaway": "데이터를 어떤 모양으로 담을지는, 어떤 정보를 함께 읽고 어떤 관계를 자주 찾고 바꾸는지와 연결됩니다."}, {"id": 3, "intro": "2장에서 데이터의 모양을 정했다면, 3장은 ‘DB 안에서는 어떻게 저장하고 찾아낼까?’를 묻습니다. 저장됐다는 것과 빨리 찾을 수 있다는 것은 다른 문제예요.", "steps": [{"title": "일단 파일 끝에 계속 적으면 저장은 간단해요", "text": "책은 값을 파일에 덧붙이는 작은 DB에서 출발합니다. 하지만 같은 항목을 여러 번 바꾸면 옛 기록도 남고, 원하는 현재 값을 찾으려면 많은 줄을 읽어야 합니다.", "sources": [{"pages": [73, 74], "anchor": "키의 마지막 항목을 살펴봐야 한다"}]}, {"title": "찾아갈 위치를 따로 기억하면 조회가 빨라져요", "text": "Index는 원하는 기록으로 가는 길잡이입니다. 대신 데이터가 바뀔 때 Index도 고쳐야 해요. 이름이나 날짜로 찾기, 여러 조건으로 찾기 등 질문에 맞춰 다른 Index도 필요해집니다.", "sources": [{"pages": [73, 74], "anchor": "키의 마지막 항목을 살펴봐야 한다"}, {"pages": [88, 89], "anchor": "보조 색인(secondary index)"}]}, {"title": "쓰기를 편하게 하면 읽기나 정리 비용이 생겨요", "text": "LSM은 쓰기를 모아 파일로 내보내고 나중에 합칩니다. B-tree는 정렬된 구조의 페이지를 관리해요. 읽기·쓰기·공간 비용이 달라 어떤 부하인지 보고 비교해야 합니다.", "sources": [{"pages": [85, 87], "anchor": "작업부하의 세부 사항에 민감하다"}]}, {"title": "주문 한 건 찾기와 연간 매출 분석은 달라요", "text": "수많은 주문에서 금액 열만 읽어 합계를 내는 분석에는 다른 배치가 유리할 수 있어요. 그래서 운영용 데이터와 분석용 Data Warehouse를 나누고, 열별 저장·압축이나 미리 계산한 집계를 살펴봅니다.", "sources": [{"pages": [94, 98], "anchor": "ETL(Extract-Transform-Load)"}, {"pages": [99, 105], "anchor": "칼럼 지향 저장소의 기본 개념은 간단하다"}]}], "takeaway": "저장소 내부 구조는 조회 속도만이 아니라 쓰기·정리·공간 비용까지 바꿉니다. 운영과 분석이 원하는 것도 달라요."}, {"id": 4, "intro": "데이터를 잘 저장해도 앱은 계속 바뀝니다. 4장은 ‘새 코드와 옛 코드가 같은 데이터를 계속 주고받을 수 있을까?’라는 변화의 문제로 넘어갑니다.", "steps": [{"title": "메모리의 데이터를 저장·전송할 형식으로 바꿔요", "text": "프로그램 안의 객체를 다른 프로그램이 읽게 하려면 공통 형식이 필요합니다. JSON 같은 텍스트 형식과 Protocol Buffers·Avro 같은 형식을 비교하는 Encoding 이야기예요.", "sources": [{"pages": [143, 143], "anchor": "스리프트, 프로토콜 버퍼, 아브로 같은 이진 스키마 기반 형식"}]}, {"title": "모든 사용자가 동시에 업데이트하지는 않아요", "text": "예를 들어 새 앱에 배송 메모가 생겨도 옛 앱과 서버가 남아 있을 수 있어요. 새 코드가 옛 데이터를 읽는 Backward Compatibility와, 옛 코드가 새 데이터를 읽는 Forward Compatibility를 나눠 봅니다.", "sources": [{"pages": [114, 114], "anchor": "새로운 코드는 예전 코드가 기록한 데이터를 읽을 수 있어야 한다"}]}, {"title": "읽기에 성공했다고 다시 저장해도 안전한 것은 아니에요", "text": "옛 코드가 모르는 배송 메모를 무시하고 읽을 수는 있어요. 하지만 아는 필드만으로 다시 저장하면 메모가 사라질 수 있습니다. 필드 추가·삭제와 읽기-수정-쓰기 경로를 함께 보는 이유예요.", "sources": [{"pages": [132, 133], "anchor": "알지 못하는 필드가 유실될 수 있다"}]}, {"title": "어디로 보내느냐에 따라 실패 방식도 달라져요", "text": "데이터는 DB에 남거나 REST·RPC 요청으로 전달되거나 Message Broker를 거쳐 나중에 처리됩니다. 원격 요청은 응답이 사라질 수 있어서 로컬 함수 호출처럼 다룰 수 없어요. 메시지로 협력하는 Actor Model도 이 맥락에 나옵니다.", "sources": [{"pages": [136, 138], "anchor": "네트워크 요청은 로컬 함수 호출과는 매우 다르다"}, {"pages": [140, 142], "anchor": "분산 액터 프레임워크"}]}], "takeaway": "변경은 새 데이터 형식 하나를 만드는 일만이 아닙니다. 남아 있는 옛 코드와 저장·통신 경로까지 함께 동작해야 해요."}, {"id": 5, "intro": "Part 2는 여러 컴퓨터가 협력하는 상황으로 범위를 넓힙니다. 5장의 출발점은 ‘데이터의 복사본을 다른 서버에도 두면 어떨까?’예요.", "steps": [{"title": "복사본이 있으면 다른 서버에서도 읽을 수 있어요", "text": "같은 데이터를 여러 서버에 두는 것이 Replication입니다. 한곳이 멈췄을 때 다른 복사본을 쓰거나 읽기를 나누려면, 먼저 변경을 복사본에 전달해야 합니다.", "sources": [{"pages": [154, 155], "anchor": "리더가 처리한 것과 동일한 순서로"}]}, {"title": "모든 복사본을 기다릴지 선택해야 해요", "text": "한 서버가 먼저 저장하고 다른 서버가 나중에 따라오면 응답은 빨리 줄 수 있어도 옛 값이 보일 수 있어요. 반대로 반영을 기다리면 느리거나 응답하지 않는 서버의 영향을 받습니다.", "sources": [{"pages": [156, 157], "anchor": "동기 팔로워가 응답하지 않는다면"}, {"pages": [163, 164], "anchor": "팔로워 간 읽기 요청을 분산하는"}]}, {"title": "내가 방금 바꾼 값은 바로 보고 싶어요", "text": "프로필을 고친 직후 옛 이름이 보이면 당황스럽죠. 자신의 변경을 반영한 서버에서 읽게 하는 Read Your Writes처럼, 지연 속에서도 필요한 읽기 보장을 살펴봅니다.", "sources": [{"pages": [164, 165], "anchor": "자신이 제출한 모든 갱신을 볼 수 있음"}]}, {"title": "쓰기를 받는 방식이 바뀌면 새 문제가 생겨요", "text": "여러 곳에서 쓰기를 받는 Multi-Leader는 변경 충돌을 다뤄야 합니다. Leaderless는 여러 복사본의 응답을 모으고 빠진 변경을 복구해요. Leader를 교체할 때는 미전달 데이터나 두 Leader가 생기는 위험도 봅니다.", "sources": [{"pages": [173, 175], "anchor": "다중 리더 복제에서 제일 큰 문제는 쓰기 충돌"}, {"pages": [179, 181], "anchor": "읽기 복구와 안티 엔트로피"}, {"pages": [159, 160], "anchor": "이전 리더의 복제되지 않은 쓰기를 단순히 폐기"}]}], "takeaway": "복사본을 두는 것은 시작입니다. 언제 반영을 기다리고, 어디에서 읽고, 충돌과 장애 전환을 어떻게 다룰지가 설계의 핵심이에요."}, {"id": 6, "intro": "복사본마다 전체 데이터를 담는 방식은 데이터가 너무 커지면 한계가 있습니다. 그래서 6장은 ‘서로 다른 데이터를 여러 서버에 나눠 맡기자’로 이어집니다.", "steps": [{"title": "전체 데이터 대신 일부씩 나눠 맡겨요", "text": "예를 들어 고객 번호를 기준으로 주문을 나눌 수 있습니다. 이것이 Partitioning이고, 나눈 각 조각을 다시 복제할 수도 있어요. 같은 것을 복사하는 일과 다른 것을 나누는 일은 구분합니다.", "sources": [{"pages": [199, 200], "anchor": "각 파티션의 복사본을 여러 노드에 저장"}]}, {"title": "데이터 수가 비슷해도 일은 한쪽에 몰릴 수 있어요", "text": "인기 상품 하나에 요청이 몰리면 그 상품 담당 서버만 바쁠 수 있어요. 같은 Key는 같은 곳으로 가므로 해시만으로 해결되지 않습니다. 데이터를 더 쪼개면 읽을 때 합치는 비용도 생겨요.", "sources": [{"pages": [205, 205], "anchor": "동일한 ID의 해시값은 동일하므로"}]}, {"title": "나눈 기준과 다른 조건으로 찾으면 어떻게 될까요?", "text": "고객 번호로 주문을 나눴는데 상품 이름으로 찾고 싶을 수 있어요. 검색용 Index를 어디에 둘지에 따라 여러 조각을 조회하거나 변경을 다른 서버에 전달해야 합니다.", "sources": [{"pages": [206, 209], "anchor": "문서 기반 파티셔닝과 용어 기반 파티셔닝"}]}, {"title": "서버가 늘면 담당 위치도 바뀝니다", "text": "Rebalancing은 데이터 조각을 다른 서버로 옮겨 부담을 다시 나누는 일입니다. 옮긴 뒤 요청을 예전 서버로 보내지 않으려면, 담당 위치를 찾는 Request Routing 정보도 맞춰야 해요.", "sources": [{"pages": [209, 210], "anchor": "파티션은 노드 사이에서 통째로 이동하기만 한다"}, {"pages": [214, 215], "anchor": "노드에 할당된 파티션의 변경 사항을 어떻게 아느냐다"}]}], "takeaway": "나누는 기준은 저장 위치뿐 아니라 부하 집중, 검색, 데이터 이동, 요청 전달 경로까지 함께 결정합니다."}, {"id": 7, "intro": "서버 수와 별개로, 작업이 중간에 실패하거나 여러 요청이 겹치면 데이터가 어긋납니다. 7장은 이런 문제를 DB가 어떤 약속으로 덜어줄 수 있는지 다뤄요.", "steps": [{"title": "한 작업의 절반만 성공하면 곤란해요", "text": "계좌 이체에서 출금만 되고 입금이 안 되면 안 되죠. Transaction의 Atomicity는 묶은 DB 변경이 함께 반영되거나 함께 취소되게 합니다. 외부 이메일까지 자동 취소하는 약속은 아니에요.", "sources": [{"pages": [224, 225], "anchor": "이 트랜잭션이 어떤 것도 변경하지 않았음"}, {"pages": [232, 232], "anchor": "데이터베이스 외부에도 부수 효과"}]}, {"title": "함께 성공해도 동시에 실행하면 문제가 남아요", "text": "두 사람이 같은 빈 회의실을 보고 각각 예약하면 둘 다 성공할 수 있어요. Transaction을 썼다는 사실만으로 이런 동시 실행 문제가 해결되지는 않습니다. 어떤 Isolation Level인지가 중요해요.", "sources": [{"pages": [249, 250], "anchor": "스냅숏 격리는 다른 사용자가 동시에"}]}, {"title": "안정된 화면을 보는 것과 업무 규칙을 지키는 것은 달라요", "text": "읽을 때마다 다른 시점의 값이 보이는 문제를 줄이려고 Snapshot을 쓸 수 있습니다. 그래도 서로 다른 행을 고치며 함께 지켜야 할 조건을 깨는 Write Skew는 남을 수 있어요.", "sources": [{"pages": [234, 237], "anchor": "읽기 스큐는 커밋 후 읽기 격리에서는 받아들일 수 있는"}, {"pages": [249, 250], "anchor": "스냅숏 격리는 다른 사용자가 동시에"}]}, {"title": "더 강한 보장에는 기다림이나 재시도가 따릅니다", "text": "Serializable을 구현하려고 실제로 하나씩 실행하거나, 2PL로 충돌을 잠그거나, SSI로 위험한 실행을 감지해 취소할 수 있어요. 방식에 따라 대기·Deadlock·재시도 비용이 달라집니다.", "sources": [{"pages": [251, 252], "anchor": "동시성 없이 한 번에 하나씩"}, {"pages": [256, 258], "anchor": "이런 상황을 교착 상태라 한다"}, {"pages": [261, 262], "anchor": "쓰기 작업 사이의 직렬성 충돌"}]}], "takeaway": "Transaction이라는 이름보다 무엇을 함께 취소하고 어떤 동시 실행을 막는지 봐야 합니다. 보장이 강해지면 비용도 생겨요."}, {"id": 8, "intro": "앞에서는 복제·분할·Transaction으로 문제를 다뤘습니다. 8장은 그 방법들이 기대던 가정을 다시 묻습니다. 다른 서버가 제때 답하고 시계도 믿을 만하다고 해도 될까요?", "steps": [{"title": "응답이 없다고 실패한 것은 아니에요", "text": "주문 요청이 서버에 도착하지 않았을 수도, 저장 뒤 응답만 사라졌을 수도 있습니다. Timeout은 기다림을 끝내지만 결과까지 알려주지는 않아요. 재시도에는 중복 위험이 따릅니다.", "sources": [{"pages": [278, 279], "anchor": "유일한 정보는 응답을 아직 받지 못했다는 것"}]}, {"title": "나중에 생긴 변경에 더 이른 시각이 붙을 수 있어요", "text": "서버마다 Wall Clock이 다르면 앞선 값을 읽고 만든 변경도 더 작은 Timestamp를 받을 수 있어요. 기록된 시각과 실제 선후 관계를 구분하고 Causality를 살펴야 합니다.", "sources": [{"pages": [291, 292], "anchor": "타임스탬프로 이벤트 순서를 올바르게 정할 수 없다"}]}, {"title": "죽지 않았어도 한동안 멈출 수 있어요", "text": "작업자가 잠시 멈춘 사이 권한의 유효기간이 끝나고 새 작업자가 일을 맡을 수 있어요. 옛 작업자가 다시 움직이면 위험하므로, 저장소가 오래된 Fencing Token의 요청을 거절하게 합니다.", "sources": [{"pages": [302, 303], "anchor": "자신이 더 큰 토큰 번호(34)를 가진 쓰기"}]}, {"title": "무엇을 견딜지 먼저 정해야 보장을 말할 수 있어요", "text": "서버가 꺼지는지 다시 살아나는지, 응답이 얼마나 늦을 수 있는지 같은 가정을 정합니다. 그 위에서 잘못된 결과를 막는 Safety와, 필요한 조건에서 결국 진행하는 Liveness를 나눠 따져요.", "sources": [{"pages": [307, 307], "anchor": "죽으면 복구하는(crash-recovery) 결함"}, {"pages": [308, 309], "anchor": "안전성 속성이 항상 만족되기를 요구하는"}]}], "takeaway": "다른 서버의 상태·시각·응답 속도를 완전히 안다고 가정할 수 없습니다. 모르는 상황에서도 지킬 수 있는 약속을 찾아야 해요."}, {"id": 9, "intro": "8장에서 서버와 통신이 믿음직하지 않을 수 있음을 봤습니다. 9장은 ‘그래도 여러 서버가 같은 값과 결정을 따르게 할 수 있을까?’라는 질문으로 이어집니다.", "steps": [{"title": "먼저 사용자가 어떤 값을 봐야 할지 정해요", "text": "배송지를 바꾼 뒤 읽는 사람이 옛 주소를 봐도 될까요? Linearizability는 여러 복사본이어도 각 읽기·쓰기가 실제 시간 순서에 맞는 하나의 값처럼 보이게 하는 보장입니다.", "sources": [{"pages": [324, 325], "anchor": "쓰기가 완료된 후 시작하므로"}]}, {"title": "서버들이 같은 순서를 따르는 방법을 살펴봐요", "text": "앞선 변경에 의존하는 후속 변경의 순서를 추적하고, 모두에게 같은 순서로 전달하는 방법을 봅니다. Causality·Lamport Timestamp·Total Order Broadcast가 이런 순서 문제에서 나와요.", "sources": [{"pages": [343, 346], "anchor": "모든 인과적 의존성이 타임스탬프를 증가시키기 때문"}]}, {"title": "여러 곳의 변경을 함께 확정하려면 조율이 필요해요", "text": "2PC는 참여자들에게 준비됐는지 확인하고 Commit·Abort 결정을 전달합니다. 하지만 준비 후 조정자가 멈추면 참여자가 결정을 기다려야 할 수 있어요. 함께 확정하는 일의 비용입니다.", "sources": [{"pages": [352, 355], "anchor": "트랜잭션이 커밋됐는지 어보트됐는지 회신"}]}, {"title": "새 Leader도 이전 결정을 뒤집으면 안 돼요", "text": "A와 B·C의 통신이 끊겨 B·C가 새 Leader를 세워도, 옛 A의 주장과 충돌하지 않아야 해요. Consensus는 투표·Term·확정 이력 보존 규칙을 둡니다. 이를 활용하는 Coordination Service도 나옵니다.", "sources": [{"pages": [365, 365], "anchor": "두 번의 투표를 하는 정족수가 겹쳐야"}, {"pages": [366, 367], "anchor": "네트워크의 과반수 부분만 진행할 수 있고"}, {"pages": [367, 369], "anchor": "노드들을 코디네이트하는"}]}], "takeaway": "같은 값을 읽는 보장, 변경 순서, 여러 곳의 Commit, Leader에 대한 합의는 연결되지만 같은 개념은 아닙니다. 필요한 약속마다 절차와 비용이 달라요."}, {"id": 10, "intro": "이전까지는 주로 요청을 받고 바로 답하는 시스템을 봤습니다. 10장은 ‘이미 쌓여 있는 많은 데이터를 읽어서 새 결과를 만들자’는 다른 처리 방식으로 넘어갑니다.", "steps": [{"title": "컴퓨터 한 대에서 접속 로그를 분석해요", "text": "책은 웹사이트에서 가장 많이 방문한 페이지를 찾는 예로 시작해요. 로그에서 주소를 꺼내고 → 방문 횟수를 세고 → 인기순으로 정렬합니다. 작은 Unix 도구를 연결하는 Unix Philosophy가 출발점이에요.", "sources": [{"pages": [387, 391], "anchor": "유닉스 도구로 일괄 처리하기"}]}, {"title": "데이터가 커지면 여러 컴퓨터가 나눠 계산해요", "text": "로그를 나눠 읽더라도 같은 페이지의 방문 횟수는 함께 더해야 해요. MapReduce는 같은 Key의 기록을 모아 계산하게 하고, 장비 사이의 전달을 맡습니다. 데이터를 옮기고 정렬하는 비용은 남아요.", "sources": [{"pages": [396, 398], "anchor": "같은 키를 가진 레코드를 모으고"}]}, {"title": "다른 파일의 정보도 필요해집니다", "text": "방문 기록에는 사용자 ID만 있고 사용자 정보는 다른 파일에 있을 수 있어요. 같은 ID로 자료를 연결하는 Join이 여기서 나옵니다. Reduce-side와 Map-side는 자료를 모아 연결할지, 준비된 조건을 이용해 각자 연결할지 나눈 방식이에요.", "sources": [{"pages": [405, 407], "anchor": "입력 데이터에 대해 특정 가정이 가능하다면"}]}, {"title": "계산을 길게 잇거나 반복하면 더 적합한 방법을 찾아요", "text": "단계마다 중간 파일을 쓰고 읽는 비용을 줄이려는 Dataflow Engine으로 이어집니다. 웹페이지 링크를 따라 중요도를 여러 번 계산하는 일처럼, 반복 계산이 필요한 경우에는 Pregel 같은 방식도 살펴봐요.", "sources": [{"pages": [417, 422], "anchor": "데이터플로 엔진"}]}, {"title": "원본을 남겨두면 결과를 다시 만들 수 있어요", "text": "이번에 처리할 파일을 정해 끝까지 계산하면 한 실행이 끝납니다. 실패한 작업은 재시도하고, 계산 버그를 고쳤다면 원본을 수정 로직으로 다시 처리해 결과를 교체할 수 있어요. 둘은 목적이 다릅니다.", "sources": [{"pages": [428, 428], "anchor": "입력 데이터는 고정된 크기로 한정된다"}, {"pages": [410, 411], "anchor": "입력을 불변으로 처리하고"}, {"pages": [427, 427], "anchor": "태스크는 안전하게 재시도된다"}]}], "takeaway": "작은 분석을 시작으로 여러 컴퓨터에 나누고, 다른 자료와 연결하고, 복잡한 계산과 재실행까지 확장하는 흐름입니다."}, {"id": 11, "intro": "10장에서는 처리할 파일을 먼저 정하고 계산을 마쳤습니다. 하지만 새 주문을 내일까지 기다리지 않고 지금 판매량에 반영하고 싶다면 어떻게 할까요?", "steps": [{"title": "새 데이터가 올 때마다 결과를 갱신해요", "text": "주문이 들어올 때마다 판매량을 더하는 Stream Processing입니다. 입력이 계속 오므로 전체 작업이 끝날 때까지 기다렸다 결과를 공개하는 방식은 쓸 수 없어요.", "sources": [{"pages": [436, 436], "anchor": "한정되지 않고 점진적으로 처리된다"}]}, {"title": "변경을 보관하고 어디까지 읽었는지 기억해요", "text": "소비자가 잠시 멈춰도 다시 읽으려면 기록이 필요합니다. Partitioned Log는 메시지를 읽어도 남겨두고, Consumer Offset은 어디까지 처리했는지 표시해요. DB의 변경을 전달하는 CDC와 일을 이벤트로 기록하는 Event Sourcing도 비교합니다.", "sources": [{"pages": [443, 445], "anchor": "로그 기반 메시지 브로커"}, {"pages": [450, 454], "anchor": "변경 데이터 캡처와 가장 큰 차이점은"}]}, {"title": "도착한 때와 실제 발생한 때가 달라요", "text": "10시에 발생한 주문 데이터가 집계기에 10시 5분 도착할 수 있어요. Event Time 기준이라면 10시 집계에 넣어야 합니다. 이미 결과를 발표했다면 늦은 주문을 반영해 정정할지 정책이 필요해요.", "sources": [{"pages": [466, 467], "anchor": "이벤트 시간 대 처리 시간"}, {"pages": [468, 468], "anchor": "수정 값을 발행한다"}]}, {"title": "변화들을 연결하고, 장애 뒤에도 정확하게 이어가요", "text": "트윗과 팔로우 관계의 변화를 함께 반영해 타임라인을 갱신하는 Stream Join도 봅니다. 장애 뒤에는 집계 상태와 읽은 위치를 맞춰 복구하고, 같은 이벤트를 다시 읽어 두 번 더하지 않도록 해야 해요.", "sources": [{"pages": [472, 476], "anchor": "테이블 테이블 조인(구체화 뷰 유지)"}, {"pages": [474, 475], "anchor": "출력을 노출하기 전에 태스크가 완료될 때까지 기다리는 것은 해결책으로 사용할 수 없다"}]}], "takeaway": "새 데이터를 빨리 반영하는 것만이 아니라, 기록·발생 시각·늦은 도착·중복·복구까지 함께 다루는 장입니다."}, {"id": 12, "intro": "각 도구와 처리 방식을 봤으니, 마지막 장은 서비스 전체를 돌아봅니다. 저자가 제안하는 설계 방향을 살펴보고, 끝에서는 기술이 사람에게 미치는 영향으로 질문을 넓혀요.", "steps": [{"title": "각 저장소가 정확해도 전체 화면은 다를 수 있어요", "text": "주문 DB에는 취소됐는데 검색에는 완료로 보일 수 있어요. 기준 원본인 System of Record와, 원본에서 만든 검색·통계 같은 Derived Data를 구분하고 변경이 전달되는 흐름을 생각합니다.", "sources": [{"pages": [489, 490], "anchor": "파생 데이터 시스템은 대개 비동기로 갱신되기 때문에"}]}, {"title": "여러 도구를 하나의 데이터 흐름으로 엮어요", "text": "DB·검색·분석을 각각 독립적으로 고치는 대신 원본 변경을 따라 결과를 만들게 하는 방향입니다. Database Unbundling은 DB 안에서 묶이던 역할을 여러 도구로 나누고 그 연결을 설계하는 관점으로 소개돼요.", "sources": [{"pages": [499, 503], "anchor": "언번들링 데이터베이스: 쓰기를 통합"}]}, {"title": "중간 단계의 성공만으로 전체 성공을 판단하지 않아요", "text": "주문 재시도가 한 번만 반영됐는지까지 확인하려면 요청 식별자와 중복 방지 경로가 필요해요. End-to-End Argument는 구성 요소의 보장만 믿지 말고 최종 목적까지 살피라는 맥락입니다.", "sources": [{"pages": [517, 521], "anchor": "로그 기반 메시징의 유일성"}]}, {"title": "잠깐 늦는 것과 잘못되는 것은 구분해요", "text": "검색 반영이 조금 늦는 Timeliness 문제와 주문이 빠지거나 중복되는 Integrity 문제는 다릅니다. 어느 지연을 허용하고, 무엇은 틀리지 않아야 하며, 어떻게 확인하고 복구할지 정해야 해요.", "sources": [{"pages": [523, 524], "anchor": "적시성과 무결성"}]}, {"title": "마지막에는 ‘그 결과를 사람에게 써도 될까?’를 물어요", "text": "여기서 기술 내부의 정확성에서 사람에 대한 책임으로 주제가 바뀝니다. 채용·대출 같은 결정에 데이터를 쓰면 편견이나 오류가 기회를 막을 수 있어요. 저자는 수집 목적과 피해, 이의 제기·정정 가능성도 고민해야 한다고 말합니다.", "sources": [{"pages": [532, 532], "anchor": "소프트웨어 엔지니어도 윤리적 책임을 져야 한다"}, {"pages": [533, 535], "anchor": "그 결정에 영향을 받은 사람은 이의를 제기할 수 있다"}, {"pages": [536, 536], "anchor": "사생활과 추적"}]}], "takeaway": "전체 데이터 흐름이 약속대로 동작하는지 보고, 그 결과가 사람에게 미치는 영향에도 책임을 묻는 것으로 책을 마무리합니다."}]</script><script id="chapter-scope-data" type="application/json">[{"id": 1, "notes": [{"text": "Twitter의 트윗 하나를 여러 팔로워에게 배포하는 Fan-out과, 유명인 트윗은 읽을 때 합치는 Hybrid 방식도 나옵니다.", "pages": [12, 13], "anchor": "두 접근 방식의\n혼합형(hybrid)"}, {"text": "평균에 가려지는 느린 요청을 보는 Latency Percentiles(p95·p99)와 Tail Latency도 다룹니다.", "pages": [14, 15], "anchor": "꼬리 지연 시간(tail latency)"}, {"text": "Maintainability를 Operability·Simplicity·Evolvability로 나누어 운영·복잡도·변경의 관점도 다룹니다.", "pages": [19, 19], "anchor": "운용성(operability)"}]}, {"id": 2, "notes": [{"text": "Schema-on-Read와 Schema-on-Write를 비교하며, ‘Schemaless’에도 읽는 코드의 가정이 있음을 다룹니다.", "pages": [40, 40], "anchor": "암묵적인 스키마가 있지만"}, {"text": "MapReduce Query에서는 map·reduce로 문서를 집계하고, Declarative Query와 표현 방식을 비교합니다.", "pages": [47, 49], "anchor": "선언형 질의 언어도 완전한 명령형 질의 API도 아닌"}, {"text": "Graph Query의 다른 표현으로 Triple Store·RDF·SPARQL과 규칙 기반 Datalog도 나옵니다.", "pages": [57, 63], "anchor": "트리플 저장소 모델은 속성 그래프 모델과 거의 동등하다"}]}, {"id": 3, "notes": [{"text": "Primary Key 조회 외에 Secondary·Clustered·Covering Index와 Multi-column Index도 다룹니다.", "pages": [88, 89], "anchor": "보조 색인(secondary index)"}, {"text": "OLTP/OLAP 구분에서 더 나아가 Data Warehouse·ETL과 Star/Snowflake Schema도 나옵니다.", "pages": [94, 98], "anchor": "ETL(Extract-Transform-Load)"}, {"text": "분석용 Column-oriented Storage의 압축·정렬·쓰기와, 미리 집계하는 Materialized View·Data Cube도 다룹니다.", "pages": [99, 105], "anchor": "칼럼 지향 저장소의 기본 개념은 간단하다"}]}, {"id": 4, "notes": [{"text": "JSON·XML 같은 Text Encoding과 Thrift·Protocol Buffers·Avro 같은 Schema 기반 Binary Encoding도 비교합니다.", "pages": [143, 143], "anchor": "스리프트, 프로토콜 버퍼, 아브로 같은 이진 스키마 기반 형식"}, {"text": "REST·RPC를 통한 Dataflow와, 원격 호출의 Timeout·재시도가 로컬 함수 호출과 다른 점도 다룹니다.", "pages": [136, 138], "anchor": "네트워크 요청은 로컬 함수 호출과는 매우 다르다"}, {"text": "Message Broker를 통한 비동기 Dataflow와, 메시지로 통신하는 Distributed Actor Model도 나옵니다.", "pages": [140, 142], "anchor": "분산 액터 프레임워크"}]}, {"id": 5, "notes": [{"text": "Multi-Leader Replication에서는 여러 곳의 쓰기가 충돌할 수 있어, 충돌을 피하거나 같은 최종 값으로 수렴시키는 방법도 다룹니다.", "pages": [173, 175], "anchor": "다중 리더 복제에서 제일 큰 문제는 쓰기 충돌"}, {"text": "Leaderless Replication에서는 여러 Replica에 읽고 쓰며, Read Repair·Anti-Entropy로 누락을 복구하고 Quorum을 정하는 방법도 다룹니다.", "pages": [179, 181], "anchor": "읽기 복구와 안티 엔트로피"}, {"text": "Failover로 새 Leader를 세울 때 생기는 미복제 쓰기 유실과, 두 노드가 자신을 Leader라고 믿는 Split Brain 위험도 다룹니다.", "pages": [159, 160], "anchor": "이전 리더의 복제되지 않은 쓰기를 단순히 폐기"}]}, {"id": 6, "notes": [{"text": "Secondary Index도 문서별 Local Index와 용어별 Global Index로 나누며, 여러 Partition 조회와 비동기 Index 갱신의 비용도 다룹니다.", "pages": [206, 209], "anchor": "문서 기반 파티셔닝과 용어 기반 파티셔닝"}, {"text": "Rebalancing으로 노드 사이의 부하를 다시 나누고, Partition을 통째로 옮겨 불필요한 데이터 이동을 줄이는 방법도 다룹니다.", "pages": [209, 210], "anchor": "파티션은 노드 사이에서 통째로 이동하기만 한다"}, {"text": "Request Routing에서는 담당 Partition의 위치를 누가 알아내고, 할당이 바뀌었을 때 라우팅 정보를 어떻게 갱신하는지도 다룹니다.", "pages": [214, 215], "anchor": "노드에 할당된 파티션의 변경 사항을 어떻게 아느냐다"}]}, {"id": 7, "notes": [{"text": "Read Committed가 Dirty Read·Dirty Write는 막지만, 서로 다른 시점의 값을 섞어 보는 Read Skew는 허용하는 차이도 다룹니다.", "pages": [234, 237], "anchor": "읽기 스큐는 커밋 후 읽기 격리에서는 받아들일 수 있는"}, {"text": "2PL은 읽기와 쓰기를 잠금으로 조율해 Serializability를 얻지만, 대기와 Deadlock·재시도 비용이 생기는 방식도 다룹니다.", "pages": [256, 258], "anchor": "이런 상황을 교착 상태라 한다"}, {"text": "SSI는 Snapshot Isolation에서 순차 실행과 맞지 않는 충돌을 감지해, 해당 Transaction을 취소하고 재시도하는 방식도 다룹니다.", "pages": [261, 262], "anchor": "쓰기 작업 사이의 직렬성 충돌"}]}, {"id": 8, "notes": [{"text": "Process Pause로 프로세스가 멈춘 사이 Lease가 만료될 수 있어, 저장소가 오래된 Fencing Token의 쓰기를 거절해야 하는 문제도 다룹니다.", "pages": [302, 303], "anchor": "자신이 더 큰 토큰 번호(34)를 가진 쓰기"}, {"text": "System Model에서는 지연의 상한을 가정하는지와 Crash-Stop·Crash-Recovery·Byzantine Fault 중 무엇을 견딜지 구분하는 관점도 다룹니다.", "pages": [307, 307], "anchor": "죽으면 복구하는(crash-recovery) 결함"}, {"text": "Safety는 잘못된 결과를 내지 않는 보장, Liveness는 조건이 회복되면 결국 진행하는 보장으로 나누어 정확성을 따지는 방법도 다룹니다.", "pages": [308, 309], "anchor": "안전성 속성이 항상 만족되기를 요구하는"}]}, {"id": 9, "notes": [{"text": "Causality를 따르는 Lamport Timestamp와, 모든 노드에 같은 전달 순서를 확정하는 Total Order Broadcast도 다룹니다.", "pages": [343, 346], "anchor": "모든 인과적 의존성이 타임스탬프를 증가시키기 때문"}, {"text": "2PC는 여러 참여자의 Commit·Abort를 맞추지만, 준비에 동의한 뒤 Coordinator가 멈추면 결정을 기다려야 하는 한계도 다룹니다.", "pages": [352, 355], "anchor": "트랜잭션이 커밋됐는지 어보트됐는지 회신"}, {"text": "ZooKeeper·etcd 같은 Coordination Service로 Leader 선출과 Partition 할당을 조율하고, 멤버십 변경을 추적하는 활용도 다룹니다.", "pages": [367, 369], "anchor": "노드들을 코디네이트하는"}]}, {"id": 10, "notes": [{"text": "예를 들어 로그에서 ‘오류’가 있는 줄만 골라 오류 종류별로 개수를 셀 수 있어요. 줄을 고르는 도구와 개수를 세는 도구를 이어 쓰는 식입니다. 작은 도구를 조합해 일을 해결하는 Unix Philosophy도 다룹니다.", "pages": [387, 391], "anchor": "유닉스 도구로 일괄 처리하기"}, {"text": "주문 파일에는 고객 번호만 있고, 이름은 다른 파일에 있다고 해볼게요. 같은 번호를 찾아 주문에 이름을 붙이는 것이 Join이에요. 관련 자료를 한곳에 모아 붙이는 Reduce-side Join과, 미리 준비된 자료로 각자 붙이는 Map-side Join도 다룹니다.", "pages": [405, 407], "anchor": "입력 데이터에 대해 특정 가정이 가능하다면"}, {"text": "주문에서 취소 건을 빼고 → 상품별로 더하고 → 판매량순으로 정렬하듯, 여러 계산을 이어 실행하는 Dataflow Engine도 나옵니다. 웹페이지들이 서로 어떤 페이지를 링크하는지 따라가며 중요도를 반복 계산하는 데 쓸 수 있는 Pregel도 소개해요.", "pages": [417, 422], "anchor": "데이터플로 엔진"}]}, {"id": 11, "notes": [{"text": "Message Broker의 방식도 비교합니다. Partitioned Log에서는 메시지를 읽어도 지우지 않고, Consumer Offset으로 처리 위치를 추적해요.", "pages": [443, 445], "anchor": "로그 기반 메시지 브로커"}, {"text": "DB 변경을 추출하는 Change Data Capture (CDC)와, 애플리케이션의 일을 불변 이벤트로 기록하는 Event Sourcing의 차이도 다룹니다.", "pages": [450, 454], "anchor": "변경 데이터 캡처와 가장 큰 차이점은"}, {"text": "Twitter 타임라인을 갱신하는 Stream Join과, 장애 복구를 위한 Checkpoint·Idempotence도 다룹니다.", "pages": [472, 476], "anchor": "테이블 테이블 조인(구체화 뷰 유지)"}]}, {"id": 12, "notes": [{"text": "Database Unbundling으로 여러 저장 도구의 쓰기를 연결하고, Dataflow를 중심으로 애플리케이션을 구성하는 방향도 다룹니다.", "pages": [499, 503], "anchor": "언번들링 데이터베이스: 쓰기를 통합"}, {"text": "End-to-End Argument에 따라 Request ID로 중복을 억제하고, 로그의 순서로 Uniqueness Constraint를 지키는 방법도 나옵니다.", "pages": [517, 521], "anchor": "로그 기반 메시징의 유일성"}, {"text": "최신 상태가 보이는 Timeliness와 데이터가 손상되지 않는 Integrity를 구분하고, Dataflow에서 정확성을 지키는 방법도 다룹니다.", "pages": [523, 524], "anchor": "적시성과 무결성"}]}]</script><script id="depth-data" type="application/json">
+[
+  {
+    "id": 1,
+    "bridge": "좋은 시스템의 기준을 세웠다면, 다음 장에서는 주문과 고객을 어떤 모양으로 표현해야 읽기와 변경이 쉬워지는지 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Reliability: 부품의 고장이 곧 서비스의 실패는 아니에요",
+        "paragraphs": [
+          "주문 조회 요청이 앱을 거쳐 DB에 도착하는데 DB가 멈췄다고 해볼게요. 구성 요소가 제 역할을 못 하는 것은 Fault이고, 그 때문에 사용자가 필요한 서비스를 받지 못하면 Failure예요. Reliability는 부품이 절대 고장 나지 않는다는 약속보다, 문제가 생겨도 기대한 기능을 지키는 능력에 가까워요.",
+          "그래서 정상 경로만 아니라 고장 뒤의 경로도 설계해야 해요. 여분의 구성 요소로 일을 이어가거나 백업을 복원하는 방법을 마련하고, 실제 Fault를 가정해 동작을 시험하죠. 다만 모든 고장을 막을 수는 없어요. 어떤 Fault를 견딜지와 복구 중 허용할 중단시간을 구분해야 설계의 한계도 보입니다."
+        ],
+        "diagram": "reliability",
+        "caption": "요청 → 앱 → DB의 정상 경로와 DB Fault 뒤의 복구 경로를 나란히 보세요. 판단 기준은 사용자가 서비스를 계속 받을 수 있는지예요.",
+        "caution": "복구 경로를 그렸다고 무중단이 보장되지는 않으며, 견딜 Fault의 종류와 실제 복구 동작을 확인해야 해요.",
+        "sources": [
+          {
+            "pages": [
+              6,
+              7
+            ],
+            "anchor": "결함은 장애(failure)와 동일하지 않다"
+          },
+          {
+            "pages": [
+              8,
+              8
+            ],
+            "anchor": "중복된 구성 요소를 대신 사용할"
+          }
+        ]
+      },
+      {
+        "title": "Scalability: 요청이 늘면 무엇이 먼저 막히는지 봐요",
+        "paragraphs": [
+          "주문을 읽는 요청이 늘어 느려졌다면, 먼저 초당 요청 수와 읽기·쓰기 비율처럼 부하를 설명할 숫자를 정해요. 그다음 같은 자원에서 부하를 늘리며 응답 시간이 어떻게 달라지는지 살펴보죠. 막히는 지점을 모른 채 서버 수만 늘리는 대신, 어떤 부하에서 어떤 성능을 유지할지 묻는 것이 Scalability의 출발이에요.",
+          "대응 방법에는 장비 한 대를 더 강하게 만드는 Vertical Scaling과 여러 장비로 일을 나누는 Horizontal Scaling이 있어요. 하지만 데이터를 여러 장비에 나누면 관리할 복잡성도 늘죠. 현재의 읽기 부하를 감당하는 것뿐 아니라, 운영자가 상태를 관찰하고 문제를 복구하며 이후 변경을 이해하기 쉬운지도 함께 따져야 해요. 이런 관점이 Maintainability예요."
+        ],
+        "diagram": "load",
+        "caption": "읽기 요청 증가 → 병목과 응답 시간 확인 → 자원 확장을 비교하세요. 확장한 뒤에도 관찰·복구·변경이 쉬워야 해요.",
+        "caution": "Scalability는 제품에 붙이는 절대 점수가 아니라, 특정 부하와 목표 성능에 맞춘 대응 능력이에요.",
+        "sources": [
+          {
+            "pages": [
+              11,
+              11
+            ],
+            "anchor": "데이터베이스의 읽기 대 쓰기 비율"
+          },
+          {
+            "pages": [
+              13,
+              13
+            ],
+            "anchor": "부하 매개변수를 증가시키고 시스템 자원"
+          },
+          {
+            "pages": [
+              17,
+              18
+            ],
+            "anchor": "범용적이고 모든 상황에 맞는"
+          },
+          {
+            "pages": [
+              19,
+              20
+            ],
+            "anchor": "시스템 장애, 성능 저하 등의 문제의 원인을 추적"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "bridge": "데이터의 모양과 질문을 정했다면, 다음 장에서는 그 데이터를 실제로 어디에 놓고 어떻게 빠르게 찾는지 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Relational Model과 Document Model로 같은 주문 표현하기",
+        "paragraphs": [
+          "같은 주문을 Relational Model로 표현하면 고객·주문·상품 표를 식별자로 연결할 수 있어요. 주문 화면에 필요한 정보는 관련 행을 연결하는 Join으로 모으죠. Document Model의 중첩 문서로 표현하면 주문 안에 고객 정보와 상품 목록을 담을 수 있어요. 함께 읽을 정보가 한곳에 모여, 주문 전체를 가져오는 질문이 자연스러워집니다.",
+          "차이는 정보를 바꿀 때도 드러나요. 공유하는 상품 정보를 여러 주문에 복사해 두고 모두 같은 최신 값으로 유지하려면, 복사본을 빠짐없이 고쳐야 해요. 반대로 식별자로 참조하면 중복은 줄지만 읽을 때 연결이 필요하죠. 문서도 참조를 쓸 수 있으므로, 표냐 문서냐보다 함께 읽는 범위와 관계의 종류를 먼저 보세요."
+        ],
+        "diagram": "models",
+        "caption": "왼쪽은 고객·주문·상품 표를 연결하고, 오른쪽은 같은 주문을 중첩 문서로 묶어요. 함께 읽기와 공유 정보 변경의 비용을 비교하세요.",
+        "caution": "주문 당시의 상품 정보를 의도적으로 보존하는 경우와, 여러 복사본을 최신 상태로 맞춰야 하는 경우는 구별하세요.",
+        "sources": [
+          {
+            "pages": [
+              30,
+              32
+            ],
+            "anchor": "정보가 한 곳에 있어 질의 하나로 충분하다"
+          },
+          {
+            "pages": [
+              33,
+              34
+            ],
+            "anchor": "모든 중복 항목을 변경해야 한다"
+          },
+          {
+            "pages": [
+              38,
+              39
+            ],
+            "anchor": "둘 다 관련 항목은 고유한 식별자로 참조한다"
+          }
+        ]
+      },
+      {
+        "title": "Graph Model: 친구의 친구가 산 상품을 따라 찾아요",
+        "paragraphs": [
+          "‘친구의 친구가 산 상품’을 찾는다고 해볼게요. 사람과 상품을 점으로, 친구 관계와 구매 관계를 선으로 나타내면 어떤 연결을 따라갈지 눈에 보여요. 이런 점을 Vertex, 선을 Edge라고 해요. 여러 종류의 대상 사이에 다대다 관계가 얽힐수록, 문서 하나에 모두 넣기보다 Graph Model로 표현하는 편이 자연스러울 수 있어요.",
+          "질의도 결과에 필요한 연결 패턴을 적는 방식으로 생각할 수 있어요. Declarative Query는 원하는 조건을 표현하고, 실제 탐색 순서는 데이터베이스가 선택하게 해요. 다만 Graph Model만 관계를 다루는 것은 아니에요. Relational Model도 표현할 수 있지만, 따라갈 연결의 길이가 가변적이면 질의가 더 복잡해질 수 있죠."
+        ],
+        "diagram": "query",
+        "caption": "나 → 친구 → 친구 → 상품을 따라가 보세요. ‘친구’와 ‘구매’는 다른 관계이며, 화살표는 찾을 연결 패턴이지 고정된 실행 순서는 아니에요.",
+        "caution": "관계가 많다고 Graph Model이 항상 더 빠른 것은 아니며, 이 비교는 우선 데이터와 질문을 표현하는 방식에 관한 것이에요.",
+        "sources": [
+          {
+            "pages": [
+              50,
+              52
+            ],
+            "anchor": "데이터 간 연결이 더 복잡해지면"
+          },
+          {
+            "pages": [
+              53,
+              55
+            ],
+            "anchor": "조인 수를 고정할 수 없다"
+          },
+          {
+            "pages": [
+              43,
+              44
+            ],
+            "anchor": "결과의 패턴만 지정하기 때문에"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "bridge": "데이터를 저장하고 찾는 원리를 봤다면, 다음 장에서는 저장된 바이트를 서로 다른 버전의 코드가 계속 이해할 수 있게 하는 방법을 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Append-Only Log는 계속 적고, Hash Index는 최신 위치를 기억해요",
+        "paragraphs": [
+          "키 42의 값을 바꿀 때 원래 자리를 덮어쓰지 않고 파일 끝에 새 값을 적는다고 해볼게요. 이런 Append-Only Log에는 ‘42의 옛값 → 다른 키 → 42의 새값’이 남아요. 쓰기는 단순하지만 읽을 때 처음부터 끝까지 훑으면 데이터가 늘수록 느려져요. 같은 키의 여러 기록 중 마지막 것이 현재 값이라는 규칙이 필요하죠.",
+          "여기에 메모리의 Hash Index를 두고 ‘키 → 파일 위치’를 저장하면, 키 42를 읽을 때 최신 위치로 바로 갈 수 있어요. 새 값을 쓸 때 Index도 함께 갱신해야 하므로 읽기 개선에 쓰기 비용이 붙죠. 또 옛 기록이 저절로 사라지는 것은 아니어서, 최신 값만 남기는 Compaction으로 공간을 정리해야 해요."
+        ],
+        "diagram": "logindex",
+        "caption": "키 42의 옛값 → 다른 키 → 키 42의 새값으로 로그가 늘어나요. Index의 42 화살표는 옛 기록이 아니라 마지막 기록의 위치를 가리켜요.",
+        "caution": "이 단순한 Hash Index 방식은 키의 Index를 메모리에 유지해야 하며, 키 범위를 한꺼번에 찾는 질의에는 효율적이지 않아요.",
+        "sources": [
+          {
+            "pages": [
+              73,
+              74
+            ],
+            "anchor": "키의 마지막 항목을 살펴봐야 한다"
+          },
+          {
+            "pages": [
+              75,
+              76
+            ],
+            "anchor": "각 키의 최신 갱신 값만 유지하는 것을 의미한다"
+          },
+          {
+            "pages": [
+              77,
+              78
+            ],
+            "anchor": "해시 테이블은 범위 질의(range query)에 효율적이지 않다"
+          }
+        ]
+      },
+      {
+        "title": "B-tree는 페이지를 찾아가고, LSM은 모아서 병합해요",
+        "paragraphs": [
+          "B-tree는 키의 범위를 길잡이 삼아 루트에서 하위 페이지로 내려가 값을 찾아요. 기존 값을 바꾸면 해당 페이지를 다시 기록하고, 새 키를 넣을 공간이 모자라면 페이지를 나누죠. 필요한 곳으로 찾아가는 대신 페이지 갱신과 분할을 관리해야 하며, 고장 뒤 복구를 위해 보통 변경을 미리 로그에도 기록해요.",
+          "LSM 방식은 먼저 메모리에 키를 정렬해 모으고, 일정 크기가 되면 정렬 파일로 내보내요. 파일들은 뒤에서 병합하며 오래된 값을 정리하죠. 메모리의 쓰기를 복구할 별도 로그도 필요해요. 순차 쓰기를 활용하지만 읽을 때 여러 파일을 확인할 수 있고, 병합도 디스크 자원을 쓰므로 실제 부하로 비교해야 해요."
+        ],
+        "diagram": "storage",
+        "caption": "왼쪽 B-tree는 페이지의 키 범위를 따라 탐색하고, 오른쪽 LSM은 메모리 → 정렬 파일 → 병합으로 흘러가요. 읽기·쓰기·정리 비용이 놓이는 위치가 달라요.",
+        "caution": "‘B-tree는 읽기, LSM은 쓰기에서 무조건 승리’가 아니라, 실제 작업부하와 설정에 따라 결과가 달라져요.",
+        "sources": [
+          {
+            "pages": [
+              82,
+              84
+            ],
+            "anchor": "루트에서 시작한다"
+          },
+          {
+            "pages": [
+              80,
+              81
+            ],
+            "anchor": "분리된 로그를 디스크 상에 유지해야 한다"
+          },
+          {
+            "pages": [
+              85,
+              87
+            ],
+            "anchor": "작업부하의 세부 사항에 민감하다"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "bridge": "서로 다른 코드가 데이터를 이해하는 약속을 봤다면, 다음 장에서는 같은 데이터를 여러 장비에 복사하는 Replication과 변경 전달 문제로 넘어가요.",
+    "lessons": [
+      {
+        "title": "Compatibility는 누가 쓴 데이터를 누가 읽는지로 구별해요",
+        "paragraphs": [
+          "앱을 업데이트해도 모든 서버와 사용자가 동시에 새 버전으로 바뀌지는 않아요. 서버를 조금씩 교체하거나 사용자가 업데이트를 미루면 새 코드와 옛 코드가 함께 동작하죠. 저장된 데이터도 남아 있으므로, 새 버전이 데이터를 쓰기 시작할 때 어느 버전이 그것을 읽을지 양쪽 방향을 따져야 해요.",
+          "책에서 Backward Compatibility는 새 코드가 옛 데이터를 읽는 것이고, Forward Compatibility는 옛 코드가 새 데이터를 읽는 것이에요. 새 코드는 알고 있는 옛 형식을 처리하도록 작성할 수 있죠. 반면 옛 코드는 미래에 추가될 필드를 미리 알 수 없으니, 모르는 내용을 건너뛰어도 동작하도록 만드는 일이 더 까다로워요."
+        ],
+        "diagram": "compatibility",
+        "caption": "새 코드 ← 옛 데이터는 Backward Compatibility, 옛 코드 ← 새 데이터는 Forward Compatibility예요. 화살표는 데이터를 읽는 쪽으로 향해요.",
+        "caution": "새 코드로 옛 데이터를 읽는 시험만 통과했다고, 아직 남아 있는 옛 코드까지 안전한 것은 아니에요.",
+        "sources": [
+          {
+            "pages": [
+              114,
+              114
+            ],
+            "anchor": "새로운 코드는 예전 코드가 기록한 데이터를 읽을 수 있어야 한다"
+          },
+          {
+            "pages": [
+              132,
+              133
+            ],
+            "anchor": "데이터가 코드보다 더 오래 산다"
+          }
+        ]
+      },
+      {
+        "title": "Schema Evolution: 필드 추가보다 어려운 것은 공존과 제거예요",
+        "paragraphs": [
+          "주문에 ‘배송 메모’를 추가한다고 해볼게요. 옛 주문에는 메모가 없으므로 새 코드는 누락을 허용하거나 기본값으로 처리해야 해요. 옛 코드는 모르는 새 필드를 안전하게 건너뛸 수 있어야 하죠. 책의 Thrift·Protocol Buffers 사례에서는 새 태그와 선택 필드 또는 기본값을 이용해 이런 공존을 설명해요.",
+          "하지만 읽기에 성공해도 끝은 아니에요. 옛 코드가 주문을 읽고 다시 저장하면서 모르는 배송 메모를 버릴 수 있으니, 보존 여부도 확인해야 해요. 이후 필드를 제거할 때도 남아 있는 코드와 오래된 데이터를 살펴야 하죠. 책의 태그 기반 형식에서는 선택 필드만 제거하고, 그 태그를 다른 뜻으로 재사용하지 않아요."
+        ],
+        "diagram": "evolution",
+        "caption": "새 필드를 선택적으로 추가 → 구버전과 공존하며 누락·미지 필드 처리 확인 → 의존성을 살핀 뒤 제거를 검토하는 개념 흐름이에요.",
+        "caution": "이는 책의 Compatibility 원리를 재구성한 설명이며, 실제 제품의 버전별 Schema 변경 매뉴얼이나 무중단 배포 보장은 아니에요.",
+        "sources": [
+          {
+            "pages": [
+              122,
+              123
+            ],
+            "anchor": "optional로 하거나 기본값을 가져야 한다"
+          },
+          {
+            "pages": [
+              123,
+              123
+            ],
+            "anchor": "번호는 절대 다시 사용할 수 없다는 의미다"
+          },
+          {
+            "pages": [
+              132,
+              133
+            ],
+            "anchor": "알지 못하는 필드가 유실될 수 있다"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "bridge": "같은 내용을 복사해 읽기를 나눴다면, 데이터 전체가 한 대에 담기 어려울 때는 어떻게 할까요? 다음 장에서는 서로 다른 조각으로 나누는 Partitioning을 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Single-Leader Replication: 읽기는 나눠도 변경 전달은 남아요",
+        "paragraphs": [
+          "프로필 조회가 몰리면 저장 서버 한 대가 읽기 요청까지 모두 감당하기 어려워져요. Single-Leader Replication에서는 쓰기를 Leader가 받고, 변경 기록을 두 Follower에게 보냅니다. Follower는 그 기록을 같은 순서로 적용하고 읽기를 나눠 맡아요. 데이터 일부를 나누는 것이 아니라 같은 내용의 복사본을 늘리는 방식입니다.",
+          "하지만 Follower를 늘린다고 쓰기 처리 능력까지 같은 비율로 늘지는 않아요. 쓰기는 여전히 Leader를 거치고 모든 Follower가 변경을 적용해야 하거든요. Follower의 확인을 기다리면 그쪽 장애가 쓰기를 막을 수 있고, 기다리지 않으면 Replication Lag를 감수해야 합니다. 읽기 확장의 대가가 어디에 생기는지 봐야 해요."
+        ],
+        "diagram": "replication",
+        "caption": "쓰기 요청은 Leader로, 변경 기록은 두 Follower로 향해요. 읽기는 Leader와 Follower에 분산할 수 있지만 쓰기 경로는 여전히 Leader에 모입니다.",
+        "caution": "이 그림은 Single-Leader Replication이에요. Replica가 여러 개라는 사실만으로 모든 복사본이 즉시 같거나, 쓰기 처리량이 늘어나는 것은 아닙니다.",
+        "sources": [
+          {
+            "pages": [
+              154,
+              155
+            ],
+            "anchor": "리더가 처리한 것과 동일한 순서로"
+          },
+          {
+            "pages": [
+              156,
+              157
+            ],
+            "anchor": "동기 팔로워가 응답하지 않는다면"
+          },
+          {
+            "pages": [
+              163,
+              164
+            ],
+            "anchor": "팔로워 간 읽기 요청을 분산하는"
+          }
+        ]
+      },
+      {
+        "title": "Replication Lag: 저장 성공 뒤의 옛 이름은 어디서 왔을까요?",
+        "paragraphs": [
+          "프로필 이름을 v1에서 v2로 바꾸고 저장 완료를 받았는데, 새로고침하니 v1이 보인다고 해볼게요. Asynchronous Replication에서는 Leader의 저장이 끝나도 읽기용 Follower는 아직 이전 값일 수 있어요. 나중에 변경 기록을 적용하면 v2가 보입니다. 저장이 취소된 것이 아니라 저장한 곳과 읽은 곳의 진도가 다른 거예요.",
+          "이 혼란을 막으려면 Read Your Writes 보장이 필요해요. 내가 수정한 프로필은 Leader에서 읽거나, 해당 변경까지 적용한 Replica로 읽기를 보내는 방식입니다. Replica가 뒤처졌다면 기다릴 수도 있어요. 내 갱신이 사라져 보이지 않게 하는 대신 읽기 분산이나 응답 속도에 비용이 생깁니다."
+        ],
+        "diagram": "lag",
+        "caption": "Leader의 v2 저장 완료 → 뒤처진 Replica에서 v1 읽기 → Replication 반영 뒤 v2 읽기. Read Your Writes는 가운데의 되돌아간 듯한 경험을 막는 보장입니다.",
+        "caution": "Read Your Writes는 다른 사람의 모든 최신 변경까지 즉시 보여준다는 뜻이 아니에요. 단순히 잠시 기다리는 것만으로 Replication 완료가 보장되지는 않습니다.",
+        "sources": [
+          {
+            "pages": [
+              164,
+              165
+            ],
+            "anchor": "자신이 제출한 모든 갱신을 볼 수 있음"
+          },
+          {
+            "pages": [
+              165,
+              165
+            ],
+            "anchor": "복제 서버가 따라잡을 때까지 질의를 대기"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "bridge": "Partitioning과 Replication을 적용해도 업무 규칙이 저절로 지켜지지는 않아요. 다음 장에서는 작업 중 실패와 동시 실행을 Transaction이 어떻게 다루는지 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Partitioning과 Replication은 함께 쓸 수 있어요",
+        "paragraphs": [
+          "이름을 키로 삼는 주소록이 한 서버에 담기 어려울 만큼 커졌다고 해볼게요. A–H, I–P, Q–Z 범위로 나누면 각 Partition은 자기 범위의 데이터만 맡습니다. 키가 어느 범위에 속하는지 알면 담당 조각으로 요청을 보낼 수 있어요. 모든 서버가 전체를 저장하는 Replication과 달리 저장 공간과 작업을 나누는 거예요.",
+          "그런데 조각을 하나씩만 두면 담당 서버가 고장 날 때 그 범위의 데이터를 읽기 어려워져요. 그래서 각 조각을 다른 서버에도 복사해 Replication을 적용합니다. 예를 들어 A–H 조각의 Leader와 Follower를 별도 서버에 두는 거예요. Partitioning은 무엇을 나눌지, Replication은 각 조각을 몇 벌 유지할지의 문제라서 두 방법을 함께 선택할 수 있습니다."
+        ],
+        "diagram": "partition",
+        "caption": "주소록을 A–H / I–P / Q–Z로 나누고, 각 범위의 조각에 Replication을 적용해요. 같은 조각의 복사본은 서로 다른 서버에 배치합니다.",
+        "caution": "알파벳 범위를 똑같이 나눠도 데이터량이나 요청량은 같지 않을 수 있어요. 여기서 Partitioning은 데이터를 나누는 것이며 네트워크가 끊기는 Network Partition과는 다릅니다.",
+        "sources": [
+          {
+            "pages": [
+              199,
+              200
+            ],
+            "anchor": "각 파티션의 복사본을 여러 노드에 저장"
+          },
+          {
+            "pages": [
+              201,
+              202
+            ],
+            "anchor": "각 범위들 사이의 경계를 알면"
+          }
+        ]
+      },
+      {
+        "title": "Hot Spot: 해시로 골고루 나눠도 인기 키는 한곳으로 가요",
+        "paragraphs": [
+          "여러 조각에 데이터를 잘 나눴는데도 인기 게시물 하나의 댓글 쓰기가 몰리면 특정 조각만 바빠질 수 있어요. 게시물 ID를 Partition Key로 쓴다면 같은 ID의 요청은 늘 같은 조각으로 갑니다. 해시 함수도 같은 입력에는 같은 결과를 내므로, 키들이 고르게 퍼진다는 사실과 요청 부하가 고르게 퍼진다는 사실은 달라요.",
+          "이때 서버 수만 늘리거나 해시 함수를 바꾸어도 하나의 인기 키가 자동으로 쪼개지지는 않아요. 쓰기를 나누려면 인기 키에 접미사를 붙여 여러 하위 키로 분산하는 식의 추가 설계가 필요합니다. 대신 댓글을 읽을 때는 여러 하위 키의 결과를 모아야 해요. 쓰기 집중을 줄인 만큼 조회와 관리가 복잡해지는 선택입니다."
+        ],
+        "diagram": "hotspot",
+        "caption": "여러 요청이 모두 같은 인기 키를 사용하면 해시를 거쳐도 같은 Shard로 모입니다. 다른 Shard에 여유가 있어도 이 집중은 그대로 남아요.",
+        "caution": "해시는 서로 다른 키의 분포를 개선할 수 있지만 한 키의 집중 부하를 없애지는 못해요. 하위 키 분할도 공짜 해결책이 아니라 조회 시 조합 비용을 만드는 설계입니다.",
+        "sources": [
+          {
+            "pages": [
+              205,
+              205
+            ],
+            "anchor": "동일한 ID의 해시값은 동일하므로"
+          },
+          {
+            "pages": [
+              205,
+              205
+            ],
+            "anchor": "데이터를 읽어서 조합해야 하기 때문"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "bridge": "Transaction으로 일부 오류를 막아도 통신과 시간까지 확실해지지는 않아요. 다음 장에서는 응답이 없는 서버와 서로 다른 시계 때문에 생기는 불확실성을 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Atomicity로 계좌 이체가 절반만 남지 않게 묶어요",
+        "paragraphs": [
+          "같은 데이터베이스 안에서 계좌 A의 돈을 줄이고 계좌 B의 돈을 늘린다고 해볼게요. A만 차감한 뒤 오류가 나면 두 변경 중 하나만 남아 돈이 사라진 듯 보입니다. 두 쓰기를 하나의 Transaction으로 묶으면 모두 커밋하거나, 완료할 수 없을 때 이미 실행한 변경까지 취소하도록 데이터베이스에 맡길 수 있어요.",
+          "이 Atomicity는 실패했을 때 변경 일부만 남는 문제를 줄여주지만, 이체 금액을 잘못 계산한 코드까지 고쳐주지는 않아요. 또 동시에 실행되는 다른 이체가 무엇을 읽는지는 Isolation의 문제입니다. 두 계좌 변경을 함께 취소할 수 있다는 보장과 다른 요청이 끼어들지 못하게 하는 보장을 나눠 생각해야 합니다."
+        ],
+        "diagram": "atomic",
+        "caption": "같은 DB의 한 Transaction 안에서 A 차감 + B 증가를 함께 커밋하거나 함께 취소해요. A 차감만 확정해 남겨두는 부분 성공을 피합니다.",
+        "caution": "여기서는 같은 DB의 계좌 레코드만 다뤄요. 외부 결제 API 호출까지 자동으로 취소되는 것이 아닙니다. 커밋 응답을 못 받은 경우도 취소가 확인된 경우와 다릅니다.",
+        "sources": [
+          {
+            "pages": [
+              224,
+              225
+            ],
+            "anchor": "이 트랜잭션이 어떤 것도 변경하지 않았음"
+          },
+          {
+            "pages": [
+              228,
+              228
+            ],
+            "anchor": "전부 반영되거나 아무것도 반영되지 않는"
+          },
+          {
+            "pages": [
+              232,
+              232
+            ],
+            "anchor": "데이터베이스 외부에도 부수 효과"
+          }
+        ]
+      },
+      {
+        "title": "Snapshot Isolation과 Serializable: 남은 한 자리 예약하기",
+        "paragraphs": [
+          "예약 목록을 세어 잔여 좌석이 한 자리인지 확인한 뒤 예약 행을 추가한다고 해볼게요. A와 B가 둘 다 추가 전에 조회하면 둘 다 한 자리가 남았다고 판단합니다. 각자의 예약을 따로 커밋하면 예약이 겹쳐요. 확인과 저장을 Transaction으로 묶어도, Snapshot Isolation에서는 상대의 동시 예약을 보지 못할 수 있습니다.",
+          "확인부터 예약까지를 한 명씩 직렬로 처리하면 A가 예약한 뒤 B는 잔여 좌석이 없음을 확인해 매진을 받습니다. Serializable은 실제로 한 줄로 실행하지 않더라도 그런 순차 실행과 같은 결과를 보장해요. 구현에 따라 대기하거나 충돌한 Transaction을 취소하고 재시도하므로, 안전한 결과를 얻는 비용도 살펴야 합니다."
+        ],
+        "diagram": "race",
+        "caption": "동시 처리: A·B 모두 잔여 1 확인 → 둘 다 예약해 겹침. 직렬 처리: A 확인·예약 완료 → B 확인 시 잔여 0, 매진.",
+        "caution": "그림은 예약 행을 각각 추가하는 확인 후 쓰기 예시예요. Atomicity만으로 겹침을 막지는 못합니다. 확인과 예약을 같은 Isolation 범위에 두고 적절한 제약이나 Concurrency Control을 적용해야 해요.",
+        "sources": [
+          {
+            "pages": [
+              249,
+              250
+            ],
+            "anchor": "스냅숏 격리는 다른 사용자가 동시에"
+          },
+          {
+            "pages": [
+              251,
+              252
+            ],
+            "anchor": "동시성 없이 한 번에 하나씩"
+          },
+          {
+            "pages": [
+              267,
+              267
+            ],
+            "anchor": "실행이 직렬적이지 않다면 어보트"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "bridge": "실행 결과와 시간이 불확실한 환경에서도 어떤 약속을 지킬 수 있을까요? 다음 장에서는 Linearizability와 Consensus가 무엇을 보장하는지 구분해요.",
+    "lessons": [
+      {
+        "title": "Timeout은 실패 확인서가 아니에요",
+        "paragraphs": [
+          "주문 요청을 보냈지만 정해진 시간 안에 응답이 오지 않았어요. 요청이 서버에 도착하지 않았을 수도 있고, 서버는 주문을 저장했지만 응답만 사라졌을 수도 있습니다. 클라이언트가 보는 결과는 둘 다 Timeout이에요. 기다리기를 끝냈다는 사실만으로 서버의 실행 여부까지 판별할 수는 없습니다.",
+          "Timeout을 곧바로 실패로 간주해 새 주문을 보내면, 이미 저장된 주문이 한 번 더 생길 수 있어요. 따라서 재시도할 때 같은 작업임을 식별하고 중복 실행을 막는 장치가 필요합니다. 핵심은 요청을 다시 보낼 수 있느냐만이 아니라, 첫 요청의 결과가 불확실한 상태에서도 재시도가 안전하도록 설계했느냐예요."
+        ],
+        "diagram": "timeout",
+        "caption": "위: 요청 전달 실패 → 처리 안 됨. 아래: 서버 처리 성공 → 응답 유실. 클라이언트에는 두 경우 모두 응답 없는 Timeout으로 보입니다.",
+        "caution": "Timeout을 늘리면 늦은 응답을 더 기다릴 수는 있지만 결과의 불확실성을 없애지는 못해요. 재시도 자체가 중복 제거를 보장하지도 않습니다.",
+        "sources": [
+          {
+            "pages": [
+              278,
+              279
+            ],
+            "anchor": "유일한 정보는 응답을 아직 받지 못했다는 것"
+          },
+          {
+            "pages": [
+              232,
+              232
+            ],
+            "anchor": "추가적인 중복 제거 메커니즘"
+          }
+        ]
+      },
+      {
+        "title": "Timestamp가 더 크다고 더 나중 사건일까요?",
+        "paragraphs": [
+          "서버 하나에서 사건 A가 일어나고, 다른 서버가 그 결과를 받아 사건 B를 실행했다고 해볼게요. 실제 순서는 분명 A 다음 B지만, 두 서버의 Wall Clock에 시각 차이인 Clock Skew가 있으면 B에 더 이른 시각이 찍힐 수 있어요. Timestamp 숫자만 정렬하면 원인보다 결과가 먼저 나타나므로, 기록된 시각을 사건의 순서와 동일시하면 안 됩니다.",
+          "이 차이는 로그가 보기 이상한 정도로 끝나지 않을 수 있어요. Timestamp가 큰 값을 최신으로 골라 나머지를 버리는 저장소라면, 실제로 나중인 B의 갱신이 사라질 수도 있습니다. 시간 동기화를 켜는 것만으로 오차가 없어지지는 않아요. 순서가 중요하다면 메시지의 Causality나 논리적 순서를 추적하는 방법을 살펴야 합니다."
+        ],
+        "diagram": "clocks",
+        "caption": "실제 Causal Order: A 발생 → 전달 → B 발생. Clock Skew로 B의 Timestamp가 더 작으면, 숫자로 정렬한 순서는 B → A로 뒤집힐 수 있어요.",
+        "caution": "Monotonic Clock은 한 장비에서 경과 시간을 재는 데 유용하지만, 서로 다른 장비의 Monotonic Clock 값을 비교해 전역 사건 순서를 정할 수는 없어요.",
+        "sources": [
+          {
+            "pages": [
+              288,
+              288
+            ],
+            "anchor": "두 대의 다른 컴퓨터에서 나온 단조 시계"
+          },
+          {
+            "pages": [
+              291,
+              292
+            ],
+            "anchor": "타임스탬프로 이벤트 순서를 올바르게 정할 수 없다"
+          },
+          {
+            "pages": [
+              293,
+              293
+            ],
+            "anchor": "이벤트의 상대적인 순서"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "bridge": "여러 서버에서 기록을 맞추는 문제를 봤다면, 이제 쌓인 기록으로 새 결과를 만드는 차례예요. 다음 장에서는 한정된 입력을 처리하는 Batch Processing을 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Linearizability: 여러 서버에서도 하나의 값처럼 읽고 쓰기",
+        "paragraphs": [
+          "Linearizability는 데이터가 여러 서버에 복사돼 있어도, 사용자에게는 하나의 값에 읽기와 쓰기가 차례로 적용되는 것처럼 보이게 하는 보장이에요. 배송지를 ‘서울’에서 ‘부산’으로 바꾼다고 해볼게요. 변경 요청을 보내고 → 서버의 저장 성공 응답을 받고 → 그다음 배송지를 조회했다면, 결과는 ‘부산’이어야 합니다. 추가 변경은 없다고 가정해요. 다른 서버의 Replica에서 읽더라도 ‘여기에는 변경이 아직 안 왔다’며 ‘서울’을 반환하면 Linearizability를 지키지 못한 것입니다. 예를 들어 최신 값을 아는 서버에서 읽거나, 필요한 변경이 반영되기를 기다려야 해요.",
+          "저장과 조회가 겹치면 어떨까요? 저장 요청을 보낸 뒤 아직 성공 응답을 받기 전에 조회했다면, 결과는 ‘서울’일 수도 ‘부산’일 수도 있어요. 다만 아무 순서나 허용되는 것은 아닙니다. 모든 읽기·쓰기가 각각 요청과 응답 사이의 한순간에 처리된 것처럼, 모순 없는 순서로 설명돼야 해요. 그래서 한 조회가 이미 ‘부산’을 반환하고 끝났다면, 그 뒤에 시작한 다른 조회는 ‘서울’을 반환할 수 없습니다. 저장 요청의 성공 응답이 아직 도착하지 않았어도 마찬가지예요. 핵심은 서버마다 옛값과 새값을 제멋대로 보여주는 대신, 모두에게 하나의 값이 바뀐 것처럼 보이게 하는 것입니다."
+        ],
+        "diagram": "linear",
+        "caption": "그림은 배송지 예시를 v1(서울) → v2(부산)로 단순화한 것입니다. 저장 성공 응답 후 시작한 조회는 v2를 읽어야 해요. 저장과 겹친 조회는 v1 또는 v2가 가능하지만, v2를 읽은 조회가 끝난 뒤 시작한 조회는 v1로 돌아갈 수 없습니다. 추가 변경은 없는 상황입니다.",
+        "caution": "Linearizability는 읽기·쓰기가 실제 시간의 선후관계를 지키는지에 관한 보장입니다. 여러 작업을 함께 성공·취소시키는 Atomicity, 여러 Transaction이 순차 실행된 것과 같은 결과를 보장하는 Serializable과는 달라요. 또한 Replica 전체가 항상 동시에 갱신돼야 한다는 뜻은 아닙니다. 내부에 뒤처진 Replica가 있더라도, 이후 조회에 옛값을 반환하지 않도록 처리해야 합니다.",
+        "sources": [
+          {
+            "pages": [
+              324,
+              325
+            ],
+            "anchor": "쓰기가 완료된 후 시작하므로"
+          },
+          {
+            "pages": [
+              326,
+              327
+            ],
+            "anchor": "레지스터(개별 객체)에 실행되는 읽기와 쓰기"
+          },
+          {
+            "pages": [
+              225,
+              225
+            ],
+            "anchor": "애플리케이션에 특화된 개념"
+          }
+        ]
+      },
+      {
+        "title": "Consensus란?",
+        "paragraphs": [
+          "Consensus는 여러 서버가 어떤 값을 채택할지 같은 결정을 내리도록 하는 절차예요. Leader를 정하는 일도 그 예입니다. 서버 A·B·C 중 A가 Leader였는데, 네트워크 문제로 A와 B·C 사이의 통신이 끊겼다고 해볼게요. 서버 A 자체는 계속 실행 중이고, B와 C는 서로 메시지를 주고받을 수 있는 상황입니다. B와 C가 A의 응답을 계속 받지 못하면 새 Leader를 뽑는 투표를 시작할 수 있어요. 이때 누가 먼저 Leader라고 주장했는지만 보는 것이 아니라, 정해진 투표 규칙을 따르고 이미 확정한 결정을 새 Leader도 이어받도록 해야 합니다.",
+          "새 Leader를 뽑아도 A는 그 사실을 전달받지 못해 여전히 자신이 Leader라고 생각할 수 있어요. 이 예시처럼 과반수의 동의가 필요한 방식에서는, 새로운 결정을 확정하려면 전체 3대 중 적어도 2대의 승인을 받아야 합니다. 이렇게 승인에 필요한 서버 집합을 Quorum이라고 해요. 따라서 A 혼자서는 새 결정을 확정할 수 없습니다. 또한 Leader를 뽑는 회차에 번호를 붙여 이전 회차의 제안을 구분합니다. Raft에서는 이 번호를 Term이라고 불러요. 더 높은 Term을 알게 된 서버는 낮은 Term의 제안을 거절합니다. 다만 번호와 과반수만으로 모든 문제가 해결되는 것은 아니에요. 새 Leader를 고를 때 기존 기록을 확인하고, 이미 확정한 결정을 바꾸지 않는 규칙도 필요합니다."
+        ],
+        "diagram": "consensus",
+        "caption": "A와 B·C 사이의 통신이 끊겨도 B와 C끼리는 통신할 수 있어요. B와 C는 프로토콜의 투표·기록 확인 규칙에 따라 새 Leader를 뽑고 결정을 확정할 수 있습니다. A는 혼자서는 필요한 2대의 승인을 받을 수 없어요.",
+        "caution": "서버 3대가 같은 프로토콜을 올바르게 따르고 구성원이 바뀌지 않는 상황을 단순화한 예시예요. 통신이 끊겼다고 서버가 꺼진 것은 아닙니다. B와 C도 서로 통신할 수 있다는 사실만으로 즉시 진행하는 것은 아니며, 안정적인 통신과 투표·기록 복구 규칙이 필요합니다. 모든 Consensus 알고리즘이 같은 방식으로 동작하는 것은 아닙니다.",
+        "sources": [
+          {
+            "pages": [
+              365,
+              365
+            ],
+            "anchor": "두 번의 투표를 하는 정족수가 겹쳐야"
+          },
+          {
+            "pages": [
+              366,
+              367
+            ],
+            "anchor": "네트워크의 과반수 부분만 진행할 수 있고"
+          },
+          {
+            "pages": [
+              363,
+              363
+            ],
+            "anchor": "프로토콜을 올바르게 따르지 않으면"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "bridge": "어제의 결과는 만들었지만 지금 들어오는 주문까지 반영하려면 어떨까요? 다음 장에서는 끝없는 입력과 늦게 도착한 사건을 다루는 Stream Processing을 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Batch Processing: 주문 기록으로 상품별 판매량 계산하기",
+        "paragraphs": [
+          "Batch Processing은 이번에 처리할 데이터의 범위를 먼저 정하고, 그 데이터를 모두 처리해 결과를 만드는 방식이에요. 어제의 주문으로 상품별 판매량을 구한다고 해볼게요. 이번에 읽을 입력 파일을 먼저 정하고, ‘책 1개·컵 1개·책 1개’라는 주문 기록을 처리합니다. MapReduce는 이런 계산을 여러 장비에 나눠 실행하는 프레임워크예요. 먼저 Map 단계에서 각 주문을 읽어 (책, 1), (컵, 1), (책, 1)처럼 Key(상품)와 Value(수량)의 쌍을 만듭니다. 입력 파일을 여러 조각으로 나누면, 여러 Mapper가 각자 맡은 기록을 동시에 처리할 수 있어요.",
+          "그다음 Shuffle/Sort 단계에서는 Mapper들이 만든 결과를 Key 기준으로 나누어 보내고 정렬합니다. 어느 Mapper가 만들었든 ‘책’ 기록은 같은 Reducer로 모아 책 → [1, 1], 컵 → [1]처럼 묶어요. 이어서 Reduce 단계에서 각 상품의 수량을 더해 ‘책 2개, 컵 1개’를 출력합니다. 같은 상품이 여러 입력 조각에 흩어져 있어도 함께 집계하기 위해 중간의 데이터 이동이 필요한 거예요. 이 전달·정렬은 프레임워크가 처리하지만 네트워크 전송과 디스크 읽기·쓰기 비용은 발생합니다. 정해 둔 입력을 모두 처리하면 이번 작업이 끝나며, 그 입력에 포함되지 않은 새 주문은 별도 작업에서 처리합니다."
+        ],
+        "diagram": "batch",
+        "caption": "Map: 주문을 (상품, 수량)으로 변환 → Shuffle/Sort: 같은 상품의 기록을 모으고 정렬 → Reduce: 상품별 수량 합산. 그림은 이 중 같은 상품끼리 묶어 결과를 만드는 부분을 단순화했어요.",
+        "caution": "MapReduce에서는 같은 Key를 같은 Reducer가 처리하지만, 상품 하나당 서버 한 대를 둔다는 뜻은 아닙니다. Reducer 하나가 여러 상품을 맡을 수 있어요. Batch Processing도 꼭 밤에 한 번 실행하는 작업은 아니며, 핵심은 이번 실행의 입력 범위가 정해져 있다는 점입니다. 상품별 판매량을 계산하는 것과 판매량순으로 순위를 매기는 것은 별도 단계예요.",
+        "sources": [
+          {
+            "pages": [
+              396,
+              398
+            ],
+            "anchor": "같은 키를 가진 레코드를 모으고"
+          },
+          {
+            "pages": [
+              428,
+              428
+            ],
+            "anchor": "입력 데이터는 고정된 크기로 한정된다"
+          }
+        ]
+      },
+      {
+        "title": "Reprocessing: 원본 데이터로 결과 다시 만들기",
+        "paragraphs": [
+          "판매량 계산이 취소 주문까지 포함했다면 결과 숫자만 손으로 고치기보다 계산법을 고치는 편이 낫겠죠. 취소 여부가 남아 있는 같은 주문 로그를 보존하고, 취소 주문을 빼는 새 로직으로 다시 읽으면 수정된 결과를 만들 수 있어요. 입력은 그대로이고 로직과 출력이 달라집니다.",
+          "반면 서버 고장 뒤의 재시도는 같은 입력과 같은 로직으로 원래 결과를 얻으려는 일이에요. 실패한 출력은 버리고 성공한 출력만 채택해야 중복을 막습니다. 재계산에는 읽기와 연산 비용이 다시 들며, 계산 중 보낸 이메일 같은 외부 효과는 출력 파일처럼 되돌릴 수 없어요."
+        ],
+        "diagram": "replay",
+        "caption": "변하지 않은 같은 주문 로그 + 수정한 집계 로직 → 새 결과 재생성. 실패 재시도는 로직을 유지하지만, 오류 수정 재계산은 로직을 바꿔요.",
+        "caution": "원본에 취소 여부가 없으면 로직만 바꿔 복원할 수 없어요. 불변 입력, 필요한 정보, 출력 교체 방식이 갖춰져야 안전하게 다시 만들 수 있습니다.",
+        "sources": [
+          {
+            "pages": [
+              410,
+              411
+            ],
+            "anchor": "입력을 불변으로 처리하고"
+          },
+          {
+            "pages": [
+              427,
+              427
+            ],
+            "anchor": "태스크는 안전하게 재시도된다"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "bridge": "계속 계산한 결과를 검색·분석·캐시에 연결하면 데이터 시스템 전체가 보이기 시작해요. 마지막 장에서는 System of Record와 Derived Data의 관계, 그리고 데이터가 사람에게 미치는 영향을 함께 살펴봐요.",
+    "lessons": [
+      {
+        "title": "Stream Processing: 입력의 끝을 기다리지 않고 집계 갱신하기",
+        "paragraphs": [
+          "인기 상품 화면이 어제 판매량만 보여준다면 오늘의 변화를 놓쳐요. Stream Processor는 계속 들어오는 주문 이벤트를 받아 해당 상품의 누적 수량을 갱신합니다. 로그 전체를 매번 처음부터 세는 대신 이전 집계 상태에 새 주문의 수량을 반영하는 방식이에요.",
+          "주문이 내일도 들어오므로 전체 입력을 다 읽고 최종 결과를 내는 순간은 없어요. 결과는 계속 갱신되고, 처리기가 느려지면 반영도 밀립니다. 장애 뒤 이어서 계산하려면 집계 상태와 처리 위치를 복구해야 하며, 이미 더한 주문을 다시 더하지 않도록 재처리 효과도 관리해야 해요."
+        ],
+        "diagram": "stream",
+        "caption": "끝없이 오는 주문 이벤트 → 처리기 → 계속 갱신되는 상품별 집계. 마지막 결과를 기다리는 대신 지금까지 처리한 결과를 보여줘요.",
+        "caution": "Stream Processing은 지연이 전혀 없다는 뜻이 아니에요. 프레임워크 안의 복구 보장이 외부 데이터베이스 쓰기나 알림 전송의 중복까지 자동으로 막지는 않습니다.",
+        "sources": [
+          {
+            "pages": [
+              436,
+              436
+            ],
+            "anchor": "한정되지 않고 점진적으로 처리된다"
+          },
+          {
+            "pages": [
+              474,
+              475
+            ],
+            "anchor": "출력을 노출하기 전에 태스크가 완료될 때까지 기다리는 것은 해결책으로 사용할 수 없다"
+          }
+        ]
+      },
+      {
+        "title": "Event Time과 Processing Time: 늦게 온 주문은 언제의 판매량일까요?",
+        "paragraphs": [
+          "Event Time은 사건이 발생한 시각이고, Processing Time은 그 사건의 데이터를 처리 시스템이 처리하는 시각이에요. 여기서는 주문 서비스에서 주문이 생성된 순간을 이벤트 발생으로 정해볼게요. 주문은 10:00에 생성됐지만 네트워크 지연 때문에 판매량 집계 시스템이 그 데이터를 10:05에 처리했다면, Event Time은 10:00이고 Processing Time은 10:05입니다. Processing Time은 결제나 배송이 완료된 시각이 아니라, 여기서는 집계 시스템이 주문 데이터를 처리하는 시각을 뜻해요.",
+          "어느 시각을 기준으로 묶느냐에 따라 집계가 답하는 질문도 달라져요. Event Time 기준은 ‘그때 주문이 얼마나 발생했나?’에 답하므로 이 주문을 10:00~10:01 구간에 포함합니다. Processing Time 기준은 ‘그때 집계 시스템이 주문 데이터를 얼마나 처리했나?’에 답하므로 10:05~10:06 구간에 포함해요. 이렇게 집계를 위해 나눈 시간 구간을 Window라고 합니다. ‘늦게 온 주문’은 주문 자체가 늦게 발생했다는 뜻이 아니라, 이미 발생한 주문의 데이터가 집계 시스템에 늦게 도착했다는 뜻이에요. Event Time으로 집계할 때 이미 발표한 10:00~10:01 결과에 이 주문이 빠져 있다면, 늦은 데이터를 얼마나 기다릴지, 기존 결과를 수정할지 정해야 합니다. 수정을 허용하면 후속 화면도 정정해야 하고, 너무 늦은 이벤트를 제외하면 결과를 빠르게 확정하는 대신 일부 주문이 집계에서 빠질 수 있어요."
+        ],
+        "diagram": "eventtime",
+        "caption": "처리 순서: 10:01 → 10:02 → 늦게 온 10:00. 발생 순서: 10:00 → 10:01 → 10:02. 늦은 주문은 10:00 Window의 수정 또는 제외 정책으로 다뤄요.",
+        "caution": "새 시간대의 이벤트가 왔다고 이전 시간대가 모두 도착한 것은 아니에요. 발생 시각 자체도 잘못된 장치 시계의 영향을 받을 수 있습니다.",
+        "sources": [
+          {
+            "pages": [
+              466,
+              467
+            ],
+            "anchor": "이벤트 시간 대 처리 시간"
+          },
+          {
+            "pages": [
+              468,
+              468
+            ],
+            "anchor": "수정 값을 발행한다"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "bridge": "12장의 핵심은 두 가지예요. 여러 시스템을 연결할 때는 무엇이 원본이고 다른 데이터는 어떻게 따라오는지 정하세요. 데이터를 사람에 대한 결정에 쓸 때는 결과가 잘 맞는지만 보지 말고, 잘못된 판단을 당사자가 바로잡을 수 있는지도 확인하세요.",
+    "lessons": [
+      {
+        "title": "System of Record와 Derived Data: 주문 원본과 검색용 데이터 구분하기",
+        "paragraphs": [
+          "쇼핑몰에서 주문을 취소했는데 검색 화면에는 아직 ‘주문 완료’라고 나온다고 해볼게요. 주문을 저장하는 DB와 검색에 쓰는 데이터가 따로 있고, 한쪽만 바뀌면 이런 일이 생깁니다. 먼저 어느 기록을 기준으로 삼을지 정해야 해요. 이 예시에서는 주문 DB가 기준이며, 이런 기준 저장소를 System of Record라고 부릅니다. 검색용 데이터나 일별 판매량처럼 원본을 바탕으로 다시 만든 데이터는 Derived Data예요. 검색용 데이터가 잘못되면 원본을 기준으로 다시 만들 수 있습니다.",
+          "저자가 소개하는 방향은 주문 DB와 검색 시스템을 각각 따로 고치는 대신, 원본의 변경 기록을 다른 시스템이 따라가게 하는 거예요. 예를 들어 ‘주문 취소’를 주문 DB에 저장하고, 그 변경 기록을 읽어 검색 화면에서도 취소 상태로 바꿉니다. 다만 검색 시스템이 변경을 반영하기까지 시간이 걸릴 수 있어요. 취소 직후 반드시 정확한 상태를 보여줘야 하는 주문 상세 화면은 원본을 확인하게 하는 등, 어디에서 최신 정보가 필요한지 정해야 합니다. 변경 기록을 다시 읽을 때 같은 취소를 두 번 적용하거나, 오래된 상태로 되돌리지 않도록 중복과 처리 순서도 관리해야 해요."
+        ],
+        "diagram": "derived",
+        "caption": "주문 DB가 기준 원본(System of Record)입니다. 원본의 변경 기록을 따라 검색용 데이터·판매량 통계·캐시(Derived Data)를 갱신해요. 반영에 시간이 걸리므로 잠깐은 서로 다른 상태가 보일 수 있습니다.",
+        "caution": "원본을 정하고 변경 기록을 전달하는 것은 저자가 제안하는 설계 방향이지 유일한 정답은 아니에요. 원본이 기준이라는 말이 원본 자체에는 오류가 없다는 뜻도 아닙니다. 검색용 데이터를 다시 만들려면 필요한 원본 기록과 처리 로직이 남아 있어야 해요.",
+        "sources": [
+          {
+            "pages": [
+              487,
+              487
+            ],
+            "anchor": "미래에 대한 의견과 고찰은 주관적이다"
+          },
+          {
+            "pages": [
+              489,
+              490
+            ],
+            "anchor": "파생 데이터 시스템은 대개 비동기로 갱신되기 때문에"
+          }
+        ]
+      },
+      {
+        "title": "데이터 윤리: 예측이 잘 맞아도 사람에게 불공정할 수 있어요",
+        "paragraphs": [
+          "지금까지는 데이터를 정확하고 안정적으로 저장하고, 여러 시스템에 전달하고, 처리하는 방법을 살펴봤어요. 책의 마지막 절 ‘옳은 일 하기’에서는 질문을 바꿉니다. 이렇게 처리한 데이터를 사람의 채용·대출·보험 같은 결정에 쓴다면, 개발자는 어떤 책임을 져야 할까요? 시스템이 설계한 대로 작동하더라도 그 결정이 사람에게 피해를 줄 수 있기 때문이에요. 저자는 기술이 정상 작동하는지뿐 아니라, 사람에게 미치는 영향도 엔지니어가 고민해야 한다고 말합니다. 이해를 돕기 위해 회사가 과거 채용 기록으로 지원자의 합격 가능성을 예측한다고 해볼게요. 과거에 특정 집단을 불공정하게 탈락시켰다면, 프로그램도 그 기록을 배워 비슷한 지원자를 계속 낮게 평가할 수 있어요. 과거의 합격·탈락을 잘 맞힌다고 해서 지원자의 능력을 공정하게 판단한다는 뜻은 아닙니다. 책은 이런 이유로 기술적 정확성뿐 아니라 사람에게 미치는 영향도 살펴야 한다고 말해요.",
+          "확인할 질문은 구체적이에요. 수집할 때는 ‘채용에 꼭 필요한 정보인가?’, 예측할 때는 ‘과거의 불공정한 판단을 그대로 배우고 있지 않은가?’, 실제 결정에 쓸 때는 ‘지원자가 이유를 알고 잘못된 기록을 고치거나 이의를 제기할 수 있는가?’를 물어야 합니다. 예를 들어 기록에 잘못된 경력이 들어 있어 탈락했다면 정정할 방법이 필요해요. 핵심은 프로그램이 낸 점수를 최종 정답처럼 취급하지 않고, 영향을 받는 사람이 오류를 바로잡을 수 있게 하는 것입니다."
+        ],
+        "diagram": "privacy",
+        "caption": "설명용 채용 사례: 지원자 정보 수집 → 합격 가능성 예측 → 채용 결정. 각 단계에서 ‘필요한 정보인가?’, ‘과거의 차별을 반복하는가?’, ‘이유를 알고 이의를 제기할 수 있는가?’를 확인해요.",
+        "caution": "채용 사례는 이해를 위한 재구성입니다. 이 절은 저자의 윤리적 문제 제기를 소개하며, 예측 정확도가 높거나 이름을 지웠다는 이유만으로 공정성과 사생활 문제가 해결되는 것은 아니에요.",
+        "sources": [
+          {
+            "pages": [
+              532,
+              532
+            ],
+            "anchor": "소프트웨어 엔지니어도 윤리적 책임을 져야 한다"
+          },
+          {
+            "pages": [
+              533,
+              535
+            ],
+            "anchor": "그 결정에 영향을 받은 사람은 이의를 제기할 수 있다"
+          },
+          {
+            "pages": [
+              536,
+              536
+            ],
+            "anchor": "사생활과 추적"
+          }
+        ]
+      }
+    ]
+  }
+]
+</script>
+<script>
+/* Original explanatory drawings. Illustrative states, not live DB metrics. */
+'use strict';
+const diagramTitles = {
+  reliability:'Reliability: 부품이 고장 나도 서비스를 복구하기',load:'Scalability: 부하를 재고 병목에 대응하기',
+  models:'Relational Model과 Document Model로 같은 주문 표현하기',query:'Graph: 관계를 따라 탐색하기',
+  logindex:'Append-only Log와 최신 위치를 가리키는 Index',storage:'B-tree와 LSM의 서로 다른 저장 방식',
+  compatibility:'Compatibility: 새 코드와 옛 코드가 데이터를 읽는 두 방향',evolution:'Schema Evolution: 서로 다른 버전이 공존하는 변경 과정',
+  replication:'Replication: Leader에서 Follower로 변경 전달하기',lag:'Replication Lag: 저장 직후 오래된 Replica를 읽는 상황',
+  partition:'Partitioning: 데이터를 나누고 Partition마다 Replica 두기',hotspot:'Hot Spot: 한 인기 키에 몰리는 요청',
+  atomic:'Transaction의 Atomicity: 같은 DB 안에서 이체를 함께 성공 또는 취소하기',race:'Race Condition과 Serializability: 동시 예약의 결과 비교하기',
+  timeout:'Timeout: Client가 구별할 수 없는 두 가지 상황',clocks:'Wall Clock 순서와 실제 Causality의 차이',
+  linear:'Linearizability: 쓰기 완료 뒤에 시작하는 읽기의 최신성',consensus:'Consensus: Network Partition 중 Leader의 권한',
+  batch:'Batch Processing: 끝이 정해진 주문 Log로 집계 만들기',replay:'Replay: 같은 로직 재시도와 수정한 로직 재계산',
+  stream:'Stream Processing: 끝없이 오는 Event로 결과 갱신하기',eventtime:'Event Time과 Processing Time의 차이',
+  derived:'Derived Data: 하나의 원본에서 여러 표현 만들기',privacy:'Privacy: 수집에서 사람에 대한 결정까지 책임 묻기'
+};
+function diagramEsc(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function drawDiagram(key,variant='inline'){
+  if(!Object.hasOwn(diagramTitles,key))throw new Error('Unknown diagram: '+key);
+  const id='drawing-'+key+'-'+variant, red='#b51f2d', ink='#242120', paper='#fffefa';
+  const text=(x,y,s,size=17,color=ink,anchor='middle',weight=400)=>`<text x="${x}" y="${y}" fill="${color}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}">${diagramEsc(s)}</text>`;
+  const line=(x1,y1,x2,y2,color=ink,dash='')=>`<path d="M${x1} ${y1}L${x2} ${y2}" fill="none" stroke="${color}" stroke-width="1.7" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  const arrow=(x1,y1,x2,y2,color=ink,dash='')=>`<path d="M${x1} ${y1}L${x2} ${y2}" fill="none" stroke="${color}" stroke-width="1.8" marker-end="url(#${id}-${color===red?'red':'ink'}-arrow)" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  const curve=(d,color=ink,dash='')=>`<path d="${d}" fill="none" stroke="${color}" stroke-width="1.7" marker-end="url(#${id}-${color===red?'red':'ink'}-arrow)" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  const rect=(x,y,w,h,fill=paper,stroke=ink)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>`;
+  const hatch=(x,y,w,h)=>rect(x,y,w,h,`url(#${id}-hatch)`);
+  const box=(x,y,w,h,title,sub='',accent=false)=>rect(x,y,w,h,paper,accent?red:ink)+line(x+3,y+h+3,x+w-3,y+h+4,accent?red:ink)+text(x+w/2,y+(sub?27:h/2+6),title,18,accent?red:ink,'middle',600)+(sub?text(x+w/2,y+51,sub,15):'');
+  const db=(x,y,w,h,label,sub='')=>`<path d="M${x} ${y+12}V${y+h-12}C${x} ${y+h+5} ${x+w} ${y+h+5} ${x+w} ${y+h-12}V${y+12}" fill="${paper}" stroke="${ink}" stroke-width="1.5"/><ellipse cx="${x+w/2}" cy="${y+12}" rx="${w/2}" ry="12" fill="${paper}" stroke="${ink}" stroke-width="1.5"/><path d="M${x+w-12} ${y+23}V${y+h-5}" stroke="${ink}" stroke-width=".6"/>`+text(x+w/2,y+43,label,18,ink,'middle',600)+(sub?text(x+w/2,y+64,sub,15):'');
+  const cross=(x,y)=>line(x-8,y-8,x+8,y+8,red)+line(x-8,y+8,x+8,y-8,red);
+  const tag=(x,y,s)=>text(x,y,s,15,red,'start',600);
+  const footer=s=>line(18,305,422,305,'#b9b1aa','3 4')+text(220,328,s,15,'#665e59');
+  let s='';
+  switch(key){
+    case 'reliability':
+      s=tag(18,26,'Reliability · 정상 경로')+box(18,45,104,64,'사용자','주문 요청')+box(169,45,104,64,'앱','주문 처리')+db(320,43,104,70,'DB','정상')+arrow(124,77,165,77)+arrow(275,77,315,77)+tag(18,155,'02  장애를 만나면?')+box(18,178,104,64,'사용자','계속 이용?')+box(169,178,104,64,'앱','복구 설계')+db(320,176,104,70,'DB','고장')+arrow(124,210,165,210)+arrow(275,210,313,210,red,'4 4')+cross(303,210)+curve('M220 245C220 282 365 282 370 251',red)+text(295,293,'감지 · 대체 · 복구',15,red)+footer('부품이 고장 나도, 서비스는 기대한 일을 해야 한다.');break;
+    case 'load':
+      s=tag(18,26,'Scalability · 읽기 요청이 늘어나면')+[0,1,2,3,4].map(i=>line(22,60+i*25,85,60+i*25,i>1?red:ink)).join('')+arrow(88,110,133,110)+box(140,76,130,70,'관찰','어디가 느릴까?')+arrow(275,110,310,110)+db(316,66,104,89,'저장소','대기 증가')+line(22,190,420,190,'#b9b1aa')+box(20,218,120,60,'부하 정의')+arrow(143,248,157,248)+box(161,218,120,60,'병목 측정')+arrow(285,248,300,248)+box(304,218,116,60,'대응 선택', '',true)+footer('Replication · 자원 증설 · 설계 변경 중 선택.');break;
+    case 'models':
+      s=tag(18,25,'같은 주문 #42, 다른 표현')+text(110,64,'Relational: 연결해서 읽기',16)+rect(18,82,182,48)+text(109,111,'고객 7 / 이름: 민수',16)+rect(18,151,182,48)+text(109,180,'주문 42 / 고객: 7',16)+rect(18,220,182,48)+text(109,249,'주문상품 / 책 1권',16)+arrow(110,133,110,147)+arrow(110,202,110,216)+line(220,55,220,282,'#b9b1aa','3 4')+text(331,64,'Document: 묶어서 읽기',16)+rect(244,82,179,186)+text(260,112,'주문 #42',18,red,'start',600)+text(260,147,'고객: 민수',16,ink,'start')+rect(256,165,155,78,'#f3ece7')+text(270,194,'상품 목록',16,ink,'start')+text(270,225,'↳ 책 1권',16,ink,'start')+footer('질문과 변경 방식에 맞춰 데이터의 경계를 정한다.');break;
+    case 'query':
+      s=tag(18,26,'Graph · “친구의 친구가 산 상품은?”')+box(22,120,82,62,'나')+box(179,57,85,62,'친구 A')+box(179,189,85,62,'친구 B')+box(330,120,88,62,'친구 C')+arrow(108,140,174,90)+arrow(108,164,174,220)+arrow(269,90,325,140)+arrow(269,220,325,166)+text(135,96,'친구',15)+text(136,214,'친구',15)+text(292,96,'친구',15)+box(324,237,100,48,'상품', '',true)+arrow(374,188,374,231,red)+text(398,214,'구매',15,red)+footer('사람·상품은 Node, 친구·구매는 Edge로 읽는다.');break;
+    case 'logindex':
+      s=tag(18,26,'Log는 뒤에 추가, Index는 최신 위치로')+rect(20,58,258,49)+text(36,89,'①  key 42 → 옛 이름',17,ink,'start')+rect(20,120,258,49)+text(36,151,'②  key 17 → 다른 값',17,ink,'start')+rect(20,182,258,49)+text(36,213,'③  key 42 → 새 이름',17,red,'start',600)+arrow(150,236,150,276)+text(215,267,'새 기록은 아래로',15)+box(310,65,111,70,'Index','42 → ③',true)+curve('M365 139V207H284',red)+text(367,244,'가리킨 곳을',15)+text(367,266,'바로 읽기',15)+footer('Log의 옛 기록과 현재 값은 같은 뜻이 아니다.');break;
+    case 'storage':
+      s=tag(18,25,'B-tree: Page를 찾아가기')+box(18,49,95,54,'Root')+box(172,49,95,54,'중간')+box(326,49,95,54,'Leaf')+arrow(118,77,167,77)+arrow(272,77,321,77)+text(220,131,'키 범위를 따라 필요한 페이지로 이동',16)+line(18,151,422,151,'#b9b1aa')+tag(18,180,'LSM: 모아 쓰고, 정렬 파일을 병합')+box(18,201,112,60,'메모리')+box(164,201,112,60,'정렬 파일')+box(310,201,112,60,'병합')+arrow(134,230,160,230)+arrow(280,230,306,230)+text(220,290,'읽기·쓰기·병합 비용의 배분이 다르다',16)+footer('승자는 고정되지 않는다. 실제 작업부하로 비교.');break;
+    case 'compatibility':
+      s=tag(18,27,'Backward Compatibility: 새 코드 → 옛 데이터')+box(24,54,145,73,'옛 데이터','메모 없음')+box(272,54,145,73,'새 코드','없어도 처리')+arrow(176,90,264,90,red)+text(220,78,'읽기',15,red)+line(18,163,422,163,'#b9b1aa')+tag(18,195,'Forward Compatibility: 옛 코드 → 새 데이터')+box(24,220,145,73,'새 데이터','배송 메모 추가')+box(272,220,145,73,'옛 코드','미지 필드 무시')+arrow(176,256,264,256,red)+text(220,243,'읽기',15,red);break;
+    case 'evolution':
+      s=tag(18,27,'Schema Evolution · 여러 버전이 공존')+box(20,63,111,78,'변경 전','기존 필드')+box(164,63,111,78,'변경 중','선택 필드 추가')+box(308,63,111,78,'변경 후','의존 확인')+arrow(134,102,160,102)+arrow(278,102,304,102)+box(70,200,121,61,'구버전 앱')+box(250,200,121,61,'신버전 앱')+curve('M220 147C220 182 130 165 130 194',red)+curve('M220 147C220 182 310 165 310 194',red)+text(220,290,'같은 데이터에 여러 버전이 접근',16)+footer('필드 추가와 삭제가 모두 같은 난이도는 아니다.');break;
+    case 'replication':
+      s=tag(18,26,'Replication · 쓰기와 읽기를 나누기')+box(22,72,112,60,'쓰기 요청')+db(185,52,108,92,'Leader','변경 기록')+arrow(139,101,178,101)+db(55,215,120,80,'Follower A','읽기')+db(281,215,120,80,'Follower B','읽기')+curve('M216 151C216 186 116 174 116 209',red)+curve('M262 151C262 186 341 174 341 209',red)+text(222,210,'같은 변경 복사',16,red)+footer('복사본이 늘면 변경을 전달하고 지켜볼 곳도 늘어난다.');break;
+    case 'lag':
+      s=tag(18,25,'Replication Lag · 시간은 아래로 흐름')+text(98,60,'Leader',18,ink,'middle',600)+text(323,60,'Follower',18,ink,'middle',600)+arrow(97,73,97,290,ink,'3 5')+arrow(323,73,323,290,ink,'3 5')+box(28,95,139,53,'이름 v2 저장', '',true)+box(254,95,139,53,'아직 v1')+text(157,177,'저장 성공',15,red)+curve('M171 124C210 124 205 247 248 247',red,'4 4')+box(254,177,139,52,'읽으면 v1')+box(254,244,139,49,'이제 v2', '',true)+footer('내 쓰기 직후 읽기에는 별도의 보장이 필요할 수 있다.');break;
+    case 'partition':
+      s=tag(18,26,'Partitioning과 Replication은 별개')+box(126,49,188,49,'전체 데이터 A–Z')+arrow(165,104,81,144)+arrow(220,104,220,144)+arrow(275,104,359,144)+[18,161,304].map((x,i)=>box(x,151,118,62,['A–H','I–P','Q–Z'][i],['Partition 1','Partition 2','Partition 3'][i])+arrow(x+59,220,x+59,243,red)+box(x,249,118,43,'Replica')).join('')+footer('Partition마다 Replica를 두어 장애에 대비한다.');break;
+    case 'hotspot':
+      s=tag(18,25,'Hot Spot · 같은 인기 키에 몰리는 요청')+[0,1,2,3].map(i=>box(15+i*107,54,94,48,'키 HOT')).join('')+arrow(63,108,216,186,red)+arrow(170,108,216,186,red)+arrow(277,108,225,186,red)+arrow(384,108,225,186,red)+box(16,198,118,74,'Shard A','여유')+box(161,198,118,74,'Shard B','요청 집중',true)+box(306,198,118,74,'Shard C','여유')+text(220,292,'같은 키 → 같은 목적지',16,red)+footer('해시는 키를 퍼뜨려도, 한 키의 요청은 쪼개지 못한다.');break;
+    case 'atomic':
+      s=tag(18,25,'같은 DB 안의 하나의 Transaction')+rect(20,48,400,119)+text(220,76,'A에서 10 차감 + B에 10 증가',18,ink,'middle',600)+box(42,91,143,52,'A: 100 → 90')+box(255,91,143,52,'B: 50 → 60')+arrow(189,117,249,117)+arrow(155,172,112,214)+arrow(285,172,329,214,red)+box(25,221,178,67,'Commit 성공','90 / 60')+box(237,221,178,67,'도중 실패·취소','100 / 50',true)+footer('Atomicity: 둘 다 반영하거나 모두 취소한다.');break;
+    case 'race':
+      s=tag(18,26,'Race Condition: 같은 빈자리를 본 두 요청')+box(20,50,148,59,'요청 A','잔여 1 확인')+box(272,50,148,59,'요청 B','잔여 1 확인')+arrow(170,80,215,123,red)+arrow(270,80,225,123,red)+box(136,130,168,49,'둘 다 예약 시도', '',true)+line(18,198,422,198,'#b9b1aa')+tag(18,226,'Serializability: 순서대로 실행한 결과')+box(19,242,112,50,'A 예약')+arrow(135,267,158,267)+box(164,242,112,50,'잔여 0')+arrow(280,267,303,267)+box(309,242,112,50,'B는 매진')+footer('Transaction 사용만으로 Isolation Level은 모른다.');break;
+    case 'timeout':
+      s=tag(18,25,'경우 A: 요청이 도착하지 못함')+box(20,53,125,65,'Client')+box(295,53,125,65,'Server')+arrow(151,75,213,75,red)+cross(233,75)+line(251,75,289,75,ink,'4 5')+text(220,146,'저장 안 됨',16)+tag(18,186,'경우 B: 저장했지만 응답이 사라짐')+box(20,215,125,65,'Client')+box(295,215,125,65,'Server','저장 성공')+arrow(150,230,288,230)+arrow(289,264,247,264,red)+cross(224,264)+line(205,264,152,264,ink,'4 5')+footer('Timeout으로는 저장 성공 여부를 알 수 없다.');break;
+    case 'clocks':
+      s=tag(18,25,'Causality: A가 먼저, 그 결과로 B')+box(20,63,150,85,'Server A','표시 시각 10:02')+box(270,63,150,85,'Server B','표시 시각 10:01')+arrow(176,107,264,107,red)+text(220,94,'메시지',15,red)+text(95,178,'사건 A',18)+text(345,178,'사건 B',18)+line(18,199,422,199,'#b9b1aa')+text(220,238,'Causality     A → B',20,ink,'middle',600)+text(220,278,'Wall Clock 값으로 정렬  B → A ?',18,red)+footer('예시: Server의 Wall Clock은 서로 다를 수 있다.');break;
+    case 'linear':
+      s=tag(18,26,'Linearizability · 쓰기 완료 후의 읽기')+arrow(21,80,421,80)+text(400,63,'시간',15)+rect(42,101,164,55,'#f3ece7')+text(124,134,'v2 쓰기 진행',18)+line(208,68,208,279,red,'4 4')+text(208,54,'완료',17,red)+rect(263,193,154,58)+text(340,217,'그 뒤 시작한 읽기',16)+text(340,241,'v1은 안 됨',17,red,'middle',600)+arrow(244,165,284,188)+text(118,223,'쓰기와 겹친 읽기는',16)+text(118,248,'별도로 따져야 함',16)+footer('다른 쓰기가 없다면 이후 읽기는 v2를 보아야 한다.');break;
+    case 'consensus':
+      s=tag(18,25,'Consensus 기반 Leader 선출')+rect(16,53,253,174,'#f3ece7')+box(34,92,94,70,'Server B','통신 가능')+box(155,92,94,70,'Server C','통신 가능')+arrow(132,114,150,114)+arrow(150,141,132,141)+text(141,201,'프로토콜로 선출·권한 확인',15)+box(309,92,111,70,'옛 Leader A','통신 끊김',true)+line(287,51,287,257,red,'5 5')+cross(286,128)+text(220,281,'“내가 Leader”라는 주장만으로는 부족',18,red)+footer('Quorum의 크기뿐 아니라 Log·Term 규칙도 중요.');break;
+    case 'batch':
+      s=tag(18,26,'Batch Processing · 입력의 끝을 정하기')+rect(24,57,392,61)+text(220,84,'어제 주문 Log · 끝이 있는 입력',18,ink,'middle',600)+text(220,106,'책 · 컵 · 책',17)+arrow(220,123,220,154)+box(24,163,176,62,'책 그룹','책 / 책')+box(240,163,176,62,'컵 그룹','컵')+curve('M220 145L111 145V158')+curve('M220 145L328 145V158')+arrow(111,230,111,254,red)+arrow(328,230,328,254,red)+text(111,283,'책 2건',23,red)+text(328,283,'컵 1건',23,red)+footer('같은 상품을 모아 집계하면 입력에서 새 결과가 나온다.');break;
+    case 'replay':
+      s=tag(18,26,'Replay · 원본을 남겨 다시 계산하기')+db(166,47,108,77,'원본','보존')+curve('M160 89H96V157')+curve('M280 89H345V157',red)+box(18,164,172,68,'같은 로직','실패 작업 재시도')+box(250,164,172,68,'수정한 로직','새 결과 재계산',true)+arrow(103,237,103,257)+arrow(336,237,336,257,red)+text(103,284,'같은 결과 목표',17)+text(336,284,'바뀐 결과 가능',17,red)+footer('외부에 두 번 영향을 주지 않도록 출력·부수 효과 관리.');break;
+    case 'stream':
+      s=tag(18,26,'Stream Processing · 끝을 기다리지 않기')+text(32,90,'…',27)+[68,167,266].map((x,i)=>box(x,53,84,58,'주문 '+(i+1))).join('')+arrow(156,82,162,82)+arrow(255,82,261,82)+text(397,90,'…',27)+[110,209,308].map(x=>line(x,117,x,137,red)).join('')+line(110,137,308,137,red)+arrow(220,137,220,158,red)+box(135,165,170,61,'Stream Processor')+arrow(220,232,220,253,red)+text(220,286,'집계 1 → 2 → 3 → …',23,red)+footer('계속 계산하므로 지연·중복·복구도 계속 다뤄야 한다.');break;
+    case 'eventtime':
+      s=tag(18,26,'도착한 순서와 발생한 순서는 다릅니다')+text(22,75,'Processing Time 기준 순서',16,ink,'start')+box(22,92,110,61,'10:01')+box(166,92,110,61,'10:02')+box(310,92,110,61,'10:00','늦게 도착',true)+arrow(136,121,160,121)+arrow(280,121,304,121)+line(18,180,422,180,'#b9b1aa')+text(22,211,'Event Time 기준 순서',16,ink,'start')+box(22,230,110,61,'10:00', '',true)+box(166,230,110,61,'10:01')+box(310,230,110,61,'10:02')+arrow(136,261,160,261)+arrow(280,261,304,261)+footer('늦게 온 사건을 어느 시간 창에 반영할지 정해야 한다.');break;
+    case 'derived':
+      s=tag(18,25,'Derived Data · 원본과 파생 결과 구분')+db(32,61,124,88,'주문 DB','원본')+box(262,75,152,63,'Change Log')+arrow(162,105,256,105,red)+box(18,230,117,62,'Search Index')+box(162,230,117,62,'분석 결과')+box(306,230,117,62,'Cache')+curve('M337 144V184H77V224')+curve('M337 144V184H220V224')+curve('M337 144V184H364V224')+text(151,204,'변경을 따라 갱신',15,red)+footer('파생 표현은 같은 원본에서 나오지만 반영 시점은 다르다.');break;
+    case 'privacy':
+      s=tag(18,25,'Privacy · 데이터의 끝에는 사람이 있다')+box(20,70,111,70,'수집','행동 기록')+box(164,70,111,70,'추론','위험도 예측')+box(308,70,111,70,'결정','사람에게 영향')+arrow(135,106,158,106)+arrow(279,106,302,106)+[75,219,363].map(x=>arrow(x,146,x,185,red,'3 4')).join('')+text(75,217,'꼭 필요한가?',17,red)+text(219,217,'편견은 없나?',17,red)+text(363,217,'고칠 수 있나?',17,red)+text(220,274,'성능뿐 아니라 책임과 사생활도 설계의 일부',17)+footer('12장에서 제안하는 관점: 결과를 사람의 입장에서 검토.');break;
+  }
+  return `<svg class="concept-svg" viewBox="0 0 440 348" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${diagramEsc(diagramTitles[key])}"><defs><pattern id="${id}-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(25)"><path d="M0 0V6" stroke="${ink}" stroke-width=".65"/></pattern>${['ink','red'].map(c=>`<marker id="${id}-${c}-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 0L6 3L1 6" fill="none" stroke="${c==='red'?red:ink}" stroke-width="1.3"/></marker>`).join('')}</defs><g font-family="Pretendard,Apple SD Gothic Neo,Noto Sans KR,sans-serif" stroke-linecap="round" stroke-linejoin="round">${s}</g></svg>`;
+}
+
+'use strict';
+const depthChapters=JSON.parse(document.getElementById('depth-data').textContent);
+const chapterScope=new Map(JSON.parse(document.getElementById('chapter-scope-data').textContent).map(c=>[c.id,c.notes]));
+const chapterContexts=new Map(JSON.parse(document.getElementById('chapter-context-data').textContent).map(c=>[c.id,c]));
+function renderChapterScope(id){
+  const notes=chapterScope.get(id),context=chapterContexts.get(id);
+  return `<aside class="chapter-context" aria-labelledby="chapter-context-${id}"><div class="context-kicker">WHY THIS CHAPTER</div><h4 id="chapter-context-${id}">이 장은 왜 이런 이야기를 할까요?</h4><p class="context-intro">${diagramEsc(context.intro)}</p><ol class="context-steps">${context.steps.map((step,i)=>`<li><span class="context-step-number" aria-hidden="true">${String(i+1).padStart(2,'0')}</span><div><h5>${diagramEsc(step.title)}</h5><p>${diagramEsc(step.text)}</p></div></li>`).join('')}</ol><p class="context-takeaway"><strong>이 흐름으로 읽어보세요</strong>${diagramEsc(context.takeaway)}</p><p class="context-provenance">책의 논지를 연결해 풀어 쓴 학습용 설명입니다. 예시는 이해를 위한 재구성을 포함해요.</p><details class="context-sources"><summary>이 흐름의 책 근거</summary>${context.steps.map(step=>`<p><strong>${diagramEsc(step.title)}</strong><br>${step.sources.map(n=>`책 ${n.pages.join('–')}쪽 · PDF ${n.pages.map(p=>p+26).join('–')}쪽`).join('<br>')}</p>`).join('')}</details></aside><details class="chapter-scope" aria-label="이 장에서 함께 다루는 내용"><summary>이 장에서 함께 다루는 내용 · 용어 더 보기</summary><p class="scope-hint">아래는 추가 주제를 찾아보기 위한 안내예요. 처음에는 위 이야기 흐름만 읽고 넘어가도 괜찮습니다.</p><ul>${notes.map(n=>`<li>${diagramEsc(n.text)}</li>`).join('')}</ul><details><summary>책에서 찾아보기</summary><p>${notes.map(n=>`${diagramEsc(n.text)}<br>책 ${n.pages.join('–')}쪽 · PDF ${n.pages.map(p=>p+26).join('–')}쪽`).join('<br><br>')}</p></details></details>`;
+}
+const depthByChapter=new Map(depthChapters.map(c=>[c.id,c]));
+function renderExpandedSources(id){return depthByChapter.get(id).lessons.map(l=>`<br><strong>${diagramEsc(l.title)}</strong>${l.sources.map(s=>`책 ${s.pages.join('–')}쪽 / PDF ${s.pages.map(p=>p+26).join('–')}쪽`).join('<br>')}`).join('');}
+function renderChapterLessons(id){
+  const entry=depthByChapter.get(id);
+  if(!entry)throw new Error('Missing chapter expansion '+id);
+  return renderChapterScope(id)+`<div class="lesson-divider"><span>READ THE MECHANISM</span><strong>어떻게 작동하는지, 그림으로 따라가기</strong></div>`+entry.lessons.map((lesson,i)=>{
+    const number=String((id-1)*2+i+1).padStart(2,'0');
+    return `<section class="mechanism-lesson" aria-labelledby="lesson-${id}-${i}"><div class="lesson-number">${String(i+1).padStart(2,'0')} / 핵심 원리</div><h4 id="lesson-${id}-${i}">${diagramEsc(lesson.title)}</h4><p>${diagramEsc(lesson.paragraphs[0])}</p><figure class="ink-figure" data-diagram="${lesson.diagram}"><div class="figure-toolbar"><span>FIG. ${number}</span><button class="figure-zoom" data-zoom="${lesson.diagram}" aria-label="${diagramEsc(lesson.title)} 그림 크게 보기">크게 보기 ↗</button></div><div class="figure-frame">${drawDiagram(lesson.diagram)}</div><figcaption>${diagramEsc(lesson.caption)}</figcaption></figure><p>${diagramEsc(lesson.paragraphs[1])}</p><div class="lesson-caution"><span>여기서 주의</span><p>${diagramEsc(lesson.caution)}</p></div><details class="lesson-source"><summary>책에서 이어 읽기</summary><p>${lesson.sources.map(s=>`책 ${s.pages[0]===s.pages[1]?s.pages[0]:s.pages.join('–')}쪽 · PDF ${s.pages.map(p=>p+26).join('–')}쪽`).join('<br>')}</p></details></section>`;
+  }).join('')+`<div class="chapter-bridge"><span>${id===12?'책을 읽은 다음':'다음 장으로 이어지는 질문'}</span><p>${diagramEsc(entry.bridge)}</p></div>`;
+}
+function navigateChapter(index){
+  renderChapter(index);
+  document.getElementById('chapter-reading-start').focus({preventScroll:true});
+  requestAnimationFrame(()=>{
+    const body=document.getElementById('chapter-body');
+    const header=matchMedia('(max-width:850px)').matches?document.querySelector('.sidebar').getBoundingClientRect().height:0;
+    window.scrollTo({top:Math.max(0,window.scrollY+body.getBoundingClientRect().top-header-12),behavior:'instant'});
+  });
+}
+const figureDialog=document.getElementById('figure-dialog');
+let figureTrigger=null;
+document.addEventListener('click',e=>{
+  const zoom=e.target.closest('[data-zoom]');
+  if(zoom){
+    figureTrigger=zoom;
+    const key=zoom.dataset.zoom;
+    const lesson=depthChapters.flatMap(c=>c.lessons).find(l=>l.diagram===key);
+    document.getElementById('figure-dialog-title').textContent=lesson.title;
+    document.getElementById('figure-dialog-drawing').innerHTML=drawDiagram(key,'zoom');
+    document.getElementById('figure-dialog-caption').textContent=lesson.caption;
+    figureDialog.showModal();
+  }
+  const step=e.target.closest('[data-chapter-step]');
+  if(step&&!step.disabled)navigateChapter(current+Number(step.dataset.chapterStep));
+});
+document.getElementById('close-figure').addEventListener('click',()=>figureDialog.close());
+figureDialog.addEventListener('click',e=>{if(e.target===figureDialog){const r=figureDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)figureDialog.close();}});
+figureDialog.addEventListener('close',()=>{document.getElementById('figure-dialog-drawing').innerHTML='';if(figureTrigger?.isConnected)figureTrigger.focus({preventScroll:true});});
+
+/* Orientation, not a database simulation. One pass, six scenes. */
+(() => {
+  const film = document.getElementById('book-film');
+  if (!film) return;
+  const scenes = [
+    {part:1, chapters:[1,2], title:'주문을 어떤 데이터로 표현할까?', copy:'주문·고객·상품을 어떤 구조로 저장하고 어떤 질의로 읽을지 정합니다. 그 선택을 신뢰성·확장성·유지보수성이라는 기준으로 살펴봐요.'},
+    {part:1, chapters:[3,4], title:'저장한 주문을 빠르게 찾고, 형식이 바뀌어도 읽기', copy:'Storage Engine과 Index가 저장·조회의 비용을 바꿉니다. 앱을 업데이트해 주문에 새 필드를 추가해도, 구버전과 데이터를 주고받을 수 있을지도 생각해야 해요.'},
+    {part:2, chapters:[5,6], title:'서버 한 대를 넘어, 복사하거나 나눠 맡기기', copy:'Replication은 같은 주문의 복사본을 여러 서버에 둡니다. Partitioning은 서로 다른 주문을 나눠 맡깁니다. 복사본이 늦게 따라오거나 특정 서버에 일이 몰리는 문제가 생길 수 있어요.'},
+    {part:2, chapters:[7,8,9], title:'요청이 겹치고 통신이 끊겨도, 무엇을 보장할까?', copy:'마지막 재고를 두 사람이 동시에 주문하거나, 저장 응답을 받지 못할 수 있어요. Transaction과 Isolation, 분산 시스템의 불확실성, Consistency와 Consensus로 어떤 결과를 보장할지 살펴봅니다.'},
+    {part:3, chapters:[10,11], title:'주문 기록에서 판매량을 만들기', copy:'Batch Processing은 범위를 정한 주문 묶음으로 결과를 만듭니다. Stream Processing은 새 주문을 계속 반영해요. 재실행·중복·늦게 도착하는 데이터를 어떻게 다룰지도 중요합니다.'},
+    {part:3, chapters:[12], title:'전체 데이터 흐름과, 그 결과를 사용하는 책임', copy:'원본의 변경을 따라 검색·통계·캐시를 갱신하는 전체 구조를 생각합니다. 마지막에는 질문을 바꿔요. 데이터를 사람에 대한 결정에 쓴다면, 잘못된 판단과 피해에 개발자는 어떤 책임을 져야 할까요?'}
+  ];
+  const get = id => document.getElementById(id);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let current = 0, playing = false, timer = null, touched = false, autoStarted = false;
+  const duration = 8500;
+  function stopTimer() { clearTimeout(timer); timer = null; }
+  function motion() {
+    film.classList.toggle('is-playing', playing && !reduced.matches);
+    film.querySelectorAll('svg').forEach(svg => {
+      if (typeof svg.pauseAnimations !== 'function') return;
+      if (playing && !reduced.matches && Number(svg.closest('[data-film-part]').dataset.filmPart) === scenes[current].part) svg.unpauseAnimations();
+      else svg.pauseAnimations();
+    });
+  }
+  function schedule() {
+    stopTimer();
+    if (!playing) return;
+    timer = setTimeout(() => {
+      if (current < scenes.length - 1) { current++; render(); schedule(); }
+      else { playing = false; render(); get('film-state').textContent = '전체 흐름을 다 봤어요. 아래에서 각 Part를 살펴보세요.'; }
+    }, duration);
+  }
+  function render() {
+    const scene = scenes[current];
+    film.dataset.scene = String(current);
+    get('film-position').textContent = String(current + 1).padStart(2,'0') + ' / 06';
+    get('film-scene-tag').textContent = 'PART ' + String(scene.part).padStart(2,'0') + ' / ' + scene.chapters[0] + (scene.chapters.length > 1 ? '–' + scene.chapters.at(-1) : '') + '장';
+    get('film-scene-title').textContent = scene.title;
+    get('film-scene-copy').textContent = scene.copy;
+    film.querySelectorAll('[data-film-part]').forEach(el => el.classList.toggle('is-active',Number(el.dataset.filmPart) === scene.part));
+    film.querySelectorAll('[data-film-chapter]').forEach(el => el.classList.toggle('is-active',scene.chapters.includes(Number(el.dataset.filmChapter))));
+    film.querySelectorAll('[data-film-scene]').forEach(el => { if (Number(el.dataset.filmScene) === current) el.setAttribute('aria-current','step'); else el.removeAttribute('aria-current'); });
+    get('film-play').textContent = playing ? 'Ⅱ 일시정지' : '▶ 전체 흐름 재생';
+    get('film-play').setAttribute('aria-pressed',String(playing));
+    get('film-state').textContent = playing ? '재생 중 · 장면을 고르면 멈춥니다.' : reduced.matches ? '동작 줄이기 설정 · 장면을 직접 골라보세요.' : '장면을 고르거나 재생해보세요.';
+    motion();
+  }
+  film.addEventListener('click',e => {
+    const button = e.target.closest('button');
+    if (!button) return;
+    touched = true;
+    if (button.hasAttribute('data-film-scene')) { current = Number(button.dataset.filmScene); playing = false; }
+    if (button.id === 'film-play') { if (!playing && current === scenes.length-1) current = 0; playing = !playing; }
+    if (button.id === 'film-restart') { current = 0; playing = false; }
+    render(); schedule();
+  });
+  document.addEventListener('visibilitychange',() => { if (document.hidden) { playing = false; stopTimer(); render(); } });
+  reduced.addEventListener('change',() => { playing = false; stopTimer(); render(); });
+  if ('IntersectionObserver' in window) {
+    // Watch the map heading: the complete figure can exceed a mobile viewport.
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !autoStarted && !touched && !reduced.matches && !document.hidden) {
+          autoStarted = true; playing = true; render(); schedule();
+        }
+        if (!entry.isIntersecting && playing) { playing = false; stopTimer(); render(); }
+      }
+    },{threshold:0.4});
+    observer.observe(film.querySelector('.film-map'));
+  }
+  render();
+})();
+
+</script>
+<script>
+'use strict';
+const chapters=JSON.parse(document.getElementById('chapter-data').textContent);
+const $=id=>document.getElementById(id);
+const key='ddia-first-look-v1';
+let seen=new Set();
+try{const saved=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(saved))seen=new Set(saved.filter(n=>Number.isInteger(n)&&n>=1&&n<=chapters.length));}catch{}
+let current=0;
+function pad(n){return String(n).padStart(2,'0')}
+function sourceText(c){return c.sources.map(s=>'pp.'+s.pages.join('–')).join(' · ')}
+function updateProgress(){const n=seen.size;$('progress-text').textContent=n+' / '+chapters.length;$('mobile-progress').textContent='둘러본 챕터 '+n+' / '+chapters.length;document.querySelector('.progress-fill').style.width=(n/chapters.length*100)+'%';document.querySelector('[role="progressbar"]').setAttribute('aria-valuenow',String(n));try{localStorage.setItem(key,JSON.stringify([...seen]));}catch{}document.querySelectorAll('.chapter-select').forEach((b,i)=>{b.querySelector('.seen-dot').textContent=seen.has(i+1)?'✓':'';b.setAttribute('aria-label',`${i+1}장 ${chapters[i].title}${seen.has(i+1)?', 둘러봄':''}`)});}
+function renderMenu(){let part=0;$('chapter-menu').innerHTML=chapters.map((c,i)=>{let head='';if(part!==c.part){part=c.part;head=`<div class="menu-group">PART ${pad(part)} / ${['기초','Distributed Data','Derived Data'][part-1]}</div>`}return head+`<button class="chapter-select" data-chapter="${i}" aria-current="${i===current}" aria-controls="chapter-body"><span class="num">${pad(c.id)}</span><span class="menu-title">${c.short}</span><span class="seen-dot" aria-hidden="true"></span></button>`}).join('');}
+function renderChapter(index){current=Math.max(0,Math.min(chapters.length-1,index));const c=chapters[current];document.querySelectorAll('.chapter-select').forEach((b,i)=>b.setAttribute('aria-current',String(i===current)));$('chapter-body').innerHTML=`<div class="chapter-kicker">PART ${pad(c.part)} &nbsp; / &nbsp; CHAPTER ${pad(c.id)}</div><div class="chapter-topnav"><span>${c.id} / ${chapters.length}</span><button data-chapter-step="-1" aria-label="위쪽 이전 챕터" ${current===0?'disabled':''}>← 이전</button><button data-chapter-step="1" aria-label="위쪽 다음 챕터" ${current===chapters.length-1?'disabled':''}>다음 →</button></div><h3 class="chapter-title" id="chapter-reading-start" tabindex="-1">${c.id}장 · ${c.title}</h3><h4 class="chapter-question" style="margin-top:0">${c.question}</h4><p class="chapter-summary">${c.summary}</p><div class="example"><div class="example-label">IMAGINE THIS</div><p>${c.example}</p></div><div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div><p class="takeaway"><small>이것만 가져가세요</small>${c.takeaway}</p>${renderChapterLessons(c.id)}<details class="deeper"><summary>스터디에서 이야기해보기</summary><p>${c.extra}</p><p><strong>스터디에서 꺼내볼 질문</strong><br>${c.prompt}</p><div class="source-line">책에서 찾아보기 · ${sourceText(c)}<br>자세한 근거 구간은 아래 ‘가이드의 기준’에서 확인할 수 있어요.</div></details><div class="chapter-controls"><button class="button secondary seen-button" id="mark-seen" aria-pressed="${seen.has(c.id)}">${seen.has(c.id)?'✓ 둘러봤어요':'이 장, 감 잡았어요 ✓'}</button><div class="page-arrows"><button class="arrow-button" id="prev-chapter" aria-label="이전 챕터" ${current===0?'disabled':''}>←</button><button class="arrow-button" id="next-chapter" aria-label="다음 챕터" ${current===chapters.length-1?'disabled':''}>→</button></div></div>`;updateProgress();}
+$('chapter-menu').addEventListener('click',e=>{const b=e.target.closest('[data-chapter]');if(b)navigateChapter(Number(b.dataset.chapter))});
+$('chapter-body').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='mark-seen'){const id=chapters[current].id;if(seen.has(id))seen.delete(id);else seen.add(id);b.setAttribute('aria-pressed',String(seen.has(id)));b.textContent=seen.has(id)?'✓ 둘러봤어요':'이 장, 감 잡았어요 ✓';updateProgress();}if(b.id==='prev-chapter'||b.id==='next-chapter'){if(!b.disabled)navigateChapter(current+(b.id==='next-chapter'?1:-1));}});
+document.querySelectorAll('[data-jump]').forEach(a=>a.addEventListener('click',()=>renderChapter(Number(a.dataset.jump))));
+function resetProgress(){seen.clear();updateProgress();const b=$('mark-seen');b.setAttribute('aria-pressed','false');b.textContent='이 장, 감 잡았어요 ✓';}
+$('reset-progress').addEventListener('click',resetProgress);$('reset-progress-mobile').addEventListener('click',resetProgress);
+renderMenu();renderChapter(0);
+$('sources-list').innerHTML=chapters.map(c=>`<div><strong>${pad(c.id)} · ${c.title}</strong>${c.sources.map(s=>`${s.topic}: 책 ${s.pages.join('–')}쪽 / PDF ${s.pages.map(p=>p+26).join('–')}쪽`).join('<br>')}${renderExpandedSources(c.id)}</div>`).join('');
+const quizzes=JSON.parse(document.getElementById('quiz-data').textContent);
+
+const answered=new Map();
+const quizParts=[
+ {id:1,title:'데이터 저장·조회와 변화 대응',range:'1–4장',intro:'데이터 모델, Index, Storage Engine, Encoding과 호환성을 확인해요.'},
+ {id:2,title:'여러 서버의 데이터와 정확성',range:'5–9장',intro:'Replication, Partitioning, Transaction과 분산 시스템의 장애·Consensus를 확인해요.'},
+ {id:3,title:'데이터 처리·시스템 연결과 책임',range:'10–12장',intro:'Batch Processing, Stream Processing, Derived Data와 데이터 윤리를 확인해요.'}
+];
+const quizPartOf=q=>q.chapter<=4?1:q.chapter<=9?2:3;
+$('quiz').innerHTML=quizParts.map(part=>{
+ const items=quizzes.map((q,i)=>({q,i})).filter(({q})=>quizPartOf(q)===part.id).sort((a,b)=>a.q.chapter-b.q.chapter||a.i-b.i);
+ return `<div class="quiz-part" data-quiz-part="${part.id}" role="group" aria-labelledby="quiz-part-${part.id}"><div class="quiz-part-heading"><span>PART ${pad(part.id)} · ${part.range} · ${items.length}문제</span><h3 id="quiz-part-${part.id}">${part.title}</h3><p>${part.intro}</p></div>${items.map(({q,i},n)=>`<div class="quiz-item" data-quiz-level="${q.level}"><div class="quiz-meta">${q.chapter}장</div><h3 class="quiz-question" id="question-${i}">${pad(n+1)}. ${q.question}</h3><div class="quiz-options" role="group" aria-labelledby="question-${i}">${q.options.map((o,j)=>`<button class="quiz-option" data-q="${i}" data-option="${j}" aria-pressed="false"><span class="quiz-option-text">${o}</span><span class="quiz-option-result"></span></button>`).join('')}</div><p class="quiz-feedback" id="feedback-${i}" aria-live="polite"></p></div>`).join('')}<nav class="quiz-part-bottom" aria-label="Part ${part.id} 문제 이동"><button type="button" data-quiz-go="${part.id-1}" ${part.id===1?'disabled':''}>← 이전 Part</button><span>Part ${part.id} / 3</span><button type="button" data-quiz-go="${part.id+1}" ${part.id===3?'disabled':''}>다음 Part →</button></nav></div>`;
+}).join('');
+function updateQuizScore(){const correct=[...answered].filter(([i,choice])=>quizzes[i].answer===choice).length;$('quiz-score').textContent='푼 문제 '+answered.size+' / '+quizzes.length+' · 정답 '+correct;}
+$('quiz').addEventListener('click',e=>{
+ const b=e.target.closest('[data-q]');if(!b)return;
+ const i=Number(b.dataset.q),choice=Number(b.dataset.option),q=quizzes[i],correct=choice===q.answer;
+ answered.set(i,choice);
+ document.querySelectorAll(`[data-q="${i}"]`).forEach(el=>{
+  const index=Number(el.dataset.option),selected=index===choice,isAnswer=index===q.answer;
+  el.setAttribute('aria-pressed',String(selected));
+  el.classList.toggle('is-correct',isAnswer);el.classList.toggle('is-wrong',selected&&!isAnswer);
+  el.querySelector('.quiz-option-result').textContent=isAnswer?(selected?'✓ 내 답 · 정답':'✓ 정답'):selected?'✕ 내 답 · 오답':'';
+ });
+ const feedback=$('feedback-'+i);feedback.dataset.result=correct?'correct':'wrong';
+ feedback.textContent=(correct?'✓ 정답입니다. ':'✕ 오답입니다. 정답: '+q.options[q.answer]+' — ')+q.explain+' ('+q.source+')';
+ updateQuizScore();
+});
+function selectQuizPart(id,navigate=false){
+ document.querySelectorAll('[data-quiz-part-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.quizPartFilter===id)));
+ document.querySelectorAll('.quiz-part').forEach(group=>group.hidden=group.dataset.quizPart!==id);
+ if(navigate)requestAnimationFrame(()=>{
+  const heading=document.querySelector('#quiz-part-'+id);heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});
+  const sidebar=document.querySelector('.sidebar'),fixed=getComputedStyle(sidebar).position==='sticky'&&innerWidth<=850;
+  const offset=fixed?sidebar.getBoundingClientRect().height:0;
+  window.scrollTo({top:Math.max(0,heading.getBoundingClientRect().top+scrollY-offset-18),behavior:'instant'});
+ });
+}
+$('quiz').addEventListener('click',e=>{const button=e.target.closest('[data-quiz-go]');if(button&&!button.disabled)selectQuizPart(button.dataset.quizGo,true);});
+selectQuizPart('1');updateQuizScore();
+document.querySelectorAll('[data-quiz-part-filter]').forEach(b=>{b.textContent='Part '+b.dataset.quizPartFilter+' · '+quizzes.filter(q=>String(quizPartOf(q))===b.dataset.quizPartFilter).length+'문제';});
+$('quiz-toolbar').addEventListener('click',e=>{const filter=e.target.closest('[data-quiz-part-filter]');if(filter)selectQuizPart(filter.dataset.quizPartFilter,true);if(e.target.closest('#reset-quiz')){answered.clear();document.querySelectorAll('.quiz-option').forEach(b=>{b.setAttribute('aria-pressed','false');b.classList.remove('is-correct','is-wrong');b.querySelector('.quiz-option-result').textContent='';});document.querySelectorAll('.quiz-feedback').forEach(p=>{p.textContent='';delete p.dataset.result;});updateQuizScore();}});
+if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){document.querySelectorAll('.navlink').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+entry.target.id));}},{rootMargin:'-15% 0px -65% 0px'});document.querySelectorAll('main>section').forEach(s=>observer.observe(s));}
+</script>
+</body></html>

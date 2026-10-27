@@ -46,7 +46,7 @@ class ReaderTests(unittest.TestCase):
         path = self.note(body='![img](assets/a.png)')
         assets = self.folder / 'assets'
         assets.mkdir()
-        for name in ['a.png', 'theme.css', 'font.woff2', 'secret.png', '.hidden.png', 'key.pem', 'app.js']:
+        for name in ['a.png', 'theme.css', 'font.woff2', 'secret.png', '.hidden.png', 'key.pem', 'app.js', 'module.mjs']:
             (assets / name).write_text('fixture')
         private = assets / 'private'
         private.mkdir()
@@ -57,19 +57,18 @@ class ReaderTests(unittest.TestCase):
         relative = path.relative_to(self.root)
         self.assertEqual((content / relative).read_text(), path.read_text())
         exported = {p.name for p in (content / relative.parent / 'assets').rglob('*') if p.is_file()}
-        self.assertEqual(exported, {'a.png', 'theme.css', 'font.woff2'})
+        self.assertEqual(exported, {'a.png', 'theme.css', 'font.woff2', 'app.js', 'module.mjs'})
         (assets / 'a.png').unlink()
         build.main(['--root', str(self.root)])
         self.assertFalse((content / relative.parent / 'assets/a.png').exists())
 
-    def test_exported_html_cannot_bypass_reader_sandbox(self):
-        path = self.note('unsafe.html', '<script>parent.pwned=true</script>')
+    def test_exported_html_preserves_original_scripts_and_document(self):
+        body = '<!doctype html><html><body><svg><circle r="4"/></svg><script>window.interactive=true</script></body></html>'
+        path = self.note('interactive.html', body)
         build.main(['--root', str(self.root)])
         exported = self.root / 'dashboard/content' / path.relative_to(self.root)
-        text = exported.read_text()
-        self.assertNotIn('<script>', text)
-        self.assertIn('reader.html?note=alice%2F', text)
-        self.assertIn('http-equiv="refresh"', text)
+        self.assertEqual(exported.read_text(), body)
+        self.assertNotIn('http-equiv="refresh"', exported.read_text())
 
     def test_symlink_notes_and_assets_rejected(self):
         self.note()

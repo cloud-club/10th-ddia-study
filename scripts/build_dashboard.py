@@ -6,7 +6,6 @@ No third-party Python packages are required.
 from __future__ import annotations
 
 import argparse
-import html
 import datetime as dt
 import json
 import os
@@ -276,14 +275,6 @@ def build_dashboard_data(
     }
 
 
-def html_redirect(path: Path, root: Path) -> str:
-    note = parse_note(path, root, "", "")
-    parent = Path("content") / path.relative_to(root).parent
-    url = os.path.relpath("reader.html", parent) + "?note=" + quote(note["id"], safe="")
-    escaped = html.escape(url, quote=True)
-    return f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url={escaped}"><a href="{escaped}">안전한 읽기 화면으로 이동</a>'
-
-
 def export_content(root: Path, dashboard: Path) -> None:
     """Replace generated content without traversing source/destination symlinks."""
     root = root.resolve()
@@ -298,7 +289,8 @@ def export_content(root: Path, dashboard: Path) -> None:
         target = destination / path.relative_to(root)
         target.parent.mkdir(parents=True, exist_ok=True)
         if path.suffix.lower() in {".html", ".htm"}:
-            target.write_text(html_redirect(path, root), encoding="utf-8")
+            _, body = parse_frontmatter(path.read_text(encoding="utf-8"))
+            target.write_text(body, encoding="utf-8")
         else:
             shutil.copyfile(path, target)
 
