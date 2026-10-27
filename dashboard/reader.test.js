@@ -7,7 +7,7 @@ const page = 'https://example.org/study/reader.html?note=a';
 const note = {id:'a',asset_base:'./content/members/alice/notes/chapter/'};
 const other = {id:'b',asset_base:'./content/members/alice/notes/',source_url:'https://github.com/org/repo/blob/main/members/alice/notes/other.md',url:'./reader.html?note=b'};
 test('reader exports browser-testable rendering and resolution functions',()=>{
- for(const name of ['resolveURL','safeURL','htmlDocument','markdown','findNote']) assert.equal(typeof R[name],'function',name);
+ for(const name of ['resolveURL','safeURL','originalHTMLURL','markdown','findNote']) assert.equal(typeof R[name],'function',name);
 });
 test('relative assets resolve from the note directory, not the reader page',()=>{
  assert.equal(R.resolveURL('images/a.png',note,[],page),'https://example.org/study/content/members/alice/notes/chapter/images/a.png');
@@ -32,7 +32,21 @@ test('dashboard app only opens cross-origin links in new tabs',()=>{
 test('graph popovers do not force internal links into a new tab',()=>{
  assert.doesNotMatch(fs.readFileSync(`${__dirname}/graph.js`,'utf8'),/href: node\.url, target: '_blank'/);
 });
-test('reader shell loads pinned local dependencies and no permissive iframe sandbox',()=>{
+test('original HTML URL encodes filenames within same-origin content/members',()=>{
+ assert.equal(R.originalHTMLURL({path:'members/alice/notes/한 글 #?.html'},page),'https://example.org/study/content/members/alice/notes/%ED%95%9C%20%EA%B8%80%20%23%3F.html');
+ assert.equal(R.originalHTMLURL({path:'members/alice/notes/100%.html'},page),'https://example.org/study/content/members/alice/notes/100%25.html');
+ for(const path of [undefined,'','/members/a.html','https://evil.test/members/a.html','//evil.test/a.html','members/../a.html','members/a/../../a.html','members/a/./b.html','members/a\\b.html','members//a.html','members/a/%2e%2e/x.html','members/a/%252e%252e/x.html','members/a/%2f/x.html','members/a/\u0000.html','members-evil/a.html']) assert.throws(()=>R.originalHTMLURL({path},page),/경로/,String(path));
+});
+test('HTML is not sanitized or wrapped in standalone reader chrome',()=>{
+ const js=fs.readFileSync(`${__dirname}/reader.js`,'utf8');
+ const css=fs.readFileSync(`${__dirname}/reader.css`,'utf8');
+ const html=fs.readFileSync(`${__dirname}/reader.html`,'utf8');
+ assert.doesNotMatch(js,/htmlDocument|\.srcdoc\s*=|Content-Security-Policy|html-standalone/);
+ assert.doesNotMatch(css,/html-standalone/);
+ assert.match(html,/원본 HTML/);assert.match(html,/스크립트/);assert.match(html,/저장소/);assert.doesNotMatch(html,/차단됩니다|읽기 전용/);
+ for(const asset of ['reader.css','reader.js']) assert.ok(html.includes(`${asset}?v=reader-3`));
+});
+test('reader shell loads pinned local dependencies for Markdown',()=>{
  const html=fs.readFileSync(`${__dirname}/reader.html`,'utf8');
  assert.match(html,/vendor\/marked-15\.0\.12\.umd\.js/);
  assert.match(html,/vendor\/purify-3\.4\.17\.min\.js/);

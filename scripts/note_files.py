@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 
 NOTE_TYPES = {'.md', '.html', '.htm'}
-PUBLIC_TYPES = NOTE_TYPES | {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.avif', '.ico', '.bmp', '.css', '.woff', '.woff2', '.ttf', '.otf', '.eot'}
+PUBLIC_TYPES = NOTE_TYPES | {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.avif', '.ico', '.bmp', '.css', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.js', '.mjs'}
 PRIVATE_NAMES = {'private', 'raw', 'data', 'exports', 'secrets', 'credentials', 'node_modules'}
 
 

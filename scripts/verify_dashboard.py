@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import quote, unquote, urlsplit
 
 from note_files import checked_path
-from build_dashboard import html_redirect
+from build_dashboard import parse_frontmatter
 
 ROOT = Path(__file__).resolve().parent.parent
 DASHBOARD = ROOT / "dashboard"
@@ -50,7 +50,8 @@ def main():
         exported = checked_path(DASHBOARD / "content" / note["path"], DASHBOARD)
         assert exported.is_file(), f"Missing exported note: {note['path']}"
         if note["format"] == "html":
-            assert exported.read_text(encoding="utf-8") == html_redirect(source, ROOT), "Unsafe HTML export"
+            _, body = parse_frontmatter(source.read_text(encoding="utf-8"))
+            assert exported.read_text(encoding="utf-8") == body, "Stale HTML export"
         else:
             assert exported.read_bytes() == source.read_bytes(), f"Stale exported note: {note['path']}"
         expected_base = "./content/" + quote(Path(note["path"]).parent.as_posix(), safe="/") + "/"

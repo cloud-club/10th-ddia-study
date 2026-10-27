@@ -10,7 +10,18 @@ const path = require('node:path');
 let server,browser,base;
 const first={id:'test/nested',title:'질문에서 시작하는 읽기',member:'reader-test',created:'2026-10-27',status:'completed',tags:['storage'],format:'markdown',asset_base:'./content/members/reader-test/notes/nested/',source_url:'https://github.com/example/repo/blob/main/members/reader-test/notes/nested/one.md',url:'./reader.html?note=test%2Fnested',content:'# 첫 질문\n\n노트 본문입니다.\n\n## 질문\n\n[다음 노트](../two.md#질문)\n\n![figure](figure.svg)\n\n| Column | Wide |\n|---|---|\n|'+ 'longword'.repeat(80)+'|value|\n\n```sql\nSELECT '+ 'column_'.repeat(160)+';\n```\n\n<script>window.pwned=1</script><img src=x onerror="window.pwned=1"><iframe src="https://evil.test"></iframe><form><input></form><a href="javascript:alert(1)">bad</a>'};
 const second={...first,id:'test/two',title:'두 번째 노트',asset_base:'./content/members/reader-test/notes/',source_url:'https://github.com/example/repo/blob/main/members/reader-test/notes/two.md',url:'./reader.html?note=test%2Ftwo',content:'## 질문\n\n다음 질문입니다.'};
-const html={...first,id:'test/html',title:'HTML 원문',format:'html',content:'<!doctype html><html><head><base href="https://evil.test"><meta http-equiv="refresh" content="0;url=https://evil.test"><style>body{background:rgb(12, 34, 56);color:white}.original{font-size:29px}</style><link rel="stylesheet" href="original.css"></head><body><p class="original">Original style</p><img src="figure.svg"><a href="../two.md">다음 HTML 링크</a><a href="#part" target="_top">section</a><h2 id="part">Part</h2><a href="javascript:alert(1)">bad</a><form action="https://evil.test"><input></form><object data="https://evil.test"></object><iframe src="https://evil.test"></iframe><script>parent.pwned=1</script></body></html>'};
+const html={...first,id:'test/html',title:'HTML 원문',format:'html',path:'members/reader-test/notes/nested/원본 chapter.html'};
+delete html.content; // HTML rendering must use the exported original, not inline index content.
+const originalHTML='<!doctype html><html><head><meta charset="utf-8"><style>body{background:rgb(12, 34, 56);color:white}.original{font-size:29px}</style><link rel="stylesheet" href="original.css"></head><body><p class="original">Original style</p><img src="figure.svg"><svg id="diagram" viewBox="0 0 100 50"><rect width="100" height="50" fill="red"/></svg><form id="chapter-form"><label>Chapter <input name="chapter" value="1"></label><button>Next chapter</button></form><output id="chapter"></output><a href="#part">section</a><h2 id="part">Part</h2><script src="chapter.js"></script></body></html>';
+const chapterJS='window.originalExecuted=true;let chapter=Number(localStorage.getItem("reader-chapter")||1);const output=document.querySelector("#chapter");output.textContent=chapter;document.querySelector("#chapter-form").onsubmit=event=>{event.preventDefault();output.textContent=++chapter;localStorage.setItem("reader-chapter",chapter);};';
+async function contentRoute(route){
+ const pathname=decodeURIComponent(new URL(route.request().url()).pathname);
+ if(pathname.endsWith('/'+html.path)) return route.fulfill({contentType:'text/html; charset=utf-8',body:originalHTML});
+ if(pathname.endsWith('/chapter.js')) return route.fulfill({contentType:'text/javascript',body:chapterJS});
+ if(pathname.endsWith('.svg')) return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="50"><rect width="100" height="50" fill="red"/></svg>'});
+ if(pathname.endsWith('/original.css')) return route.fulfill({contentType:'text/css',body:'.original{font-weight:700}'});
+ return route.fulfill({status:404,body:'Unknown fixture'});
+}
 const data={notes:[first,second,html],members:[{id:first.member,avatar:'./favicon.svg'}],topics:[]};
 before(async()=>{
  server=http.createServer(async(req,res)=>{try{const file=path.resolve(__dirname,'.'+decodeURIComponent(new URL(req.url,'http://local').pathname));if(!file.startsWith(__dirname+path.sep))throw Error('path');const bytes=await fs.readFile(file.endsWith(path.sep)?file+'index.html':file);res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml'})[path.extname(file)]||'application/json');res.end(bytes);}catch{res.statusCode=404;res.end('Not found');}});
@@ -20,7 +31,8 @@ after(async()=>{await browser?.close();await new Promise(r=>server?.close(r));})
 async function pageFor(id,options={}){
  const page=await browser.newPage({viewport:options.mobile?{width:375,height:812}:{width:1280,height:950},reducedMotion:'reduce'});
  await page.route('**/data.json*',route=>options.failure?route.fulfill({status:503,body:'unavailable'}):route.fulfill({json:data}));
- await page.route('**/content/**',route=>route.request().url().endsWith('.svg')?route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="50"><rect width="100" height="50" fill="red"/></svg>'}):route.fulfill({contentType:'text/css',body:'.original{font-weight:700}'}));
+ // Context routes also serve the very first navigation and assets of raw-HTML popups.
+ await page.context().route('**/content/**',contentRoute);
  await page.goto(`${base}/reader.html?note=${encodeURIComponent(id)}`);
  await page.locator(options.failure||id==='missing'?'#reader-status[role=alert]':'#note-article:not([hidden])').waitFor();return page;
 }
@@ -53,30 +65,35 @@ test('mobile tables and code scroll locally without page overflow',async()=>{
  const p=await pageFor(first.id,{mobile:true});const sizes=await p.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,blocks:[...document.querySelectorAll('.table-scroll,pre')].map(n=>({width:n.clientWidth,scroll:n.scrollWidth}))}));
  assert.ok(sizes.scroll<=sizes.width,JSON.stringify(sizes));assert.ok(sizes.blocks.every(b=>b.scroll>b.width));await p.close();
 });
-test('HTML uses opaque no-script sandbox, restrictive CSP, preserved styles and assets',async()=>{
- const p=await pageFor(html.id);const frame=p.locator('#note-body iframe');assert.equal(await frame.getAttribute('sandbox'),'');
- const src=await frame.getAttribute('srcdoc');assert.match(src,/script-src 'none'/);assert.doesNotMatch(src,/<script|<form|<object|<iframe|http-equiv="refresh"/i);assert.doesNotMatch(src,/evil\.test/);
- const f=await frame.elementHandle().then(h=>h.contentFrame());await f.locator('.original').waitFor();
+test('original HTML executes chapter controls and preserves SVG, forms, styling and relative assets',async()=>{
+ const p=await pageFor(html.id);const frame=p.locator('#note-body iframe');
+ assert.equal(await frame.getAttribute('sandbox'),null);assert.equal(await frame.getAttribute('srcdoc'),null);
+ assert.equal(await frame.getAttribute('src'),`${base}/content/${html.path.split('/').map(encodeURIComponent).join('/')}`);
+ const f=await frame.elementHandle().then(h=>h.contentFrame());await f.waitForFunction(()=>window.originalExecuted===true);
+ assert.equal(await f.locator('meta[http-equiv="Content-Security-Policy"]').count(),0);
+ assert.equal(await f.locator('#diagram rect').count(),1);assert.equal(await f.locator('form input').count(),1);
  assert.equal(await f.locator('body').evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(12, 34, 56)');
  assert.equal(await f.locator('.original').evaluate(n=>getComputedStyle(n).fontSize),'29px');
- assert.equal(await f.locator('img').evaluate(n=>n.complete&&n.naturalWidth>0),true);
- assert.equal(await f.locator('a').first().getAttribute('href'),null);assert.equal(await f.locator('base').count(),1);
- assert.equal(await p.evaluate(()=>window.pwned),undefined);
- const outside=p.locator('#document-links a');assert.equal(await outside.count(),1);assert.match(await outside.getAttribute('href'),/reader.html\?note=test%2Ftwo$/);
+ assert.equal(await f.locator('.original').evaluate(n=>getComputedStyle(n).fontWeight),'700');
+ await f.locator('img').evaluate(n=>n.decode());assert.equal(await f.locator('img').evaluate(n=>n.naturalWidth),100);
+ assert.equal(await f.locator('#chapter').textContent(),'1');await f.getByRole('button',{name:'Next chapter'}).click();
+ assert.equal(await f.locator('#chapter').textContent(),'2');assert.equal(await f.evaluate(()=>localStorage.getItem('reader-chapter')),'2');
  await p.close();
 });
-test('HTML opens in a new tab as a full-viewport document without reader chrome',async()=>{
- const p=await pageFor(html.id);
+test('new tab opens raw original HTML with working UI and shared persistent storage',async()=>{
+ const p=await pageFor(html.id);const f=await p.locator('iframe').elementHandle().then(h=>h.contentFrame());
+ await f.waitForFunction(()=>window.originalExecuted===true);await f.getByRole('button',{name:'Next chapter'}).click();
  const link=p.getByRole('link',{name:'새 탭으로 열기',exact:true});
- assert.equal(await link.getAttribute('target'),'_blank');
- await p.context().route('**/data.json*',route=>route.fulfill({json:data}));
- const popupPromise=p.waitForEvent('popup');await link.click();const popup=await popupPromise;
- await popup.locator('body.html-standalone iframe').waitFor();
- assert.equal(await popup.locator('.room-bar').isVisible(),false);
- assert.equal(await popup.locator('.note-header').isVisible(),false);
- const box=await popup.locator('iframe').boundingBox(),size=popup.viewportSize();
- assert.equal(box.x,0);assert.equal(box.y,0);assert.equal(box.width,size.width);assert.equal(box.height,size.height);
- assert.equal(await popup.locator('iframe').getAttribute('sandbox'),'');
+ assert.equal(await link.getAttribute('target'),'_blank');assert.equal(await link.getAttribute('rel'),'noopener noreferrer');
+ assert.equal(await link.getAttribute('href'),await p.locator('iframe').getAttribute('src'));
+ const popupPromise=p.context().waitForEvent('page');await link.click();const popup=await popupPromise;
+ await popup.waitForFunction(()=>window.originalExecuted===true);
+ assert.equal(popup.url(),await link.getAttribute('href'));assert.equal(await popup.locator('iframe,.room-bar,.note-header').count(),0);
+ assert.equal(await popup.evaluate(()=>window.opener),null);assert.equal(await popup.locator('#chapter').textContent(),'2');
+ assert.equal(await popup.locator('#diagram rect').count(),1);assert.equal(await popup.locator('.original').evaluate(n=>getComputedStyle(n).fontWeight),'700');
+ await popup.getByRole('button',{name:'Next chapter'}).click();assert.equal(await popup.locator('#chapter').textContent(),'3');
+ await popup.reload();await popup.waitForFunction(()=>window.originalExecuted===true);assert.equal(await popup.locator('#chapter').textContent(),'3');
+ await f.goto(f.url());await f.waitForFunction(()=>window.originalExecuted===true);assert.equal(await f.locator('#chapter').textContent(),'3');
  await popup.close();await p.close();
 });
 test('missing note and fetch errors show accessible recovery states',async()=>{
