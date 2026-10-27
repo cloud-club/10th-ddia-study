@@ -4,7 +4,7 @@
  const $=s=>document.querySelector(s), M=window.DDIAModel;
  const state={data:null,query:'',member:'all',topic:'all',sort:'newest',graph:null};
  const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
- function link(text,url,cls='') {const n=el('a',cls,text);try{const u=new URL(url,location.href);if(!url||!/^https?:$/.test(u.protocol))return el('span',cls,text);n.href=url;if(/^https?:/i.test(url)){n.target='_blank';n.rel='noopener noreferrer';}return n;}catch{return el('span',cls,text);}}
+ function link(text,url,cls='') {const n=el('a',cls,text);try{const u=new URL(url,location.href);if(!url||!/^https?:$/.test(u.protocol))return el('span',cls,text);n.href=url;if(u.origin !== location.origin){n.target='_blank';n.rel='noopener noreferrer';}return n;}catch{return el('span',cls,text);}}
  const tags=values=>{const list=el('ul','tags');(values||[]).forEach(t=>list.append(el('li','',`#${t}`)));return list;};
  const date=value=>M.validDate(value)?value:'날짜 미기재';
  function avatarFor(id, url) {

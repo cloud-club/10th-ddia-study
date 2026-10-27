@@ -6,39 +6,45 @@ import datetime as dt
 import re
 import sys
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import unquote, urlsplit
+from html.parser import HTMLParser
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_dashboard import parse_frontmatter  # noqa: E402
+from note_files import note_paths, checked_path
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 ALLOWED_STATUS = {"draft", "completed"}
 
 
-def note_paths(root: Path) -> list[Path]:
-    members = root / "members"
-    if not members.is_dir():
-        return []
-    paths = []
-    for member_dir in members.iterdir():
-        notes_dir = member_dir / "notes"
-        if not member_dir.is_dir() or member_dir.name.startswith((".", "_")) or not notes_dir.is_dir():
-            continue
-        for path in notes_dir.rglob("*.md"):
-            parts = path.relative_to(notes_dir).parts
-            if path.name.startswith((".", "_")) or any(part.startswith((".", "_")) for part in parts[:-1]):
-                continue
-            paths.append(path)
-    return sorted(paths)
+class HTMLLinks(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.targets = []
+
+    def handle_starttag(self, tag, attrs):
+        self.targets.extend(value for key, value in attrs if key in {"src", "href"} and value)
+
+
+def local_links(body: str, html: bool = False) -> list[str]:
+    if html:
+        parser = HTMLLinks()
+        parser.feed(body)
+        return parser.targets
+    return [match.group(1).strip("<>") for match in LINK_RE.finditer(body)]
 
 
 def validate_notes(root: Path) -> list[str]:
     root = root.expanduser().resolve()
     errors: list[str] = []
-    for path in note_paths(root):
+    try:
+        paths = note_paths(root)
+    except ValueError as error:
+        return [str(error)]
+    for path in paths:
         relative = path.relative_to(root).as_posix()
         text = path.read_text(encoding="utf-8", errors="replace")
-        metadata, _ = parse_frontmatter(text)
+        metadata, body = parse_frontmatter(text)
         if not metadata:
             errors.append(f"{relative}: missing YAML frontmatter")
             continue
@@ -62,12 +68,20 @@ def validate_notes(root: Path) -> list[str]:
         if not isinstance(metadata.get("tags"), list):
             errors.append(f"{relative}: tags must be a YAML list (use 'tags: []' when empty)")
 
-        for match in LINK_RE.finditer(text):
-            target = unquote(match.group(1).strip().strip("<>"))
-            if not target or target.startswith(("http://", "https://", "mailto:", "#")):
+        for value in local_links(body, path.suffix.lower() in {".html", ".htm"}):
+            url = urlsplit(value)
+            if url.scheme or url.netloc or not url.path:
                 continue
-            target = target.split("#", 1)[0]
-            if target and not (path.parent / target).resolve().exists():
+            target = unquote(url.path)
+            candidate = path.parent / target
+            try:
+                checked_path(candidate, root / "members" / member_id / "notes")
+                if not candidate.resolve().is_relative_to(root / "members" / member_id / "notes"):
+                    raise ValueError(f"Path outside allowed boundary: {target}")
+            except ValueError as error:
+                errors.append(f"{relative}: {error}")
+                continue
+            if not candidate.is_file():
                 errors.append(f"{relative}: missing local link target '{target}'")
 
     return errors

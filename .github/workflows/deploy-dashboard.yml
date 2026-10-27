@@ -30,7 +30,8 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts -p 'test_*.py' -v
           python3 scripts/validate_study.py
-          node --test dashboard/graph.test.js
+          node --test dashboard/*.test.js
+          node --check dashboard/reader.js
           node --check dashboard/app.js
           node --check dashboard/graph.js
           node --check dashboard/dashboard-model.js

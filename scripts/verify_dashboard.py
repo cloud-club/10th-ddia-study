@@ -1,14 +1,21 @@
-"""Check generated JSON and every local HTML asset before Pages upload."""
+"""Check generated JSON, reader entrypoints and exported notes before upload."""
 import json
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import quote, unquote, urlsplit
+
+from note_files import checked_path
+from build_dashboard import html_redirect
 
 ROOT = Path(__file__).resolve().parent.parent
 DASHBOARD = ROOT / "dashboard"
 
 
 class Assets(HTMLParser):
+    def __init__(self, base=None):
+        super().__init__()
+        self.base = base or DASHBOARD
+
     def handle_starttag(self, tag, attrs):
         for key, value in attrs:
             if key not in {"src", "href"} or not value:
@@ -16,23 +23,41 @@ class Assets(HTMLParser):
             url = urlsplit(value)
             if url.scheme or url.netloc or not url.path:
                 continue
-            target = (DASHBOARD / unquote(url.path)).resolve()
-            assert target.is_relative_to(DASHBOARD), f"Asset outside Pages artifact: {value}"
+            try:
+                target = checked_path(self.base / unquote(url.path), DASHBOARD)
+            except ValueError as error:
+                raise AssertionError(f"Asset outside Pages artifact or symlink: {value}") from error
             if target.is_dir():
                 target = target / "index.html"
             assert target.is_file(), f"Missing asset: {value}"
 
 
 def main():
-    Assets().feed((DASHBOARD / "index.html").read_text())
-    data = json.loads((DASHBOARD / "data.json").read_text())
+    for entry in ("index.html", "reader.html"):
+        path = checked_path(DASHBOARD / entry, DASHBOARD)
+        assert path.is_file(), f"Missing asset: {entry}"
+        Assets().feed(path.read_text(encoding="utf-8"))
+    data = json.loads((DASHBOARD / "data.json").read_text(encoding="utf-8"))
     assert data["totals"] == {"members": len(data["members"]), "notes": len(data["notes"]), "topics": len(data["topics"])}
     ids = {node["id"] for node in data["graph"]["nodes"]}
     assert all(edge["source"] in ids and edge["target"] in ids for edge in data["graph"]["edges"])
     for note in data["notes"]:
-        assert (ROOT / note["path"]).is_file()
+        source = checked_path(ROOT / note["path"], ROOT)
+        assert source.is_file(), f"Missing source: {note['path']}"
+        assert note["url"] == "./reader.html?note=" + quote(note["id"], safe="")
         if data["repository"]["url"]:
-            assert note["url"].startswith(data["repository"]["url"] + "/blob/")
+            assert note["source_url"].startswith(data["repository"]["url"] + "/blob/")
+        exported = checked_path(DASHBOARD / "content" / note["path"], DASHBOARD)
+        assert exported.is_file(), f"Missing exported note: {note['path']}"
+        if note["format"] == "html":
+            assert exported.read_text(encoding="utf-8") == html_redirect(source, ROOT), "Unsafe HTML export"
+        else:
+            assert exported.read_bytes() == source.read_bytes(), f"Stale exported note: {note['path']}"
+        expected_base = "./content/" + quote(Path(note["path"]).parent.as_posix(), safe="/") + "/"
+        assert note["asset_base"] == expected_base
+        assert note["format"] in {"markdown", "html"}
+        if note["format"] == "html":
+            Assets(exported.parent).feed(note["content"])
     print("Dashboard artifact: PASS", data["totals"])
 
 

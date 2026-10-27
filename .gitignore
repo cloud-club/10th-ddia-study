@@ -16,3 +16,4 @@ exports/
 *.pdf
 
 dashboard/data.json
+dashboard/content/

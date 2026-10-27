@@ -247,7 +247,7 @@ window.DDIAGraph = (function () {
             return chip;
           }))
           : el('p', { class: 'graph__pop-empty', text: '태그가 없어요.' }),
-        node.url && /^(https?:|\.\.?\/|\/)/i.test(node.url) ? el('a', { class: 'graph__pop-link', href: node.url, target: '_blank', rel: 'noopener', text: '열기 ↗' }) : null,
+        node.url && /^(https?:|\.\.?\/|\/)/i.test(node.url) ? el('a', { class: 'graph__pop-link', href: node.url, target: new URL(node.url, location.href).origin !== location.origin ? '_blank' : null, rel: 'noopener noreferrer', text: '열기 ↗' }) : null,
       );
       pop.hidden = false;
       state.popNode = node;

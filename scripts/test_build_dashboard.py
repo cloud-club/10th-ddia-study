@@ -59,7 +59,7 @@ class BuildDashboardTests(unittest.TestCase):
             self.assertEqual(note["summary"], "복제본 사이의 지연과 일관성 보장은 별개의 문제다.")
             self.assertEqual(note["tags"], ["replication", "consistency"])
             self.assertEqual(note["status"], "completed")
-            self.assertEqual(note["url"], "https://github.com/cloud-club/ddia-study/blob/main/members/alice/notes/replication/02-replication.md")
+            self.assertEqual(note["source_url"], "https://github.com/cloud-club/ddia-study/blob/main/members/alice/notes/replication/02-replication.md")
             self.assertEqual(data["generated_at"], "2026-10-24T00:00:00+00:00")
 
     def test_empty_study_builds_valid_empty_dashboard_payload(self) -> None:
@@ -88,7 +88,7 @@ class BuildDashboardTests(unittest.TestCase):
             )
             data = build_dashboard.build_dashboard_data(root)
             self.assertEqual(data["totals"], {"members": 1, "notes": 1, "topics": 1})
-            self.assertEqual(data["notes"][0]["url"], "../members/example/notes/01-replication.md")
+            self.assertEqual(data["notes"][0]["source_url"], "../members/example/notes/01-replication.md")
             self.assertNotIn("preview", data)
 
     def test_member_progress_feed_and_sources_come_from_notes(self) -> None:
@@ -144,7 +144,7 @@ class BuildDashboardTests(unittest.TestCase):
 
             data = build_dashboard.build_dashboard_data(root, generated_at="2026-10-24T00:00:00+00:00")
 
-            self.assertEqual(data["notes"][0]["url"], "../members/bob/notes/01-storage.md")
+            self.assertEqual(data["notes"][0]["source_url"], "../members/bob/notes/01-storage.md")
 
 
 if __name__ == "__main__":
