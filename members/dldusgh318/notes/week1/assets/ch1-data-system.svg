@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 330" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif">
+  <rect width="640" height="330" fill="#ffffff"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5b6678"/></marker>
+  </defs>
+  <rect x="250" y="16" width="140" height="40" rx="8" fill="#eef1f6" stroke="#5b6678"/>
+  <text x="320" y="41" text-anchor="middle" font-size="14" fill="#18202c">클라이언트</text>
+  <line x1="320" y1="56" x2="320" y2="84" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="200" y="86" width="240" height="50" rx="8" fill="#2f5bd3"/>
+  <text x="320" y="116" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">애플리케이션 코드</text>
+  <rect x="20" y="190" width="130" height="50" rx="8" fill="#ffffff" stroke="#2f5bd3" stroke-width="1.5"/>
+  <text x="85" y="212" text-anchor="middle" font-size="13" font-weight="700" fill="#18202c">캐시</text>
+  <text x="85" y="229" text-anchor="middle" font-size="11" fill="#5b6678">예: Redis</text>
+  <rect x="175" y="190" width="130" height="50" rx="8" fill="#ffffff" stroke="#2f5bd3" stroke-width="1.5"/>
+  <text x="240" y="212" text-anchor="middle" font-size="13" font-weight="700" fill="#18202c">주 데이터베이스</text>
+  <text x="240" y="229" text-anchor="middle" font-size="11" fill="#5b6678">예: MySQL</text>
+  <rect x="335" y="190" width="130" height="50" rx="8" fill="#ffffff" stroke="#2f5bd3" stroke-width="1.5"/>
+  <text x="400" y="212" text-anchor="middle" font-size="13" font-weight="700" fill="#18202c">검색 인덱스</text>
+  <text x="400" y="229" text-anchor="middle" font-size="11" fill="#5b6678">예: Elasticsearch</text>
+  <rect x="490" y="190" width="130" height="50" rx="8" fill="#ffffff" stroke="#2f5bd3" stroke-width="1.5"/>
+  <text x="555" y="212" text-anchor="middle" font-size="13" font-weight="700" fill="#18202c">메시지 큐</text>
+  <text x="555" y="229" text-anchor="middle" font-size="11" fill="#5b6678">예: Kafka</text>
+  <line x1="250" y1="136" x2="95" y2="188" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="290" y1="136" x2="245" y2="188" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="350" y1="136" x2="395" y2="188" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="390" y1="136" x2="545" y2="188" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="490" y="268" width="130" height="44" rx="8" fill="#eef1f6" stroke="#5b6678"/>
+  <text x="555" y="295" text-anchor="middle" font-size="12" fill="#18202c">비동기 작업 서버</text>
+  <line x1="555" y1="240" x2="555" y2="266" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="20" y="300" font-size="12" fill="#5b6678">도구 여러 개를 애플리케이션 코드가 엮어서</text>
+  <text x="20" y="318" font-size="12" fill="#5b6678">하나의 데이터 시스템을 만든다 (직접 그린 예시)</text>
+</svg>

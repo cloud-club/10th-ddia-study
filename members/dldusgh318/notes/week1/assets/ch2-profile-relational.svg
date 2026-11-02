@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" font-family="system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif">
+  <rect width="640" height="300" fill="#ffffff"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5b6678"/></marker>
+  </defs>
+  <g font-size="12" fill="#18202c">
+    <rect x="240" y="16" width="160" height="92" rx="6" fill="#ffffff" stroke="#2f5bd3" stroke-width="1.5"/>
+    <rect x="240" y="16" width="160" height="24" rx="6" fill="#2f5bd3"/>
+    <text x="320" y="33" text-anchor="middle" font-weight="700" fill="#ffffff">users</text>
+    <text x="252" y="58">user_id: 101</text>
+    <text x="252" y="76">name: 김개발</text>
+    <text x="252" y="94">summary: 백엔드 개발자</text>
+
+    <rect x="20" y="170" width="180" height="92" rx="6" fill="#ffffff" stroke="#c2741a" stroke-width="1.5"/>
+    <rect x="20" y="170" width="180" height="24" rx="6" fill="#c2741a"/>
+    <text x="110" y="187" text-anchor="middle" font-weight="700" fill="#ffffff">positions (경력)</text>
+    <text x="32" y="212">user_id: 101</text>
+    <text x="32" y="230">company: 가나다랩</text>
+    <text x="32" y="248">title: 서버 개발자</text>
+
+    <rect x="230" y="170" width="180" height="92" rx="6" fill="#ffffff" stroke="#c2741a" stroke-width="1.5"/>
+    <rect x="230" y="170" width="180" height="24" rx="6" fill="#c2741a"/>
+    <text x="320" y="187" text-anchor="middle" font-weight="700" fill="#ffffff">education (학력)</text>
+    <text x="242" y="212">user_id: 101</text>
+    <text x="242" y="230">school: 한빛대학교</text>
+    <text x="242" y="248">start ~ end: 2019 ~ 2025</text>
+
+    <rect x="440" y="170" width="180" height="92" rx="6" fill="#ffffff" stroke="#c2741a" stroke-width="1.5"/>
+    <rect x="440" y="170" width="180" height="24" rx="6" fill="#c2741a"/>
+    <text x="530" y="187" text-anchor="middle" font-weight="700" fill="#ffffff">contact_info (연락처)</text>
+    <text x="452" y="212">user_id: 101</text>
+    <text x="452" y="230">type: blog</text>
+    <text x="452" y="248">url: example.com</text>
+  </g>
+  <line x1="110" y1="168" x2="270" y2="110" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="320" y1="168" x2="320" y2="110" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="530" y1="168" x2="370" y2="110" stroke="#5b6678" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="430" y="140" font-size="11" fill="#5b6678">외래 키 user_id로 users 참조</text>
+  <text x="20" y="288" font-size="11" fill="#5b6678">사용자 1명 : 경력·학력·연락처 N개 (일대다) · 가상의 예시 데이터</text>
+</svg>
