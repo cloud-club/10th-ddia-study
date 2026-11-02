@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="960" height="430">
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:16px;font-weight:700}.b{font-size:14px}.s{font-size:13px;fill:#666}
+    .c,.c text{font-family:Menlo,Consolas,monospace;font-size:12px}.r{fill:#b3261e}.k{fill:#7a3fa0}
+  </style>
+  <rect width="960" height="430" fill="#fff"/>
+
+  <!-- SQL -->
+  <text x="20" y="30" class="t">SQL</text>
+  <text x="20" y="50" class="s">선언형 · 1970s~</text>
+  <rect x="20" y="62" width="290" height="270" rx="12" fill="#f6f6f6" stroke="#e0e0e0"/>
+  <g class="c">
+    <text x="34" y="88"><tspan class="k">SELECT</tspan> to_char(created_at,</text>
+    <text x="34" y="106">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;'YYYY-MM') <tspan class="k">AS</tspan> month,</text>
+    <text x="34" y="124">&#160;&#160;&#160;&#160;&#160;&#160;&#160;count(*)</text>
+    <text x="34" y="142"><tspan class="k">FROM</tspan> messages</text>
+    <text x="34" y="160"><tspan class="k">WHERE</tspan> channel = 'dev'</text>
+    <text x="34" y="178"><tspan class="k">GROUP BY</tspan> month;</text>
+  </g>
+
+  <!-- mapReduce -->
+  <text x="335" y="30" class="t r">MongoDB mapReduce</text>
+  <text x="335" y="50" class="s">선언형과 명령형의 중간 · 5.0부터 deprecated</text>
+  <rect x="335" y="62" width="290" height="270" rx="12" fill="#fff" stroke="#b3261e"/>
+  <g class="c">
+    <text x="349" y="88">db.messages.mapReduce(</text>
+    <text x="349" y="106" class="r">&#160;&#160;function () {</text>
+    <text x="349" y="124" class="r">&#160;&#160;&#160;&#160;emit(this.createdAt</text>
+    <text x="349" y="142" class="r">&#160;&#160;&#160;&#160;&#160;&#160;.toISOString()</text>
+    <text x="349" y="160" class="r">&#160;&#160;&#160;&#160;&#160;&#160;.slice(0, 7), 1);</text>
+    <text x="349" y="178" class="r">&#160;&#160;},</text>
+    <text x="349" y="196" class="r">&#160;&#160;function (key, values) {</text>
+    <text x="349" y="214" class="r">&#160;&#160;&#160;&#160;return Array.sum(values);</text>
+    <text x="349" y="232" class="r">&#160;&#160;},</text>
+    <text x="349" y="250">&#160;&#160;{ query: { channel: "dev" },</text>
+    <text x="349" y="268">&#160;&#160;&#160;&#160;out: "monthly_dev" }</text>
+    <text x="349" y="286">)</text>
+  </g>
+
+  <!-- aggregate -->
+  <text x="650" y="30" class="t">집계 파이프라인</text>
+  <text x="650" y="50" class="s">선언형 · 2.2(2012)~ · 현재 권장</text>
+  <rect x="650" y="62" width="290" height="270" rx="12" fill="#f6f6f6" stroke="#e0e0e0"/>
+  <g class="c">
+    <text x="664" y="88">db.messages.aggregate([</text>
+    <text x="664" y="106">&#160;&#160;{ <tspan class="k">$match</tspan>: { channel: "dev" } },</text>
+    <text x="664" y="124">&#160;&#160;{ <tspan class="k">$group</tspan>: {</text>
+    <text x="664" y="142">&#160;&#160;&#160;&#160;_id: { <tspan class="k">$dateToString</tspan>: {</text>
+    <text x="664" y="160">&#160;&#160;&#160;&#160;&#160;&#160;format: "%Y-%m",</text>
+    <text x="664" y="178">&#160;&#160;&#160;&#160;&#160;&#160;date: "$createdAt" } },</text>
+    <text x="664" y="196">&#160;&#160;&#160;&#160;count: { <tspan class="k">$sum</tspan>: 1 } } }</text>
+    <text x="664" y="214">])</text>
+  </g>
+
+  <!-- 비교 행 -->
+  <text x="20" y="364" class="b"><tspan font-weight="700">실행 계획</tspan>  DB 옵티마이저가 정함</text>
+  <text x="335" y="364" class="b"><tspan font-weight="700">실행 계획</tspan>  JS 함수 안은 DB가 못 봄</text>
+  <text x="650" y="364" class="b"><tspan font-weight="700">실행 계획</tspan>  단계를 보고 DB가 최적화</text>
+  <text x="20" y="390" class="b"><tspan font-weight="700">작성</tspan>  질의 1개</text>
+  <text x="335" y="390" class="b"><tspan font-weight="700">작성</tspan>  짝이 맞는 함수 2개 + 옵션</text>
+  <text x="650" y="390" class="b"><tspan font-weight="700">작성</tspan>  JSON 단계 목록</text>
+  <text x="20" y="418" class="s">세 질의 모두 "dev 채널의 월별 메시지 수"를 구한다. 빨간 코드 = 내가 직접 짜는 로직</text>
+</svg>

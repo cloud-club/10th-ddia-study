@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="960" height="340">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:16px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .m{font-family:Menlo,Consolas,monospace;font-size:13px}.r{fill:#b3261e}
+  </style>
+  <rect width="960" height="340" fill="#fff"/>
+
+  <text x="20" y="30" class="t">원본이 바뀐 뒤 복사본이 어긋나 있는 시간</text>
+  <line x1="250" y1="62" x2="930" y2="62" stroke="#888" marker-end="url(#a)"/>
+  <line x1="280" y1="54" x2="280" y2="300" stroke="#b3261e" stroke-dasharray="4 4"/>
+  <text x="280" y="50" text-anchor="middle" class="s r">authors 변경</text>
+
+  <!-- lanes -->
+  <text x="20" y="104" class="b">작성자 변경 API에서</text>
+  <text x="20" y="122" class="m">updateMany</text>
+  <rect x="280" y="96" width="24" height="22" rx="4" fill="#f4c7c3"/>
+  <text x="316" y="112" class="s">거의 즉시 · 변경 경로가 여기 하나일 때만 안전</text>
+
+  <text x="20" y="164" class="b">Change Streams</text>
+  <text x="20" y="182" class="m">authors watch</text>
+  <rect x="280" y="156" width="70" height="22" rx="4" fill="#f4c7c3"/>
+  <text x="362" y="172" class="s">수 초 · 어디서 바뀌든 잡음, resume token 관리 필요</text>
+
+  <text x="20" y="224" class="b">다음 수집 때 덮어쓰기</text>
+  <text x="20" y="242" class="m">ingest upsert</text>
+  <rect x="280" y="216" width="260" height="22" rx="4" fill="#f4c7c3"/>
+  <text x="552" y="232" class="s">수집 주기만큼 · 다시 수집되는 문서만</text>
+
+  <text x="20" y="284" class="b">주기 배치 대조</text>
+  <text x="20" y="302" class="m">reconcile job</text>
+  <rect x="280" y="276" width="440" height="22" rx="4" fill="#f4c7c3"/>
+  <text x="732" y="292" class="s">가장 늦지만 빠진 것을 메움</text>
+
+  <text x="20" y="332" class="s">위 방식을 섞어 쓰는 게 보통이다: 빠른 경로 하나 + 안전망으로 배치 대조. 어긋난 구간은 0이 아니다 = 결과적 일관성</text>
+</svg>
