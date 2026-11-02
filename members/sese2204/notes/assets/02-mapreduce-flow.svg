@@ -1,0 +1,91 @@
+<svg xml:space="preserve" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:16px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .m,.m text{font-family:Menlo,Consolas,monospace;font-size:13px}.r{fill:#b3261e}.g{fill:#aaa}
+  </style>
+  <rect width="960" height="440" fill="#fff"/>
+
+  <!-- 헤더 -->
+  <text x="100" y="30" text-anchor="middle" class="t">① query로 거르기</text>
+  <text x="100" y="50" text-anchor="middle" class="s">DB가 함</text>
+  <text x="330" y="30" text-anchor="middle" class="t r">② map</text>
+  <text x="330" y="50" text-anchor="middle" class="s">내가 작성 · 문서마다 emit</text>
+  <text x="575" y="30" text-anchor="middle" class="t">③ shuffle</text>
+  <text x="575" y="50" text-anchor="middle" class="s">DB가 함 · 같은 키끼리 묶기</text>
+  <text x="840" y="30" text-anchor="middle" class="t r">④ reduce</text>
+  <text x="840" y="50" text-anchor="middle" class="s">내가 작성 · 키마다 합치기</text>
+
+  <!-- 입력 문서 -->
+  <g class="m">
+    <rect x="20" y="76" width="160" height="38" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+    <text x="34" y="100">dev    09-03</text>
+    <rect x="20" y="124" width="160" height="38" rx="8" fill="#fff" stroke="#e2e2e2" stroke-dasharray="4 3"/>
+    <text x="34" y="148" class="g">random 09-05</text>
+    <rect x="20" y="172" width="160" height="38" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+    <text x="34" y="196">dev    09-20</text>
+    <rect x="20" y="220" width="160" height="38" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+    <text x="34" y="244">dev    10-02</text>
+    <rect x="20" y="268" width="160" height="38" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+    <text x="34" y="292">dev    10-11</text>
+    <rect x="20" y="316" width="160" height="38" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+    <text x="34" y="340">dev    10-28</text>
+  </g>
+  <text x="100" y="380" text-anchor="middle" class="s">messages (channel, 작성일)</text>
+
+  <!-- map 출력 -->
+  <g class="m">
+    <rect x="250" y="76" width="160" height="38" rx="8" fill="#fff" stroke="#b3261e"/>
+    <text x="330" y="100" text-anchor="middle">("2026-09", 1)</text>
+    <text x="330" y="148" text-anchor="middle" class="g" font-size="12">query에서 제외</text>
+    <rect x="250" y="172" width="160" height="38" rx="8" fill="#fff" stroke="#b3261e"/>
+    <text x="330" y="196" text-anchor="middle">("2026-09", 1)</text>
+    <rect x="250" y="220" width="160" height="38" rx="8" fill="#fff" stroke="#b3261e"/>
+    <text x="330" y="244" text-anchor="middle">("2026-10", 1)</text>
+    <rect x="250" y="268" width="160" height="38" rx="8" fill="#fff" stroke="#b3261e"/>
+    <text x="330" y="292" text-anchor="middle">("2026-10", 1)</text>
+    <rect x="250" y="316" width="160" height="38" rx="8" fill="#fff" stroke="#b3261e"/>
+    <text x="330" y="340" text-anchor="middle">("2026-10", 1)</text>
+  </g>
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="182" y1="95" x2="246" y2="95"/>
+    <line x1="182" y1="191" x2="246" y2="191"/>
+    <line x1="182" y1="239" x2="246" y2="239"/>
+    <line x1="182" y1="287" x2="246" y2="287"/>
+    <line x1="182" y1="335" x2="246" y2="335"/>
+  </g>
+
+  <!-- shuffle -->
+  <rect x="490" y="104" width="170" height="70" rx="10" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="575" y="132" text-anchor="middle" class="m">"2026-09"</text>
+  <text x="575" y="156" text-anchor="middle" class="m">[1, 1]</text>
+  <rect x="490" y="236" width="170" height="86" rx="10" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="575" y="270" text-anchor="middle" class="m">"2026-10"</text>
+  <text x="575" y="294" text-anchor="middle" class="m">[1, 1, 1]</text>
+  <g stroke="#888" fill="none" marker-end="url(#a)">
+    <line x1="412" y1="95" x2="486" y2="130"/>
+    <line x1="412" y1="191" x2="486" y2="150"/>
+    <line x1="412" y1="239" x2="486" y2="264"/>
+    <line x1="412" y1="287" x2="486" y2="280"/>
+    <line x1="412" y1="335" x2="486" y2="300"/>
+  </g>
+
+  <!-- reduce -->
+  <rect x="760" y="104" width="160" height="70" rx="10" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="840" y="132" text-anchor="middle" class="m">"2026-09"</text>
+  <text x="840" y="158" text-anchor="middle" class="t">2</text>
+  <rect x="760" y="236" width="160" height="86" rx="10" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="840" y="270" text-anchor="middle" class="m">"2026-10"</text>
+  <text x="840" y="298" text-anchor="middle" class="t">3</text>
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="662" y1="139" x2="756" y2="139"/>
+    <line x1="662" y1="279" x2="756" y2="279"/>
+  </g>
+  <text x="709" y="130" text-anchor="middle" class="m" font-size="12">sum</text>
+  <text x="709" y="270" text-anchor="middle" class="m" font-size="12">sum</text>
+
+  <text x="20" y="420" class="s">질문: "dev 채널 메시지는 월별로 몇 개인가?"   빨간 부분만 내가 쓰는 코드이고, 나머지 단계는 DB(프레임워크)가 맡는다</text>
+</svg>
