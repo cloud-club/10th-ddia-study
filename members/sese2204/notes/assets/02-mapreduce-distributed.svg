@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b3261e"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:16px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .m{font-family:Menlo,Consolas,monospace;font-size:13px}.r{fill:#b3261e}
+  </style>
+  <rect width="960" height="420" fill="#fff"/>
+
+  <text x="20" y="30" class="t">왜 map·reduce는 순수 함수여야 하나: 아무 노드에서, 아무 순서로, 몇 번이든 다시 돌릴 수 있어야 한다</text>
+
+  <!-- 노드 -->
+  <rect x="20" y="60" width="250" height="70" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="36" y="88" class="t">노드 A</text>
+  <text x="36" y="112" class="s">자기 데이터 조각에서 map</text>
+  <rect x="20" y="150" width="250" height="70" rx="12" fill="#fff" stroke="#b3261e" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="36" y="178" class="t r">노드 B ✕ 장애</text>
+  <text x="36" y="202" class="s">B의 조각만 다른 노드에서 다시 map</text>
+  <rect x="20" y="240" width="250" height="70" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="36" y="268" class="t">노드 C</text>
+  <text x="36" y="292" class="s">자기 데이터 조각에서 map</text>
+
+  <!-- shuffle -->
+  <rect x="360" y="60" width="200" height="250" rx="14" fill="none" stroke="#bbb" stroke-dasharray="5 4"/>
+  <text x="460" y="176" text-anchor="middle" class="t">shuffle</text>
+  <text x="460" y="198" text-anchor="middle" class="s">키별로 네트워크 전송</text>
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="272" y1="95" x2="356" y2="130"/>
+    <line x1="272" y1="275" x2="356" y2="240"/>
+  </g>
+  <line x1="272" y1="185" x2="356" y2="185" stroke="#b3261e" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+  <text x="314" y="176" text-anchor="middle" class="s r">재실행</text>
+
+  <!-- reducer -->
+  <rect x="650" y="80" width="280" height="80" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="666" y="110" class="t">reducer 1</text>
+  <text x="666" y="136" class="m">"2026-09" 키 담당</text>
+  <rect x="650" y="210" width="280" height="80" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="666" y="240" class="t">reducer 2</text>
+  <text x="666" y="266" class="m">"2026-10" 키 담당</text>
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="562" y1="140" x2="646" y2="120"/>
+    <line x1="562" y1="230" x2="646" y2="250"/>
+  </g>
+
+  <!-- 규칙 -->
+  <rect x="20" y="336" width="910" height="66" rx="12" fill="#fff" stroke="#b3261e"/>
+  <text x="40" y="362" class="b"><tspan font-weight="700" class="r">map·reduce 안에서 하면 안 되는 것</tspan>  다른 컬렉션 조회 · 외부 API 호출 · 현재 시각·난수 사용 · 전역 변수 변경</text>
+  <text x="40" y="386" class="s">입력만 보고 출력을 내야 DB가 어디서 몇 번 실행하든 결과가 같다. 그래야 분산·병렬 실행과 장애 시 재실행이 가능하다</text>
+</svg>

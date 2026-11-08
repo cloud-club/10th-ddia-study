@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:16px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .m{font-family:Menlo,Consolas,monospace;font-size:13px}.r{fill:#b3261e}
+  </style>
+  <rect width="960" height="300" fill="#fff"/>
+
+  <!-- 시간축 -->
+  <line x1="250" y1="50" x2="920" y2="50" stroke="#888" marker-end="url(#a)"/>
+  <circle cx="400" cy="50" r="6" fill="#222"/>
+  <text x="400" y="30" text-anchor="middle" class="b">메시지 작성 (이름: 홍길동)</text>
+  <circle cx="720" cy="50" r="6" fill="#b3261e"/>
+  <text x="720" y="30" text-anchor="middle" class="b r">이름 변경 → 홍길순</text>
+
+  <!-- 지금 값 -->
+  <text x="20" y="128" class="t">지금 값</text>
+  <text x="20" y="150" class="m">author.name</text>
+  <text x="20" y="170" class="s">동기화로 따라 고침</text>
+  <rect x="330" y="112" width="140" height="44" rx="10" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="400" y="139" text-anchor="middle" class="b">홍길동</text>
+  <rect x="650" y="112" width="140" height="44" rx="10" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="720" y="139" text-anchor="middle" class="b r">홍길순</text>
+  <line x1="472" y1="134" x2="646" y2="134" stroke="#888" marker-end="url(#a)"/>
+  <text x="560" y="126" text-anchor="middle" class="s">updateMany</text>
+  <text x="820" y="139" class="s">화면 표시용</text>
+
+  <!-- 그때 값 -->
+  <text x="20" y="228" class="t">그때 값</text>
+  <text x="20" y="250" class="m">authorNameAtWrite</text>
+  <text x="20" y="270" class="s">한 번 쓰고 안 고침</text>
+  <rect x="330" y="212" width="140" height="44" rx="10" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="400" y="239" text-anchor="middle" class="b">홍길동</text>
+  <rect x="650" y="212" width="140" height="44" rx="10" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="720" y="239" text-anchor="middle" class="b">홍길동</text>
+  <line x1="472" y1="234" x2="646" y2="234" stroke="#bbb" stroke-dasharray="5 4"/>
+  <text x="560" y="226" text-anchor="middle" class="s">그대로</text>
+  <text x="820" y="239" class="s">기록·감사용</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 230" width="960" height="230">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:15px;font-weight:700}.b{font-size:14px}.s{font-size:13px;fill:#666}.r{fill:#b3261e}
+  </style>
+  <rect width="960" height="230" fill="#fff"/>
+
+  <line x1="30" y1="110" x2="930" y2="110" stroke="#888" marker-end="url(#a)"/>
+
+  <circle cx="90" cy="110" r="7" fill="#222"/>
+  <text x="90" y="80" text-anchor="middle" class="t">2004</text>
+  <text x="90" y="145" text-anchor="middle" class="b">Google</text>
+  <text x="90" y="165" text-anchor="middle" class="b">MapReduce 논문</text>
+
+  <circle cx="250" cy="110" r="7" fill="#222"/>
+  <text x="250" y="80" text-anchor="middle" class="t">2006</text>
+  <text x="250" y="145" text-anchor="middle" class="b">Hadoop</text>
+  <text x="250" y="165" text-anchor="middle" class="s">오픈소스 구현</text>
+
+  <circle cx="420" cy="110" r="7" fill="#222"/>
+  <text x="420" y="80" text-anchor="middle" class="t">2009~</text>
+  <text x="420" y="145" text-anchor="middle" class="b">MongoDB·CouchDB가</text>
+  <text x="420" y="165" text-anchor="middle" class="b">질의 수단으로 채택</text>
+
+  <circle cx="600" cy="110" r="7" fill="#222"/>
+  <text x="600" y="80" text-anchor="middle" class="t">2012</text>
+  <text x="600" y="145" text-anchor="middle" class="b">MongoDB 2.2</text>
+  <text x="600" y="165" text-anchor="middle" class="s">집계 파이프라인 추가</text>
+
+  <circle cx="790" cy="110" r="7" fill="#b3261e"/>
+  <text x="790" y="80" text-anchor="middle" class="t r">2021</text>
+  <text x="790" y="145" text-anchor="middle" class="b r">MongoDB 5.0</text>
+  <text x="790" y="165" text-anchor="middle" class="s">mapReduce deprecated</text>
+
+  <text x="30" y="34" class="t">흐름: 분산 일괄 처리 모델 → DB 질의 수단 → 선언형 질의에 자리를 내줌</text>
+  <text x="30" y="210" class="s">대규모 일괄 처리 쪽에서도 Spark 같은 데이터플로 엔진이 MapReduce를 대체해 갔다 (DDIA 10장)</text>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" width="960" height="360">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:16px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .m{font-family:Menlo,Consolas,monospace;font-size:13px}.r{fill:#b3261e}.ok{fill:#1d7a3a}
+  </style>
+  <rect width="960" height="360" fill="#fff"/>
+
+  <text x="20" y="30" class="t">reduce는 한 키에 여러 번 나눠 불릴 수 있다 (re-reduce)</text>
+  <text x="20" y="52" class="s">키 "2026-10"의 응답 시간 값 [10, 20, 30]의 평균을 구할 때. 정답은 20</text>
+
+  <!-- 틀린 예 -->
+  <text x="20" y="100" class="t r">✕ reduce가 평균을 반환</text>
+  <rect x="250" y="76" width="130" height="40" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="315" y="101" text-anchor="middle" class="m">[10, 20]</text>
+  <rect x="440" y="76" width="130" height="40" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="505" y="101" text-anchor="middle" class="m">15</text>
+  <rect x="440" y="130" width="130" height="40" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="505" y="155" text-anchor="middle" class="m">[30]</text>
+  <rect x="640" y="100" width="150" height="44" rx="8" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="715" y="127" text-anchor="middle" class="m r">avg(15,30)=22.5</text>
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="382" y1="96" x2="436" y2="96"/>
+    <line x1="572" y1="96" x2="636" y2="114"/>
+    <line x1="572" y1="150" x2="636" y2="132"/>
+  </g>
+  <text x="409" y="88" text-anchor="middle" class="s">1차</text>
+  <text x="604" y="98" text-anchor="middle" class="s">2차</text>
+  <text x="810" y="127" class="b r">틀림</text>
+
+  <line x1="20" y1="196" x2="940" y2="196" stroke="#eee"/>
+
+  <!-- 맞는 예 -->
+  <text x="20" y="244" class="t ok">✓ reduce가 {sum, count}를 반환</text>
+  <rect x="250" y="220" width="130" height="40" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="315" y="245" text-anchor="middle" class="m">[10, 20]</text>
+  <rect x="440" y="220" width="130" height="40" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="505" y="245" text-anchor="middle" class="m">{30, 2}</text>
+  <rect x="440" y="274" width="130" height="40" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="505" y="299" text-anchor="middle" class="m">{30, 1}</text>
+  <rect x="640" y="244" width="130" height="44" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="705" y="271" text-anchor="middle" class="m">{60, 3}</text>
+  <rect x="810" y="244" width="130" height="44" rx="8" fill="#fff" stroke="#1d7a3a" stroke-width="1.5"/>
+  <text x="875" y="271" text-anchor="middle" class="m ok">60/3 = 20</text>
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="382" y1="240" x2="436" y2="240"/>
+    <line x1="572" y1="240" x2="636" y2="258"/>
+    <line x1="572" y1="294" x2="636" y2="276"/>
+    <line x1="772" y1="266" x2="806" y2="266"/>
+  </g>
+  <text x="790" y="236" text-anchor="middle" class="s">finalize</text>
+
+  <text x="20" y="344" class="s">규칙: reduce의 출력은 map이 emit한 값과 같은 모양이어야 하고, 묶는 순서·횟수가 달라도 결과가 같아야 한다 (결합법칙·교환법칙)</text>
+</svg>

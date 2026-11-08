@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b3261e"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:16px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .m{font-family:Menlo,Consolas,monospace;font-size:13px}.r{fill:#b3261e}.g{fill:#999}
+  </style>
+  <rect width="960" height="440" fill="#fff"/>
+
+  <!-- 원천 -->
+  <rect x="20" y="110" width="140" height="56" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="90" y="144" text-anchor="middle" class="b">Slack API</text>
+  <rect x="20" y="230" width="140" height="56" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="90" y="264" text-anchor="middle" class="b">Notion API</text>
+
+  <!-- 수집기 -->
+  <rect x="220" y="166" width="150" height="64" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="295" y="193" text-anchor="middle" class="t">수집기</text>
+  <text x="295" y="215" text-anchor="middle" class="s">upsert · 멱등</text>
+  <line x1="160" y1="138" x2="218" y2="186" stroke="#888" marker-end="url(#a)"/>
+  <line x1="160" y1="258" x2="218" y2="212" stroke="#888" marker-end="url(#a)"/>
+
+  <!-- 문서 컬렉션 -->
+  <rect x="440" y="60" width="240" height="130" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="456" y="86" class="t">slack_messages</text>
+  <text x="456" y="112" class="m">text, ts, channel</text>
+  <text x="456" y="138" class="m">author.id   U012…</text>
+  <text x="456" y="162" class="m r">author.name 홍길동</text>
+  <text x="456" y="181" class="m r" font-size="12">author.avatarUrl</text>
+
+  <rect x="440" y="220" width="240" height="130" rx="12" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="456" y="246" class="t">notion_pages</text>
+  <text x="456" y="272" class="m">title, body, editedAt</text>
+  <text x="456" y="298" class="m">author.id   5c1d…</text>
+  <text x="456" y="322" class="m r">author.name 홍길동</text>
+  <text x="456" y="341" class="m r" font-size="12">author.avatarUrl</text>
+
+  <line x1="370" y1="188" x2="438" y2="140" stroke="#888" marker-end="url(#a)"/>
+  <line x1="370" y1="210" x2="438" y2="270" stroke="#888" marker-end="url(#a)"/>
+
+  <!-- 원본 -->
+  <rect x="750" y="120" width="190" height="170" rx="12" fill="#fff" stroke="#222" stroke-width="1.5"/>
+  <text x="766" y="146" class="t">authors <tspan class="s">(원본)</tspan></text>
+  <text x="766" y="174" class="m">_id  플랫폼 user id</text>
+  <text x="766" y="198" class="m">name</text>
+  <text x="766" y="222" class="m">avatarUrl</text>
+  <text x="766" y="250" class="m g">department</text>
+  <text x="766" y="270" class="s">↑ 자주 바뀜 · 복사 안 함</text>
+
+  <!-- 수집기 → authors -->
+  <path d="M295 166 V28 H845 V118" fill="none" stroke="#888" marker-end="url(#a)"/>
+  <text x="560" y="22" text-anchor="middle" class="s">작성자도 같이 upsert</text>
+
+  <!-- 동기화 -->
+  <line x1="748" y1="170" x2="684" y2="150" stroke="#b3261e" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <line x1="748" y1="240" x2="684" y2="300" stroke="#b3261e" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <text x="716" y="214" text-anchor="middle" class="s r">동기화</text>
+
+  <!-- 범례 -->
+  <line x1="40" y1="398" x2="76" y2="398" stroke="#b3261e" stroke-dasharray="5 4"/>
+  <text x="86" y="403" class="s">빨간 필드 = 원본에서 복사한 값. 원본이 바뀌면 따라 고친다</text>
+  <text x="40" y="428" class="s"><tspan class="m" fill="#222">author.id</tspan> = 바뀌지 않는 키. 이게 있어야 복사본을 원본과 다시 맞출 수 있다</text>
+</svg>
