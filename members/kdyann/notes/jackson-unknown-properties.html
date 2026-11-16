@@ -1,0 +1,193 @@
+<!--
+---
+type: note
+author: kdyann
+created: 2026-11-16
+status: draft
+tags: [encoding, jackson, json, compatibility]
+title: 호환성 이해하기
+summary: 서버 응답에 필드가 추가됐을 때 Jackson의 ignoreUnknown 설정과 상위·하위 호환성을 이해한다.
+---
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>호환성 이해하기</title>
+<style>
+:root{--ink:#222;--muted:#666;--line:#ddd;--accent:#24675f}*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:16px;line-height:1.8;word-break:keep-all}main{max-width:800px;min-width:0;margin:auto;padding:58px 28px 80px}h1{font-size:34px;line-height:1.4;letter-spacing:-.045em;margin:0 0 22px}h2{font-size:23px;line-height:1.5;letter-spacing:-.03em;margin:44px 0 17px}h3{font-size:18px;margin:25px 0 10px}p{margin:0 0 15px}ul,ol{padding-left:25px;margin:12px 0 22px}li{margin:7px 0}.meta,.note{font-size:14px;color:var(--muted)}.meta{margin-bottom:14px}a{color:#285c97;text-underline-offset:4px}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;overflow-wrap:anywhere}pre{max-width:100%;overflow:auto;background:#f7f8fa;border:1px solid #e3e6eb;padding:16px 18px;line-height:1.7;margin:17px 0 22px}pre code{font-size:13px;white-space:pre;overflow-wrap:normal}.tok-keyword{color:#0755b5}.tok-string{color:#236d40}.tok-annotation{color:#803cad}.tok-comment{color:#666f7b}.tok-type{color:#865918}.tok-key{color:#9a3046}.tok-number{color:#7c3d99}blockquote{border-left:3px solid #bbb;margin:22px 0;padding:5px 0 5px 18px}.table-wrap{max-width:100%;overflow:auto;margin:20px 0}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:11px 12px;text-align:left;vertical-align:top}th{background:#fafafa}details{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:13px 0;margin:24px 0}summary{cursor:pointer;font-weight:700;list-style-position:outside;margin-left:18px}details>p:first-of-type{margin-top:15px}.demo{border:1px solid var(--line);padding:18px;margin:24px 0}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 17px}button{font:inherit;font-size:14px;padding:7px 12px;background:#fff;border:1px solid #aaa;border-radius:3px;cursor:pointer;color:var(--ink)}button[aria-pressed=true]{background:#eef7f4;color:var(--accent);border-color:var(--accent);font-weight:700}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #cf923a;outline-offset:3px}.result{font-weight:700}.result.error{color:#a33325}.result.success{color:var(--accent)}.demo h3{font-size:16px}.js-only{display:none}.has-js .js-only{display:block}.has-js .demo-fallback{display:none}.sources{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;font-size:14px}@media(max-width:600px){main{padding:30px 20px 50px}h1{font-size:28px}h2{font-size:21px}pre{padding:13px}.demo{padding:14px}th,td{padding:9px}}@media print{main{max-width:none;padding:0}body{font-size:11pt}h1{font-size:23pt}h2{font-size:16pt;break-after:avoid}.js-only{display:none!important}.has-js .demo-fallback{display:block}pre code{white-space:pre-wrap;overflow-wrap:anywhere}details>summary{display:none}details>*:not(summary){display:block!important}a{color:inherit}}
+</style>
+</head>
+<body>
+<main><article>
+<p class="meta">DDIA 4장 / 더 알아보기</p>
+<h1>호환성 이해하기</h1>
+<h2>1. Intro</h2>
+<p>4장에서 상위 호환성과 하위 호환성을 읽고, 실제 코드에서는 어떻게 적용되는지 궁금했다.</p>
+<p>이 원리를 Jackson의 <code>@JsonIgnoreProperties(ignoreUnknown = true)</code>에 연결해 봤다. 모르는 필드를 무시하면 읽기에 성공할 수 있는데, 그렇다면 그 데이터를 다시 저장할 때도 안전할까?</p>
+
+<h2>2. 기본 응답과 DTO</h2>
+<p>서버는 이름을 응답하고, 클라이언트도 이름을 담을 DTO를 가지고 있다.</p>
+<pre><code class="language-json">{
+  "name": "dayoung"
+}</code></pre>
+<pre><code class="language-java">public static class User {
+  public String name;
+}</code></pre>
+<p>JSON의 <code>name</code>을 DTO의 <code>name</code>에 넣으면 된다. 응답과 DTO가 알고 있는 필드가 일치하므로 이름을 읽을 수 있다.</p>
+
+<h2>3. 서버 응답의 필드 추가</h2>
+<p>서버 응답에 <code>email</code>이 추가됐다. 클라이언트는 아직 DTO를 바꾸지 않아 <code>name</code>만 알고 있다.</p>
+<pre><code class="language-json">{
+  "name": "dayoung",
+  "email": "hello@example.com"
+}</code></pre>
+<ul><li><code>name</code>: DTO에 매핑할 수 있는 필드</li><li><code>email</code>: DTO에 정의되지 않은, 알 수 없는 필드</li></ul>
+<p>Jackson이 알 수 없는 필드를 거부하도록 설정돼 있다면 읽기에 실패한다. 여기서는 비교 조건을 분명히 하기 위해 이 옵션을 직접 켠다.</p>
+<pre><code class="language-java">ObjectMapper mapper = new ObjectMapper()
+    .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+mapper.readValue(json, User.class);
+// UnrecognizedPropertyException: 알 수 없는 필드 email</code></pre>
+<p>서버가 필드를 추가했을 뿐인데 클라이언트가 응답 전체를 읽지 못하는 상황이다.</p>
+
+<h2>4. ignoreUnknown 설정</h2>
+<p>DTO에 다음과 같이 설정하면 알 수 없는 필드를 무시하고 읽는다.</p>
+<pre><code class="language-java">@JsonIgnoreProperties(ignoreUnknown = true)
+public static class User {
+  public String name;
+}</code></pre>
+<ul><li><code>name</code>은 DTO에 담는다.</li><li><code>email</code>은 DTO에 정의돼 있지 않으므로 건너뛴다.</li><li>클라이언트는 기존처럼 <code>name</code>을 사용할 수 있다.</li></ul>
+<blockquote><strong>필요한 필드만 읽으면 되는 상황에서 사용할 수 있다.</strong></blockquote>
+<p>응답에 필드가 늘어났더라도, 클라이언트가 당장 그 필드를 사용해야 하는 것은 아니다. 이 설정은 필요한 데이터를 계속 읽을 수 있게 하는 선택이다.</p>
+
+<div class="demo js-only" role="group" aria-labelledby="demo-title">
+<h3 id="demo-title">필드 처리 방식 비교</h3>
+<p class="note">브라우저에서 Jackson을 실행하는 대신, 아래 전체 Java 예제의 필드 매핑 결과를 재현한다. 입력과 DTO는 고정돼 있다.</p>
+<div class="controls"><button type="button" id="strict" aria-pressed="true">모르는 필드 거부</button><button type="button" id="ignore" aria-pressed="false">ignoreUnknown = true</button></div>
+<h3>서버 응답</h3><pre><code id="input-json" class="language-json"></code></pre>
+<div aria-live="polite" aria-atomic="true"><p class="result error" id="result"></p><h3>클라이언트 DTO</h3><pre><code id="dto-result" class="language-json"></code></pre><p class="note" id="explanation"></p></div>
+</div>
+<p class="demo-fallback">알 수 없는 필드를 거부하면 <code>email</code>에서 읽기가 실패한다. <code>ignoreUnknown = true</code>이면 읽기에 성공하고 DTO에 <code>name=dayoung</code>이 담긴다.</p>
+<details><summary>전체 Java 예제 펼쳐보기</summary>
+<p class="note">Jackson 2.x의 두 DTO를 같은 ObjectMapper로 읽어 비교한다.</p>
+<pre><code class="language-java">import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+
+public class JacksonUnknownDemo {
+  public static class StrictUser {
+    public String name;
+  }
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class TolerantUser {
+    public String name;
+  }
+
+  public static void main(String[] args) throws Exception {
+    ObjectMapper mapper = new ObjectMapper()
+        .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    String json = &quot;{\&quot;name\&quot;:\&quot;dayoung\&quot;,&quot;
+        + &quot;\&quot;email\&quot;:\&quot;hello@example.com\&quot;}&quot;;
+
+    try {
+      mapper.readValue(json, StrictUser.class);
+    } catch (UnrecognizedPropertyException e) {
+      System.out.println(&quot;모르는 필드: &quot; + e.getPropertyName());
+    }
+
+    TolerantUser user = mapper.readValue(json, TolerantUser.class);
+    System.out.println(user.name); // dayoung
+
+    user.name = &quot;dayoung-updated&quot;;
+    System.out.println(mapper.writeValueAsString(user));
+    // {&quot;name&quot;:&quot;dayoung-updated&quot;}
+  }
+}</code></pre>
+</details>
+
+<h2>5. 상위 호환성과 하위 호환성</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">방향</th><th scope="col">상황</th><th scope="col">확인할 점</th></tr></thead><tbody><tr><th scope="row">상위 호환성</th><td>기존 클라이언트가 필드가 추가된 서버 응답을 읽음</td><td>알 수 없는 필드를 처리할 수 있는가?</td></tr><tr><th scope="row">하위 호환성</th><td>email을 추가한 클라이언트가 name만 있는 서버 응답을 읽음</td><td>응답에 없는 email을 처리할 수 있는가?</td></tr></tbody></table></div>
+<p>지금의 <code>ignoreUnknown</code> 예시는 <strong>기존 클라이언트가 새 필드를 포함한 응답을 받아들이는 상위 호환성</strong>과 연결된다.</p>
+<p>반대 방향에서는 응답에 <code>email</code>이 없을 수 있다. 기본값을 쓸지, 없는 값을 허용할지, 필수 값 검증을 할지는 별도로 정해야 한다. 알 수 없는 필드를 무시하는 설정이 누락 필드까지 해결하지는 않는다.</p>
+
+<h2>6. 적용 기준</h2>
+<ul><li><strong>외부 서비스의 응답을 읽는 클라이언트:</strong> 사용하지 않는 필드가 추가돼도 필요한 필드를 계속 읽도록 허용할 수 있다.</li><li><strong>입력 계약을 엄격히 검사하는 API:</strong> 알 수 없는 필드를 허용하면 <code>email</code>을 <code>emial</code>로 잘못 보낸 요청도 놓칠 수 있다. 이 경우에는 거부하는 정책이 더 적절할 수 있다.</li><li><strong>필드 타입이나 의미가 바뀌는 경우:</strong> 이미 아는 필드의 타입 불일치나 필수 값 검증은 따로 처리해야 한다.</li></ul>
+
+<h2>7. 확장 / 재직렬화</h2>
+<details><summary>읽은 데이터를 다시 JSON으로 만드는 경우</summary>
+<p>필요한 필드만 읽는 목적이라면 앞의 동작으로 충분하다. 다만 DTO를 다시 JSON으로 만드는 작업까지 한다면, DTO에 보관한 필드만 출력된다는 점을 확인해야 한다.</p>
+<pre><code class="language-java">TolerantUser user = mapper.readValue(json, TolerantUser.class);
+user.name = "dayoung-updated";
+String output = mapper.writeValueAsString(user);
+// {"name":"dayoung-updated"}</code></pre>
+<p><code>email</code>은 DTO에 없기 때문에 결과에 포함되지 않는다. <code>ignoreUnknown</code>이 직렬화할 때 필드를 지우는 것이 아니라, 읽는 과정에서 DTO가 그 필드를 보관하지 않은 결과다. 이것이 설정 자체가 잘못됐다는 뜻은 아니다.</p>
+<div class="js-only"><h3>현재 비교 설정의 재직렬화 결과</h3><pre><code id="output-json" class="language-json"></code></pre></div>
+<p class="demo-fallback"><code>ignoreUnknown = true</code>로 읽은 DTO의 이름을 수정하면 <code>{"name":"dayoung-updated"}</code>로 직렬화된다. 거부 모드에서는 읽기가 실패하므로 수정과 직렬화를 진행하지 않는다.</p>
+</details>
+
+<div class="sources"><h2>8. 참고 문서</h2><ul><li><a href="https://fasterxml.github.io/jackson-annotations/javadoc/2.14/com/fasterxml/jackson/annotation/JsonIgnoreProperties.html" target="_blank" rel="noopener">Jackson 2.14 / JsonIgnoreProperties</a></li><li><a href="https://fasterxml.github.io/jackson-databind/javadoc/2.14/com/fasterxml/jackson/databind/DeserializationFeature.html" target="_blank" rel="noopener">Jackson 2.14 / DeserializationFeature</a></li></ul></div>
+
+</article></main>
+<script>
+(()=>{
+'use strict';
+const byId=id=>document.getElementById(id);
+const keywords=new Set('public static class void throws new try catch import package return boolean true false null final private protected String'.split(' '));
+function highlight(code){
+  const raw=code.textContent;
+  const json=code.classList.contains('language-json');
+  const tokens=json? /"(?:\\.|[^"\\])*"|\b(?:true|false|null)\b|-?\b\d+(?:\.\d+)?\b/g : /\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|@[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*|\b[A-Za-z_$][\w$]*\b|\b\d+(?:\.\d+)?\b/g;
+  const fragment=document.createDocumentFragment();let last=0;
+  for(const match of raw.matchAll(tokens)){
+    fragment.append(document.createTextNode(raw.slice(last,match.index)));
+    const token=match[0];let kind='';
+    if(json){
+      if(token.startsWith('"')) kind=/^\s*:/.test(raw.slice(match.index+token.length))?'key':'string';
+      else kind='number';
+    }else if(token.startsWith('//')||token.startsWith('/*')) kind='comment';
+    else if(token.startsWith('"')||token.startsWith("'")) kind='string';
+    else if(token.startsWith('@')) kind='annotation';
+    else if(keywords.has(token)) kind='keyword';
+    else if(/^[A-Z]/.test(token)) kind='type';
+    else if(/^\d/.test(token)) kind='number';
+    if(kind){const span=document.createElement('span');span.className='tok-'+kind;span.textContent=token;fragment.append(span);}
+    else fragment.append(document.createTextNode(token));
+    last=match.index+token.length;
+  }
+  fragment.append(document.createTextNode(raw.slice(last)));
+  code.replaceChildren(fragment);
+  if(code.textContent!==raw) throw new Error('Code highlighting changed text');
+}
+function setCode(id,value){const code=byId(id);code.textContent=value;highlight(code);}
+const input={name:'dayoung',email:'hello@example.com'};
+setCode('input-json',JSON.stringify(input,null,2));
+function render(ignore){
+  byId('strict').setAttribute('aria-pressed',String(!ignore));
+  byId('ignore').setAttribute('aria-pressed',String(ignore));
+  byId('result').className='result '+(ignore?'success':'error');
+  if(ignore){
+    const dto={name:input.name};
+    byId('result').textContent='읽기 성공 / name을 사용할 수 있음';
+    setCode('dto-result',JSON.stringify(dto,null,2));
+    byId('explanation').textContent='DTO에 있는 name은 읽고, 사용하지 않는 email은 건너뛴다.';
+    dto.name='dayoung-updated';setCode('output-json',JSON.stringify(dto,null,2));
+  }else{
+    byId('result').textContent='읽기 실패 / UnrecognizedPropertyException';
+    setCode('dto-result','email에 매핑할 필드가 없어 읽기에 실패');
+    byId('explanation').textContent='알 수 없는 필드를 거부하도록 설정돼 있어 응답을 읽지 못한다.';
+    setCode('output-json','읽기가 실패했으므로 수정·직렬화하지 않음');
+  }
+}
+byId('strict').addEventListener('click',()=>render(false));
+byId('ignore').addEventListener('click',()=>render(true));
+document.querySelectorAll('pre code.language-java,pre code.language-json').forEach(highlight);
+render(false);document.documentElement.classList.add('has-js');
+})();
+</script>
+</body>
+</html>

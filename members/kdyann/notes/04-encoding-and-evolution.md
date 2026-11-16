@@ -26,9 +26,17 @@ tags: [encoding, decoding, schema-evolution, compatibility, protobuf, avro, rpc,
 | 상위 호환성(forward compatibility) | 예전 코드가 새로운 코드가 쓴 데이터를 읽는 능력 |
 | 쓰기 스키마 / 읽기 스키마 | 데이터를 기록할 때 사용한 구조 / 읽는 코드가 기대하는 구조 |
 | 필드 태그(field tag) | 필드 이름 대신 바이트열에서 필드를 식별하는 번호 |
-| RPC | 다른 프로세스의 기능을 네트워크 요청으로 호출하는 방식 |
+| 원격 프로시저 호출(RPC, Remote Procedure Call) | 원격 시스템의 함수나 프로시저를 네트워크 요청으로 호출하는 방식. 로컬 함수 호출과 달리 지연·실패·재시도를 고려해야 한다 |
 | 메시지 브로커 | 송신자와 수신자 사이에서 메시지를 받아 보관, 전달하는 중간 시스템 |
 | 멱등성(idempotence) | 같은 작업을 여러 번 실행해도 한 번 실행한 것과 같은 효과를 내는 성질 |
+| 순회식 업그레이드(rolling upgrade) / 단계적 롤아웃(staged rollout) | 새 버전을 점진적으로 배포하는 방식. 롤링 업그레이드는 일부 노드씩 교체하고, 단계적 롤아웃은 대상이나 비율을 넓혀 가며 동작을 확인한다 |
+| 최소공통분모 부호화 형식(lowest-common-denominator encoding format) | 서로 다른 언어·환경에서 공통으로 지원하는 타입과 표현을 사용해 데이터를 교환하는 형식. JSON·XML 등이 이런 목적으로 쓰인다 |
+| 바이너리 프로토콜(BinaryProtocol) | Thrift의 이진 부호화 형식. 필드 타입과 숫자 ID를 기록하고, 정수는 타입에 따른 고정 길이로 부호화한다. 문자열 등은 길이와 내용을 기록한다 |
+| 컴팩트 프로토콜(CompactProtocol) | Thrift의 공간 절약형 이진 부호화 형식. 조건에 맞으면 필드 타입과 이전 필드 ID와의 차이를 한 바이트에 담고, 정수에는 ZigZag·가변 길이 부호화를 활용한다 |
+| 데이터플로(dataflow) | 데이터가 기록하는 쪽에서 읽는 쪽으로 흐르는 경로와 과정. 이 장에서는 DB·서비스 호출·메시지 전달을 통해 살펴본다 |
+| 자바 원격 메서드 호출(RMI, Remote Method Invocation) | 다른 JVM에서 실행 중인 객체의 메서드를 원격으로 호출하는 자바 기술 |
+| 분산 컴포넌트 객체 모델(DCOM, Distributed Component Object Model) | 네트워크의 다른 컴퓨터에 있는 COM 객체를 호출할 수 있도록 확장한 마이크로소프트의 분산 객체 기술 |
+| 공통 객체 요청 브로커 아키텍처(CORBA, Common Object Request Broker Architecture) | 서로 다른 언어·플랫폼의 객체가 요청 브로커를 통해 원격 호출할 수 있도록 정한 표준 |
 
 ## 핵심 내용
 

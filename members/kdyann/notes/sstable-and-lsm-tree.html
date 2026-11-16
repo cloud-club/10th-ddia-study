@@ -1,0 +1,92 @@
+<!--
+---
+type: note
+author: kdyann
+created: 2026-11-16
+status: draft
+tags: [storage, SSTable, lsm-tree, compaction]
+title: SSTable과 LSM 트리 비교
+summary: 정렬된 파일과 그 파일을 관리하는 구조의 차이를 쓰기·조회·컴팩션 예시로 살펴본다.
+---
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>SSTable과 LSM 트리 비교</title>
+<style>
+:root{--ink:#222;--muted:#666;--line:#ddd;--accent:#24675f}*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:16px;line-height:1.8;word-break:keep-all}main{max-width:800px;margin:auto;padding:58px 28px 80px}h1{font-size:34px;line-height:1.4;letter-spacing:-.045em;margin:0 0 22px}h2{font-size:23px;line-height:1.5;letter-spacing:-.03em;margin:46px 0 18px}p{margin:0 0 15px}ul,ol{padding-left:25px;margin:12px 0 22px}li{margin:7px 0}li ul{margin:5px 0 12px}h3{font-size:18px;margin:25px 0 10px}blockquote{border-left:3px solid #bbb;margin:20px 0;padding:4px 0 4px 18px;color:#444}.diagram{max-width:100%;height:auto;display:block;margin:22px auto}.note{color:#666;font-size:14px}a{color:#285c97;text-underline-offset:4px}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em}header .meta,footer,.sources{color:var(--muted);font-size:14px}.meta{margin-bottom:14px}.sources{border-top:1px solid var(--line);margin-top:48px;padding-top:24px}.sources p{margin-bottom:12px}footer{margin-top:40px}.demo{border:1px solid var(--line);margin:30px 0 12px;background:white}.demo-top{padding:16px 18px;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}.counter{font-size:12px;color:var(--muted)}.demo-title{font-size:17px;font-weight:700}.controls{display:flex;gap:7px;flex-wrap:wrap}button{font:inherit;font-size:13px;cursor:pointer;background:white;border:1px solid #aaa;border-radius:3px;padding:6px 10px;color:var(--ink);touch-action:manipulation}button.primary{border-color:var(--accent);color:var(--accent)}button:hover:not(:disabled){background:#f5f5f5}button:disabled{opacity:.35;cursor:default}button:focus-visible,a:focus-visible{outline:3px solid #cf923a;outline-offset:3px}.progress{height:2px;background:#eee}.progress span{height:100%;display:block;background:var(--accent);transition:width .25s}.stage{display:grid;grid-template-columns:1fr 1.8fr;gap:16px;padding:18px;min-height:250px}.lane{min-width:0}.lane h3{font-size:14px;margin:0 0 10px}.disk-files{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sst{border:1px solid var(--line);padding:10px;background:#fff}.sst h4{font-size:13px;line-height:1.5;margin:0}.sst small{font-size:11px;line-height:1.5;color:var(--muted);display:block;margin:4px 0 10px}.record{display:flex;justify-content:space-between;gap:8px;padding:6px 9px;margin-top:6px;border:1px solid #ddd;background:white;font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}.sst .record{font-size:12px;padding:6px}.record.highlight{border-color:var(--accent);background:#f0f7f4}.record.deleted{border-style:dashed;color:#8b571c}.empty{font-size:13px;color:var(--muted);padding:12px 0}.wal{border-top:1px solid var(--line);padding:11px 18px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}.stage-note{border-top:1px solid var(--line);padding:15px 18px;font-size:14px;min-height:115px}.stage-note p{margin:0}.legend{font-size:12px;color:var(--muted);margin-bottom:28px}.js-only{display:none}.has-js .js-only{display:block}.has-js .demo-fallback{display:none}.demo-fallback{font-size:15px;border-left:2px solid #ccc;padding-left:18px;margin:28px 0}@keyframes enter{from{opacity:.4}to{opacity:1}}.stage.animate .lane{animation:enter .2s ease-out}@media(max-width:600px){main{padding:30px 20px 50px}h1{font-size:28px}h2{font-size:21px;margin-top:36px}body{font-size:16px}.stage{grid-template-columns:1fr;min-height:0;padding:15px}.demo-top{padding:14px}.stage-note{min-height:0;padding:14px}.wal{padding:10px 14px}.disk-files{gap:8px}.sst{padding:8px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}@media print{main{max-width:none;padding:0}body{font-size:11pt}h1{font-size:23pt}h2{font-size:16pt;break-after:avoid}.js-only{display:none!important}.has-js .demo-fallback{display:block}a{color:inherit}.sources{font-size:10pt}}
+</style>
+</head>
+<body>
+<main><article>
+<header><p class="meta">DDIA 3장 / 더 알아보기</p><h1>SSTable과 LSM 트리 비교</h1></header>
+<h2>1. Intro</h2>
+<p>3장을 읽으면서 SSTable과 LSM 트리의 차이가 헷갈렸다. 둘 다 정렬된 데이터를 저장하고, 파일을 병합하며, 컴팩션으로 오래된 값을 정리한다는 설명이 나오는데...</p>
+<p>구분하려면 각각이 가리키는 범위를 보면 된다. <strong>SSTable은 정렬된 파일</strong>이고, <strong>LSM 트리는 메모리와 정렬된 파일들을 함께 관리하는 구조</strong>다. 이 관점에서 쓰기와 조회 과정을 다시 따라가 봤다.</p>
+
+<h2>2. SSTable</h2>
+<h3>2.1. 정의</h3>
+<ul><li>Sorted String Table. <strong>키 순서로 정렬된 키·값 레코드를 담는 파일</strong>이다.</li><li>LevelDB·RocksDB 같은 엔진에서 디스크에 데이터를 저장하는 단위로 사용한다.</li></ul>
+<svg class="diagram" xmlns="http://www.w3.org/2000/svg" width="560" height="190" viewBox="0 0 560 190" role="img" aria-labelledby="sst-diagram-title"><title id="sst-diagram-title">SSTable 안에서 키 A, B, C가 정렬돼 있고 값은 각각 2, 1, 4이다</title><g font-family="sans-serif" font-size="15" fill="#333"><text x="280" y="24" text-anchor="middle">SSTable</text><rect x="130" y="40" width="300" height="140" fill="white" stroke="#aaa"/><path d="M280 40V180 M130 75H430 M130 110H430 M130 145H430" stroke="#ddd"/><text x="205" y="63" text-anchor="middle">key</text><text x="355" y="63" text-anchor="middle">value</text><text x="205" y="99" text-anchor="middle">A</text><text x="355" y="99" text-anchor="middle">2</text><text x="205" y="134" text-anchor="middle">B</text><text x="355" y="134" text-anchor="middle">1</text><text x="205" y="169" text-anchor="middle">C</text><text x="355" y="169" text-anchor="middle">4</text></g></svg>
+<h3>2.2. 특징</h3>
+<ul><li><strong>키가 정렬돼 있다.</strong><ul><li>모든 키의 위치를 메모리에 보관하지 않아도, 일부 키의 위치를 담은 희소 색인으로 탐색 범위를 좁힐 수 있다.</li><li>정렬된 파일끼리는 순서대로 읽으며 병합하기 쉽다.</li></ul></li><li><strong>완성된 파일은 제자리에서 수정하지 않는다.</strong><ul><li>값을 바꿀 때는 새 버전을 다른 곳에 기록한다. 같은 키의 여러 버전이 서로 다른 파일에 남을 수 있다.</li></ul></li><li><strong>파일을 병합하는 주체는 저장소 엔진이다.</strong><ul><li>SSTable은 병합 작업의 입력이나 결과가 되는 파일이다.</li></ul></li></ul>
+
+<h2>3. LSM 트리</h2>
+<p>LSM 트리(Log-Structured Merge-Tree)는 쓰기를 메모리에 모았다가 정렬된 파일로 내리고, 여러 파일을 병합하며 관리하는 구조다. 대표적인 현대 구현에서는 이 디스크 파일로 SSTable을 활용한다.</p>
+<blockquote>SSTable은 “어떤 파일인가”를 설명하고, LSM 트리는 “새 쓰기와 여러 파일을 어떻게 관리하는가”를 설명한다.</blockquote>
+<h3>3.1. 구성 요소</h3>
+<ul><li><strong>멤테이블(memtable)</strong>: 아직 파일로 내리지 않은 쓰기를 메모리에 모아 둔다. RocksDB의 기본 구현은 스킵 리스트이며, 항상 B 트리인 것은 아니다.</li><li><strong>WAL(write-ahead log)</strong>: 메모리의 쓰기를 장애 후 복구하기 위한 로그다. 저장 장치에 동기화하는 시점에 따라 내구성 보장이 달라진다.</li><li><strong>SSTable</strong>: 멤테이블의 내용을 정렬된 상태로 디스크에 저장한다. 실제 엔진에는 여러 파일과 레벨이 존재할 수 있다.</li></ul>
+<svg class="diagram" xmlns="http://www.w3.org/2000/svg" width="700" height="175" viewBox="0 0 700 175" role="img" aria-labelledby="lsm-diagram-title"><title id="lsm-diagram-title">멤테이블에서 플러시한 SSTable 파일들을 컴팩션해 새 SSTable로 만든다</title><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#666"/></marker></defs><g font-family="sans-serif" font-size="15" text-anchor="middle" fill="#333"><rect x="10" y="60" width="150" height="55" fill="white" stroke="#aaa"/><text x="85" y="94">Memtable</text><path d="M165 88H267" stroke="#666" marker-end="url(#arrow)"/><text x="215" y="72" font-size="13">flush</text><rect x="280" y="25" width="145" height="55" fill="white" stroke="#aaa"/><text x="352" y="59">SSTable 1</text><rect x="280" y="100" width="145" height="55" fill="white" stroke="#aaa"/><text x="352" y="134">SSTable 2</text><path d="M432 52L482 88 M432 128L482 88H528" fill="none" stroke="#666" marker-end="url(#arrow)"/><text x="483" y="28" font-size="13">compaction</text><rect x="540" y="60" width="150" height="55" fill="white" stroke="#aaa"/><text x="615" y="94">새 SSTable</text></g></svg>
+
+<h3>3.2. 쓰기</h3>
+<ol><li><strong>멤테이블에 새 값을 기록한다.</strong> 예를 들어 B=1, A=2를 쓰면 키 순서로는 A=2, B=1이 된다. 복구를 위해 WAL에도 변경을 남긴다.</li><li><strong>멤테이블이 일정 크기에 이르면 파일로 내린다.</strong> 정렬된 내용을 SSTable로 만드는 과정을 플러시(flush)라고 한다.</li><li><strong>이후 쓰기는 새 멤테이블이 받는다.</strong> 이미 완성된 SSTable은 그대로 두고, 수정된 값도 새 기록으로 추가한다.</li></ol>
+
+<h3>3.3. 조회</h3>
+<ol><li><strong>멤테이블에서 먼저 확인한다.</strong> 아직 파일로 내리지 않은 최신 쓰기가 있을 수 있다.</li><li><strong>필요한 SSTable을 확인한다.</strong> 단순한 모델에서는 최신 파일부터 찾는다. 실제 엔진은 레벨·키 범위·블룸 필터 등으로 후보 파일을 줄인다.</li><li><strong>최신 기록으로 결과를 결정한다.</strong> B의 새 값이 3이면 이전 값 1을 반환하지 않는다. A의 최신 기록이 삭제 표시라면 값이 없다고 답한다.</li></ol>
+
+<h3>3.4. 병합과 컴팩션</h3>
+<ul><li><strong>정렬된 파일들을 병합한다.</strong> 각 파일이 정렬돼 있어도 파일 사이에는 같은 키의 여러 버전이 남을 수 있다.</li><li><strong>필요 없어진 이전 버전을 정리한다.</strong> 예를 들어 B=1과 B=3이 남아 있다면 최신 값인 3을 유지할 수 있다.</li><li><strong>새 파일을 안전하게 반영한 뒤 이전 파일을 정리한다.</strong> 데이터를 다시 쓰는 작업이므로 디스크 I/O와 쓰기 증폭이 발생한다.</li></ul>
+<p>삭제는 툼스톤(tombstone)이라는 특수 기록으로 표현한다. 다른 파일에 옛 값이 남아 있는데 삭제 표시만 먼저 지우면 그 값이 다시 나타날 수 있다. 따라서 삭제 표시와 이전 버전을 버려도 안전한지 확인해야 하며, 과거 버전을 필요로 하는 스냅숏도 고려해야 한다.</p>
+<p>아래 예시에서 B=1, A=2를 쓴 뒤 B=3으로 수정하고 A를 삭제해 보자. 각 단계에서 메모리와 파일이 어떻게 달라지는지 확인할 수 있다.</p>
+<div class="demo js-only" aria-label="LSM 쓰기·조회·컴팩션 단계 실습">
+<div class="demo-top"><div><div class="counter" id="step-count">STEP 01 / 08</div><div class="demo-title" id="step-title">쓰기 전</div></div><div class="controls"><button id="previous" type="button">이전</button><button class="primary" id="next" type="button">다음 단계 →</button><button id="reset" type="button">처음부터</button></div></div>
+<div class="progress" aria-hidden="true"><span id="progress"></span></div>
+<div class="stage" id="stage"><div class="lane"><h3>메모리 / Memtable</h3><div id="memory"></div></div><div class="lane"><h3>디스크 / SSTable</h3><div class="disk-files" id="disk"></div></div></div>
+<div class="wal" id="wal"></div><div class="stage-note" role="status" aria-live="polite" aria-atomic="true"><p id="narration"></p></div>
+</div>
+<p class="legend js-only">초록 테두리: 조회에서 선택한 기록 / 점선 테두리: 삭제 표시</p>
+<div class="demo-fallback"><p>처음 B=1, A=2를 멤테이블에 쓴 뒤 플러시하면 SSTable 1에는 A=2, B=1이 저장된다. 이후 B=3과 A의 삭제 표시를 새 멤테이블에 쓰고 다시 플러시하면 SSTable 2가 생긴다. B 조회는 최신 파일에서 3을 반환하고, A 조회는 최신 파일의 삭제 표시를 보고 없음으로 처리한다.</p><p>두 파일을 모두 컴팩션하면 새 SSTable 3에 B=3만 남길 수 있다. 이 예시는 A의 옛 버전이 모두 병합 대상에 포함돼 있고, 이전 버전을 필요로 하는 스냅숏도 없는 경우다.</p></div>
+
+
+<h2>4. 정리</h2>
+<ul><li><strong>SSTable은 키 순서로 정렬된 파일</strong>이고, LSM 기반 엔진의 디스크 저장 단위가 된다.</li><li><strong>LSM 트리는 메모리와 여러 정렬 파일을 관리하는 구조</strong>이며, 쓰기·플러시·조회·컴팩션을 함께 봐야 이해할 수 있다.</li><li><strong>새 쓰기를 모아서 처리하는 대신 나중에 병합하는 비용이 따른다.</strong> 컴팩션이 밀리면 읽기와 쓰기가 느려질 수 있으므로 모든 작업에서 B 트리보다 빠르다는 뜻은 아니다.</li></ul>
+<div class="sources"><p>공식 문서: <a href="https://github.com/meta/rocksdb/wiki/RocksDB-Overview" target="_blank" rel="noopener">RocksDB Overview</a> / <a href="https://github.com/meta/rocksdb/wiki/MemTable" target="_blank" rel="noopener">MemTable</a> / <a href="https://github.com/meta/rocksdb/wiki/Write-Stalls" target="_blank" rel="noopener">Write Stalls</a></p></div>
+</article></main>
+<script>
+(()=>{
+'use strict';
+const states=[
+{title:'쓰기 전',memory:[],files:[],wal:'아직 기록 없음',text:'메모리와 디스크가 비어 있다. 다음 단계에서 두 키를 기록해 보자.'},
+{title:'B=1, A=2 쓰기',memory:[['A','2'],['B','1']],files:[],wal:'put(B, 1) → put(A, 2)',text:'WAL에 변경을 기록하고 멤테이블에 반영한다. 입력 순서는 B → A지만, 멤테이블은 키 순서 A → B로 탐색할 수 있다.'},
+{title:'첫 번째 flush',memory:[],files:[{name:'SSTable 1',age:'이전 파일',rows:[['A','2'],['B','1']]}],wal:'첫 파일의 안전한 기록이 끝나면 대응 로그 정리 가능',text:'멤테이블의 정렬된 내용을 SSTable 1로 내린다. 파일이 완성되면 새 쓰기로 이 파일을 제자리 수정하지 않는다.'},
+{title:'B 수정 / A 삭제',memory:[['A','삭제'],['B','3']],files:[{name:'SSTable 1',age:'이전 파일',rows:[['A','2'],['B','1']]}],wal:'put(B, 3) → delete(A)',text:'새 멤테이블에 B=3과 A의 삭제 표시를 쓴다. 디스크의 B=1과 A=2는 아직 그대로 남아 있다. 삭제도 새 기록으로 표현한다.'},
+{title:'두 번째 flush',memory:[],files:[{name:'SSTable 2',age:'최신 파일',rows:[['A','삭제'],['B','3']]},{name:'SSTable 1',age:'이전 파일',rows:[['A','2'],['B','1']]}],wal:'두 번째 파일의 안전한 기록이 끝나면 대응 로그 정리 가능',text:'새 버전을 SSTable 2로 내린다. 각 파일은 정렬됐지만 파일 사이에는 같은 키의 여러 버전이 존재한다.'},
+{title:'B 조회 → 3',memory:[],files:[{name:'SSTable 2',age:'① 먼저 확인 / 최신',rows:[['A','삭제'],['B','3']],active:'B'},{name:'SSTable 1',age:'② 이전 버전 / 읽을 필요 없음',rows:[['A','2'],['B','1']]}],wal:'추가 기록 없음 / 읽기 작업',text:'멤테이블에는 값이 없다. 최신 SSTable 2에서 B=3을 찾았으므로 이전 파일의 B=1을 반환하지 않는다.'},
+{title:'A 조회 → 없음',memory:[],files:[{name:'SSTable 2',age:'① 삭제 표시 확인',rows:[['A','삭제'],['B','3']],active:'A'},{name:'SSTable 1',age:'② 옛 A=2로 돌아가지 않음',rows:[['A','2'],['B','1']]}],wal:'추가 기록 없음 / 읽기 작업',text:'최신 기록이 삭제 표시이므로 A는 없다고 답한다. 삭제 표시를 무시하고 이전 파일에서 A=2를 찾으면 삭제한 값이 되살아난다.'},
+{title:'컴팩션 → 새 파일 하나',memory:[],files:[{name:'SSTable 3',age:'병합 결과',rows:[['B','3']],active:'B'}],wal:'추가 쓰기 기록 없음 / 기존 SSTable들을 병합하는 단계',text:'두 파일을 병합해 B=3만 남긴다. 이 예시는 모든 옛 버전을 함께 병합하고 스냅숏도 없으므로 A의 삭제 표시까지 제거할 수 있다. 새 파일을 안전하게 반영한 뒤 이전 파일을 정리한다.'}
+];
+let current=0;
+const byId=id=>document.getElementById(id);
+function record(row,active){const node=document.createElement('div');node.className='record'+(row[1]==='삭제'?' deleted':'')+(active===row[0]?' highlight':'');const key=document.createElement('span'),value=document.createElement('span');key.textContent=row[0];value.textContent=row[1]==='삭제'?'삭제 표시':row[1];node.append(key,value);return node;}
+function render(){const state=states[current];byId('step-count').textContent='STEP '+String(current+1).padStart(2,'0')+' / 08';byId('step-title').textContent=state.title;byId('memory').replaceChildren();if(state.memory.length){state.memory.forEach(row=>byId('memory').append(record(row)));}else{const p=document.createElement('div');p.className='empty';p.textContent='비어 있음';byId('memory').append(p);}byId('disk').replaceChildren();if(!state.files.length){const p=document.createElement('div');p.className='empty';p.textContent='아직 SSTable 없음';byId('disk').append(p);}state.files.forEach(file=>{const box=document.createElement('article');box.className='sst';const heading=document.createElement('h4');heading.textContent=file.name;const age=document.createElement('small');age.textContent=file.age;box.append(heading,age);file.rows.forEach(row=>box.append(record(row,file.active)));byId('disk').append(box);});byId('wal').textContent='WAL / '+state.wal;byId('narration').textContent=state.text;byId('previous').disabled=current===0;byId('next').disabled=current===states.length-1;byId('progress').style.width=((current+1)/states.length*100)+'%';byId('stage').classList.remove('animate');void byId('stage').offsetWidth;byId('stage').classList.add('animate');}
+byId('previous').addEventListener('click',()=>{if(current>0){current--;render();}});
+byId('next').addEventListener('click',()=>{if(current<states.length-1){current++;render();}});
+byId('reset').addEventListener('click',()=>{current=0;render();});
+render();document.documentElement.classList.add('has-js');
+})();
+</script>
+</body>
+</html>
