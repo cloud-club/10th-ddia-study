@@ -1,0 +1,183 @@
+<!--
+---
+type: note
+author: kdyann
+created: 2026-11-20
+status: draft
+tags: [replication, consistency, replication-lag, failover, eventual-consistency]
+title: 복제 지연과 읽기 일관성
+summary: 복제 지연
+---
+-->
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>복제 지연과 읽기 일관성 | DDIA Chapter 5</title>
+<style>
+:root{--bg:#f6f7f9;--paper:#fff;--ink:#20242b;--muted:#68717d;--line:#e5e8ed;--blue:#315fbd;--bluebg:#eef3ff;--green:#16794b;--greenbg:#eaf7f0;--orange:#a45a12;--orangebg:#fff4e7;--red:#b33b3b;--redbg:#fff0f0;--shadow:0 8px 30px rgba(28,39,60,.06)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;line-height:1.78}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}.top{background:#172033;color:#fff;padding:54px 22px 48px}.top-inner,.layout{max-width:1080px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#aebfe8;font-weight:700}.top h1{font-size:clamp(30px,5vw,48px);line-height:1.2;letter-spacing:-.04em;margin:14px 0}.top p{max-width:720px;color:#d0d7e5;font-size:16px;margin:0}.meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}.pill{border:1px solid #46516a;border-radius:999px;padding:4px 11px;font-size:12px;color:#dbe3f3}.layout{display:block;padding:34px 22px 90px}.content{min-width:0}.intro,.section{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,4vw,38px);box-shadow:var(--shadow);margin-bottom:24px}.intro{border-top:4px solid var(--blue)}h2{font-size:27px;letter-spacing:-.035em;line-height:1.35;margin:0 0 15px}h3{font-size:19px;letter-spacing:-.02em;margin:28px 0 10px}p{margin:10px 0 16px}.lead{font-size:17px;color:#424b57}.muted{color:var(--muted)}.callout{padding:15px 18px;border-radius:12px;background:var(--bluebg);border-left:3px solid var(--blue);margin:18px 0}.warn{background:var(--orangebg);border-left-color:#d28a32}.good{background:var(--greenbg);border-left-color:var(--green)}.bad{background:var(--redbg);border-left-color:var(--red)}.figure{margin:22px 0 26px}.figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}.caption{font-size:12px;color:var(--muted);margin-top:8px}.diagram{border:1px solid var(--line);border-radius:14px;background:#fbfcfe;padding:14px;margin:18px 0;overflow-x:auto}.diagram svg{display:block;width:100%;min-width:650px;height:auto}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:8px 0}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.steps{counter-reset:step;list-style:none;padding:0;margin:16px 0}.steps li{counter-increment:step;position:relative;padding:0 0 17px 42px}.steps li:before{content:counter(step);position:absolute;left:0;top:1px;width:27px;height:27px;border-radius:50%;background:var(--bluebg);color:var(--blue);font-weight:700;text-align:center;line-height:27px;font-size:13px}.steps li:not(:last-child):after{content:"";position:absolute;left:13px;top:30px;bottom:0;border-left:1px solid #cbd5e1}.compare{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}.compare th,.compare td{border-bottom:1px solid var(--line);padding:11px 10px;text-align:left;vertical-align:top}.compare th{background:#f7f8fa;color:#535d69;font-size:12px}.tag{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;background:#edf0f4;color:#56606c}.tag.green{background:var(--greenbg);color:var(--green)}.tag.orange{background:var(--orangebg);color:var(--orange)}.sources li{margin:8px 0}.small{font-size:13px;color:var(--muted)}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f2f5;border-radius:5px;padding:2px 5px;font-size:.9em}.footer{text-align:center;color:#818a96;font-size:12px;padding:10px 20px 44px}.section-kicker{font-size:12px;color:var(--blue);font-weight:800;letter-spacing:.08em;margin-bottom:8px}.rule{height:1px;background:var(--line);margin:24px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.mini{border:1px solid var(--line);border-radius:12px;padding:15px}.mini h4{margin:0 0 7px;font-size:14px}.mini p{font-size:13px;color:var(--muted);margin:0}
+@media(max-width:800px){.layout{display:block;padding:18px 14px 60px}.top{padding:38px 18px}.section,.intro{padding:22px 18px}.two{grid-template-columns:1fr}}
+@media print{body{background:#fff}.top{background:#fff;color:#111;padding:25px 0}.top p,.pill{color:#555}.pill{border-color:#ccc}.layout{display:block;padding:20px 0}.intro,.section{box-shadow:none;break-inside:avoid}.diagram{break-inside:avoid}.top{print-color-adjust:exact}}
+
+.diagram-caption{font-weight:700;color:var(--muted);margin:18px 2px -12px;font-size:13px}
+</style>
+<style>
+.sequence-wrap{padding:14px 12px 10px;background:#fbfcff;border:1px solid #e2e7ef;border-radius:14px;overflow-x:auto}
+.sequence-wrap svg{display:block;width:100%;height:auto;min-width:760px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
+.sequence-wrap .participant{fill:#fff;stroke:#cbd5e1;stroke-width:1.5}
+.sequence-wrap .participant-main{fill:#edf3ff;stroke:#93addf}
+.sequence-wrap .participant-warn{fill:#fff5e9;stroke:#e8bd81}
+.sequence-wrap .actor-title{font-size:15px;font-weight:700;fill:#283449;text-anchor:middle}
+.sequence-wrap .lifeline{stroke:#c5ccd7;stroke-width:1.5;stroke-dasharray:5 6}
+.sequence-wrap .msg{stroke:#315fbd;stroke-width:2;fill:none;marker-end:url(#seqArrow)}
+.sequence-wrap .reply{stroke:#64748b;stroke-width:1.8;stroke-dasharray:6 4;fill:none;marker-end:url(#seqArrowGray)}
+.sequence-wrap .late{stroke:#d28a32;stroke-width:2;stroke-dasharray:7 5;fill:none;marker-end:url(#seqArrowOrange)}
+.sequence-wrap .msg-label{font-size:13px;fill:#263449;text-anchor:middle;font-weight:600;paint-order:stroke;stroke:#fbfcff;stroke-width:5px;stroke-linejoin:round}
+.sequence-wrap .msg-sub{font-size:11.5px;fill:#64748b;text-anchor:middle}
+.sequence-wrap .note{fill:#fff8e9;stroke:#e7c58d;stroke-width:1.2}
+.sequence-wrap .note-blue{fill:#eef4ff;stroke:#afc3ed;stroke-width:1.2}
+.sequence-wrap .note-text{font-size:12.5px;fill:#62451c;text-anchor:middle}
+.sequence-wrap .note-blue-text{font-size:12.5px;fill:#284b89;text-anchor:middle}
+.sequence-wrap .time-label{font-size:11px;fill:#7b8492;text-anchor:end}
+.sequence-wrap .section-tag{font-size:11px;font-weight:700;letter-spacing:.04em;fill:#64748b}
+.sequence-prefix .actor-title{font-size:12.5px}.sequence-prefix .msg-label{font-size:11.5px}.sequence-prefix .msg-sub{font-size:10px}
+@media(max-width:700px){.sequence-wrap{margin-left:-4px;margin-right:-4px}}
+</style>
+
+</head>
+<body>
+<header class="top"><div class="top-inner"><div class="eyebrow">Distributed Systems · DDIA Chapter 5</div><h1>복제 지연이 만드는 읽기 이상 현상과 해결 방법</h1><div class="meta"><span class="pill">Replication Lag</span><span class="pill">Read-your-writes</span><span class="pill">Monotonic Reads</span><span class="pill">Consistent Prefix Reads</span><span class="pill">Meta FlightTracker</span></div></div></header>
+<div class="layout">
+<main class="content">
+<section class="intro"><div class="section-kicker">OVERVIEW</div><h2>복제본이 여러 개라면, 읽기 결과도 항상 같을까?</h2><p class="lead">분산 데이터베이스는 읽기 처리량을 높이고 장애에 대응하기 위해 데이터를 여러 노드에 복제한다. 쓰기는 리더(Leader)가 먼저 처리하고 팔로워(Follower)는 변경 로그를 비동기적으로 적용하는 구성이 흔하다.</p><p>비동기 복제에서는 리더의 쓰기가 팔로워에 도착하기까지 시간이 걸린다. 이 시간 차이를 <strong>복제 지연(Replication Lag)</strong>이라고 한다. 대부분의 경우 지연은 짧지만, 네트워크 문제나 노드 과부하·장애 복구가 겹치면 수 초에서 수 분까지 늘어날 수 있다.</p><div class="callout"><strong>핵심 질문</strong><br/>모든 복제본이 아직 같은 상태가 아닐 때, 사용자가 읽는 데이터가 시간의 흐름이나 사건의 인과관계에 어긋나지 않게 하려면 어떤 보장이 필요할까?</div></section>
+<section class="section" id="eventual"><div class="section-kicker">01 · BACKGROUND</div><h2>최종적 일관성 (Eventual Consistency)</h2><p>최종적 일관성은 새로운 쓰기가 더 이상 발생하지 않는다면, 시간이 충분히 흐른 뒤 모든 복제본이 같은 값으로 수렴한다는 보장이다. 중요한 점은 <strong>수렴하기 전까지 모든 읽기가 같은 값을 반환한다는 뜻은 아니라는 것</strong>이다.</p>
+<div class="diagram"><svg aria-label="리더에서 팔로워로 비동기 복제가 전파되는 과정" role="img" viewbox="0 0 820 270"><defs><marker id="arrE" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#315fbd" stroke-width="1.2"></path></marker></defs><text fill="#20242b" font-size="15" font-weight="700" x="18" y="48">시간 흐름 →</text><g fill="#20242b" font-size="14"><text x="18" y="103">리더</text><text x="18" y="171">팔로워 A</text><text x="18" y="239">팔로워 B</text></g><g stroke="#aab2bd" stroke-dasharray="5 6"><path d="M105 98 H790"></path><path d="M105 166 H790"></path><path d="M105 234 H790"></path></g><rect fill="#eaf7f0" height="38" rx="8" stroke="#16794b" width="110" x="145" y="78"></rect><text fill="#16794b" font-size="13" text-anchor="middle" x="200" y="102">write v2</text><path d="M255 98 L390 166" marker-end="url(#arrE)" stroke="#315fbd" stroke-width="2"></path><path d="M255 98 L535 234" marker-end="url(#arrE)" stroke="#315fbd" stroke-width="2"></path><rect fill="#fff4e7" height="38" rx="8" stroke="#c27a25" width="110" x="390" y="147"></rect><text fill="#a45a12" font-size="13" text-anchor="middle" x="445" y="171">아직 v1</text><rect fill="#fff4e7" height="38" rx="8" stroke="#c27a25" width="110" x="535" y="215"></rect><text fill="#a45a12" font-size="13" text-anchor="middle" x="590" y="239">아직 v1</text><path d="M500 166 L700 166" stroke="#16794b" stroke-dasharray="4 4" stroke-width="2"></path><path d="M645 234 L700 234" stroke="#16794b" stroke-dasharray="4 4" stroke-width="2"></path><text fill="#16794b" font-size="12" x="706" y="153">나중에 v2</text><text fill="#16794b" font-size="12" x="706" y="222">나중에 v2</text><text fill="#68717d" font-size="12" text-anchor="middle" x="200" y="67">쓰기 완료</text><text fill="#68717d" font-size="13" x="520" y="25">복제 지연 동안 서로 다른 상태가 관찰될 수 있음</text></svg></div>
+<p>이런 시스템은 쓰기 응답을 모든 복제본이 끝날 때까지 기다리지 않아도 되므로 지연 시간과 가용성 측면에서 유리할 수 있다. 대신 애플리케이션이 오래된 데이터를 읽었을 때 어떤 경험을 제공할지 고려해야 한다.</p><div class="callout warn"><strong>최종적 일관성은 사용자 경험의 일관성을 자동으로 보장하지 않는다.</strong><br/>복제본이 언젠가 수렴하더라도, 그 전에 사용자가 자신의 글이 사라졌다고 느끼거나 화면이 과거로 돌아가거나 대화 순서가 뒤집혀 보일 수 있다.</div></section>
+<section class="section" id="ryw"><div class="section-kicker">02 · CASE 1</div><h2>자신이 쓴 내용 읽기 (Read-your-writes)</h2><p>사용자가 댓글이나 프로필을 수정하면 쓰기 요청은 리더로 전달된다. 그런데 수정 직후 화면을 다시 불러올 때 팔로워에서 읽으면, 아직 변경 사항을 복제하지 못해 방금 작성한 내용이 보이지 않을 수 있다.</p><p>사용자 입장에서는 저장에 성공했다는 응답을 받았는데도 자신의 변경 사항이 사라진 것처럼 보인다. Read-your-writes는 <strong>사용자가 성공적으로 완료한 자신의 쓰기를 이후 읽기에서 볼 수 있어야 한다</strong>는 보장이다. 다른 사용자의 최신 변경까지 즉시 보여준다는 뜻은 아니다.</p>
+<div class="caption diagram-caption">문제 상황 · 시퀀스 다이어그램</div><div class="diagram sequence-wrap"><svg viewBox="0 0 1110 560" role="img" aria-label="자신이 쓴 내용 읽기 이상 현상의 시퀀스 다이어그램">
+<defs>
+      <marker id="seqArrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#315fbd"/></marker>
+      <marker id="seqArrowGray" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#64748b"/></marker>
+      <marker id="seqArrowOrange" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#d28a32"/></marker>
+    </defs><rect class="participant " x="56.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="150" y="48">사용자 1234</text>
+    <text class="msg-sub" x="150" y="65">댓글 작성자</text>
+    <line class="lifeline" x1="150" y1="76" x2="150" y2="520"/><rect class="participant participant-main" x="326.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="420" y="48">리더</text>
+    <text class="msg-sub" x="420" y="65">쓰기 처리 노드</text>
+    <line class="lifeline" x1="420" y1="76" x2="420" y2="520"/><rect class="participant " x="596.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="690" y="48">팔로워 1</text>
+    <text class="msg-sub" x="690" y="65">복제 완료</text>
+    <line class="lifeline" x1="690" y1="76" x2="690" y2="520"/><rect class="participant participant-warn" x="866.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="960" y="48">팔로워 2</text>
+    <text class="msg-sub" x="960" y="65">복제 지연</text>
+    <line class="lifeline" x1="960" y1="76" x2="960" y2="520"/>
+<text class="section-tag" x="26" y="105">시간 ↓</text>
+<line class="msg" x1="150" y1="135" x2="420" y2="135"/><text class="msg-label" x="285.0" y="125">INSERT comment (reply_to=55555)</text>
+<line class="reply" x1="420" y1="205" x2="150" y2="205"/><text class="msg-label" x="285.0" y="195">저장 성공 응답</text><text class="msg-sub" x="285.0" y="222">쓰기 v42 커밋</text>
+<line class="msg" x1="420" y1="275" x2="690" y2="275"/><text class="msg-label" x="555.0" y="265">v42 비동기 복제</text>
+<line class="msg" x1="150" y1="355" x2="960" y2="355"/><text class="msg-label" x="555.0" y="345">SELECT comment</text>
+<line class="reply" x1="960" y1="415" x2="150" y2="415"/><text class="msg-label" x="555.0" y="405">결과 없음 (아직 v41)</text><text class="msg-sub" x="555.0" y="432">팔로워 2에는 새 댓글이 없음</text>
+<line class="late" x1="420" y1="485" x2="960" y2="485"/><text class="msg-label" x="690.0" y="475">v42 복제 적용</text><text class="msg-sub" x="690.0" y="502">읽기 요청이 끝난 뒤 도착</text>
+<rect class="note-blue" x="64" y="455" width="205" height="42" rx="8" opacity="0"/>
+<rect class="note" x="760" y="448" width="310" height="48" rx="9"/>
+<text class="note-text" x="915" y="468">복제 지연 때문에 읽기 시점에는</text><text class="note-text" x="915" y="486">팔로워 2가 이전 상태(v41)를 유지</text>
+<text class="time-label" x="1080" y="540">시간 흐름 ↓</text>
+</svg></div>
+<h3>해결 방법: 마지막 쓰기 이후의 버전을 확인하고 읽기 경로를 선택한다</h3><p>가장 단순한 방법은 쓰기 직후에는 리더에서 읽는 것이다. 팔로워를 계속 사용하고 싶다면 클라이언트가 마지막 쓰기의 시각이나 버전(예: 로그 위치)을 기억하고, 읽기를 처리할 팔로워가 그 지점까지 복제했는지 확인할 수 있다.</p>
+<div class="caption diagram-caption">해결 과정 · 시퀀스 다이어그램</div><div class="diagram"><svg aria-label="Read your writes 해결 시퀀스 다이어그램" role="img" viewbox="0 0 820 350"><defs><marker id="arrR" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#315fbd" stroke-width="1.2"></path></marker><marker id="arrG" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#16794b" stroke-width="1.2"></path></marker></defs><g fill="#20242b" font-size="13" text-anchor="middle"><text x="115" y="25">클라이언트</text><text x="390" y="25">리더</text><text x="675" y="25">팔로워</text></g><g stroke="#b7c0cc" stroke-dasharray="5 5"><path d="M115 38 V325"></path><path d="M390 38 V325"></path><path d="M675 38 V325"></path></g><g fill="none" marker-end="url(#arrR)" stroke="#315fbd" stroke-width="1.8"><path d="M115 70 H390"></path><path d="M390 105 H115"></path><path d="M115 150 H675"></path></g><g fill="#20242b" font-size="12"><text text-anchor="middle" x="250" y="62">1. UPDATE / INSERT</text><text text-anchor="middle" x="250" y="97">2. 성공 + version 42</text><text text-anchor="middle" x="395" y="140">3. READ (minVersion=42)</text></g><rect fill="#fff4e7" height="58" rx="9" stroke="#c27a25" width="220" x="565" y="160"></rect><text fill="#a45a12" font-size="12" text-anchor="middle" x="675" y="183">팔로워의 적용 버전 = 39</text><text fill="#a45a12" font-size="12" text-anchor="middle" x="675" y="201">아직 읽기 불가</text><path d="M675 218 V245 H390 V265" fill="none" marker-end="url(#arrR)" stroke="#a45a12" stroke-width="1.8"></path><text fill="#a45a12" font-size="12" x="535" y="239">4. 리더로 라우팅하거나 대기</text><path d="M390 285 H115" fill="none" marker-end="url(#arrG)" stroke="#16794b" stroke-width="1.8"></path><text fill="#16794b" font-size="12" text-anchor="middle" x="250" y="278">5. version 42 이상 반환</text><text fill="#16794b" font-size="11" text-anchor="middle" x="115" y="315">내 쓰기 확인</text></svg></div>
+<ol class="steps"><li><strong>쓰기:</strong> 클라이언트가 리더에 데이터를 쓰고 성공 응답과 함께 버전 또는 로그 위치를 받는다.</li><li><strong>기억:</strong> 클라이언트나 세션 계층이 마지막으로 성공한 쓰기의 버전을 보관한다.</li><li><strong>읽기:</strong> 다음 읽기 요청에 최소 요구 버전을 포함한다.</li><li><strong>판단:</strong> 팔로워가 요구 버전까지 반영했다면 팔로워에서 읽고, 아니라면 리더로 보내거나 팔로워가 따라잡을 때까지 기다린다.</li></ol>
+<div class="callout good"><strong>핵심:</strong> 읽기 요청이 “최신 데이터를 줘”라고 막연히 요구하는 것이 아니라, “내가 성공한 쓰기 버전 42는 반드시 포함해 줘”라고 최소 조건을 전달한다.</div>
+<p class="small">대안으로는 마지막 쓰기 이후 일정 시간 동안 리더에서 읽거나, 클라이언트가 마지막 쓰기의 시각·버전을 기억해 그 지점까지 복제한 팔로워를 선택하는 방법도 있다.</p></section>
+<section class="section" id="monotonic"><div class="section-kicker">03 · CASE 2</div><h2>단조 읽기 (Monotonic Reads)</h2><p>단조 읽기는 한 사용자가 여러 번 읽을 때, 이미 관찰한 데이터보다 더 과거의 상태를 나중에 관찰하지 않도록 하는 보장이다. 최신 상태를 항상 읽어야 하는 것은 아니다. 다만 <strong>시간이 거꾸로 흐르는 것처럼 보이면 안 된다.</strong></p><p>예를 들어 사용자가 새 댓글을 확인했는데, 새로고침한 다음에는 그 댓글이 사라진다면 이상하게 느낄 것이다. 첫 번째 요청은 복제가 빠른 팔로워에서, 두 번째 요청은 복제가 느린 팔로워에서 처리되면 이런 일이 발생할 수 있다.</p>
+<div class="caption diagram-caption">문제 상황 · 시퀀스 다이어그램</div><div class="diagram sequence-wrap"><svg viewBox="0 0 1040 650" role="img" aria-label="단조 읽기 위반의 시퀀스 다이어그램">
+<defs>
+      <marker id="seqArrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#315fbd"/></marker>
+      <marker id="seqArrowGray" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#64748b"/></marker>
+      <marker id="seqArrowOrange" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#d28a32"/></marker>
+    </defs><rect class="participant " x="76.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="170" y="48">사용자 2345</text>
+    <text class="msg-sub" x="170" y="65">연속해서 두 번 조회</text>
+    <line class="lifeline" x1="170" y1="76" x2="170" y2="610"/><rect class="participant participant-main" x="426.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="520" y="48">팔로워 1</text>
+    <text class="msg-sub" x="520" y="65">최신 복제본 v42</text>
+    <line class="lifeline" x1="520" y1="76" x2="520" y2="610"/><rect class="participant participant-warn" x="776.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="870" y="48">팔로워 2</text>
+    <text class="msg-sub" x="870" y="65">오래된 복제본 v41</text>
+    <line class="lifeline" x1="870" y1="76" x2="870" y2="610"/>
+<text class="section-tag" x="26" y="105">시간 ↓</text>
+<line class="msg" x1="170" y1="145" x2="520" y2="145"/><text class="msg-label" x="345.0" y="135">첫 번째 SELECT</text>
+<line class="reply" x1="520" y1="215" x2="170" y2="215"/><text class="msg-label" x="345.0" y="205">댓글 1개 반환 (v42)</text><text class="msg-sub" x="345.0" y="232">사용자는 새 댓글을 확인</text>
+<rect class="note-blue" x="365" y="255" width="310" height="48" rx="9"/><text class="note-blue-text" x="520" y="275">사용자가 v42 상태를 이미 관찰함</text><text class="note-blue-text" x="520" y="293">이후 읽기는 v42보다 오래되면 안 됨</text>
+<line class="msg" x1="170" y1="365" x2="870" y2="365"/><text class="msg-label" x="520.0" y="355">두 번째 SELECT (새로고침)</text>
+<line class="reply" x1="870" y1="435" x2="170" y2="435"/><text class="msg-label" x="520.0" y="425">결과 없음 (v41)</text><text class="msg-sub" x="520.0" y="452">다른 복제본으로 라우팅되어 과거 상태 반환</text>
+<rect class="note" x="330" y="495" width="520" height="68" rx="9"/><text class="note-text" x="590" y="520">관찰한 상태가 v42 → v41로 후퇴</text><text class="note-text" x="590" y="542">사용자에게 시간이 거꾸로 흐르는 것처럼 보임</text>
+<text class="time-label" x="1000" y="625">시간 흐름 ↓</text>
+</svg></div>
+<h3>해결 방법: 사용자별 읽기 경로를 고정한다</h3><p>DDIA에서 제시하는 간단한 방법은 사용자마다 읽기를 항상 같은 복제본으로 보내는 것이다. 예를 들어 사용자 ID를 해시해 복제본을 선택하면, 같은 사용자의 연속된 요청이 서로 다른 복제본을 무작위로 오가는 일을 줄일 수 있다.</p>
+<div class="caption diagram-caption">해결 과정 · 시퀀스 다이어그램</div><div class="diagram"><svg aria-label="Monotonic reads 해결 시퀀스 다이어그램" role="img" viewbox="0 0 820 300"><defs><marker id="arrM" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#315fbd" stroke-width="1.2"></path></marker><marker id="arrMG" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#16794b" stroke-width="1.2"></path></marker></defs><g fill="#20242b" font-size="13" text-anchor="middle"><text x="120" y="25">사용자 2345</text><text x="420" y="25">세션 라우터</text><text x="700" y="25">고정된 팔로워 A</text></g><g stroke="#b7c0cc" stroke-dasharray="5 5"><path d="M120 38 V270"></path><path d="M420 38 V270"></path><path d="M700 38 V270"></path></g><path d="M120 72 H420" marker-end="url(#arrM)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="270" y="63">1. 첫 번째 읽기</text><path d="M420 95 H700" marker-end="url(#arrM)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="560" y="86">2. 항상 Replica A로 전달</text><path d="M700 120 H120" marker-end="url(#arrMG)" stroke="#16794b" stroke-width="1.8"></path><text fill="#16794b" font-size="12" text-anchor="middle" x="410" y="113">댓글 포함 · version 8</text><path d="M120 165 H420" marker-end="url(#arrM)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="270" y="156">3. 새로고침 / 두 번째 읽기</text><path d="M420 188 H700" marker-end="url(#arrM)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="560" y="179">4. 동일한 Replica A</text><path d="M700 215 H120" marker-end="url(#arrMG)" stroke="#16794b" stroke-width="1.8"></path><text fill="#16794b" font-size="12" text-anchor="middle" x="410" y="208">version 8 또는 그 이후 반환</text><rect fill="#eaf7f0" height="35" rx="8" stroke="#16794b" width="280" x="280" y="238"></rect><text fill="#16794b" font-size="12" text-anchor="middle" x="420" y="260">같은 세션에서 관찰한 버전이 뒤로 가지 않음</text></svg></div>
+<ol class="steps"><li>사용자가 처음 요청하면 라우터가 사용자 ID 등을 기준으로 읽기 복제본을 선택한다.</li><li>이후 같은 사용자의 읽기 요청은 동일한 복제본으로 보낸다.</li><li>해당 복제본이 점점 최신 데이터를 적용하므로, 같은 사용자가 이전보다 오래된 상태로 돌아갈 가능성을 막는다.</li></ol>
+<div class="callout warn"><strong>주의할 점:</strong> 고정된 복제본이 장애를 일으키면 다른 복제본으로 재배치해야 한다. 이때 새 복제본이 사용자가 이전에 관찰한 버전보다 뒤처져 있지 않은지 확인해야 한다. 단순히 다른 복제본으로 바꾸면 단조 읽기가 깨질 수 있다.</div>
+</section>
+<section class="section" id="prefix"><div class="section-kicker">04 · CASE 3</div><h2>일관된 순서로 읽기 (Consistent Prefix Reads)</h2><p>일관된 순서로 읽기는 인과관계가 있는 쓰기들이 있다면, 읽는 사람도 그 쓰기들을 같은 순서로 관찰해야 한다는 보장이다. 특히 서로 다른 파티션이 독립적으로 복제되고 복제 지연이 서로 다를 때 문제가 생긴다.</p><p>대화 상황을 생각해 보자. A가 질문을 보내고 B가 그 질문에 답했다. 그런데 질문이 저장된 파티션은 복제가 느리고, 답변이 저장된 파티션은 복제가 빠르다면 제3자는 질문보다 답변을 먼저 볼 수 있다. 원인보다 결과가 먼저 보이는 셈이다.</p>
+<div class="caption diagram-caption">문제 상황 · 시퀀스 다이어그램</div><div class="diagram sequence-wrap"><svg class="sequence-prefix" viewBox="0 0 1240 820" role="img" aria-label="일관된 순서로 읽기 위반의 시퀀스 다이어그램">
+<defs>
+      <marker id="seqArrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#315fbd"/></marker>
+      <marker id="seqArrowGray" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#64748b"/></marker>
+      <marker id="seqArrowOrange" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9" fill="#d28a32"/></marker>
+    </defs><rect class="participant " x="11.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="105" y="48">펀스 씨</text>
+    <text class="msg-sub" x="105" y="65">질문 작성자</text>
+    <line class="lifeline" x1="105" y1="76" x2="105" y2="780"/><rect class="participant participant-main" x="176.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="270" y="48">파티션 1 리더</text>
+    <text class="msg-sub" x="270" y="65">질문 Q 저장</text>
+    <line class="lifeline" x1="270" y1="76" x2="270" y2="780"/><rect class="participant participant-warn" x="341.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="435" y="48">파티션 1 팔로워</text>
+    <text class="msg-sub" x="435" y="65">질문 Q 복제 지연</text>
+    <line class="lifeline" x1="435" y1="76" x2="435" y2="780"/><rect class="participant " x="506.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="600" y="48">케이크 부인</text>
+    <text class="msg-sub" x="600" y="65">질문을 받은 사용자</text>
+    <line class="lifeline" x1="600" y1="76" x2="600" y2="780"/><rect class="participant participant-main" x="671.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="765" y="48">파티션 2 리더</text>
+    <text class="msg-sub" x="765" y="65">답변 R 저장</text>
+    <line class="lifeline" x1="765" y1="76" x2="765" y2="780"/><rect class="participant participant-main" x="836.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="930" y="48">파티션 2 팔로워</text>
+    <text class="msg-sub" x="930" y="65">답변 R 먼저 복제</text>
+    <line class="lifeline" x1="930" y1="76" x2="930" y2="780"/><rect class="participant " x="1001.0" y="28" width="188" height="48" rx="10"/>
+    <text class="actor-title" x="1095" y="48">관찰자</text>
+    <text class="msg-sub" x="1095" y="65">대화 내역 조회</text>
+    <line class="lifeline" x1="1095" y1="76" x2="1095" y2="780"/>
+<text class="section-tag" x="22" y="105">시간 ↓</text>
+<line class="msg" x1="105" y1="130" x2="270" y2="130"/><text class="msg-label" x="187.5" y="120">질문 Q 작성</text>
+<line class="reply" x1="270" y1="185" x2="105" y2="185"/><text class="msg-label" x="187.5" y="175">질문 저장 완료</text>
+<line class="msg" x1="270" y1="245" x2="600" y2="245"/><text class="msg-label" x="435.0" y="235">질문 Q 전달</text>
+<line class="msg" x1="600" y1="310" x2="765" y2="310"/><text class="msg-label" x="682.5" y="300">답변 R 작성</text><text class="msg-sub" x="682.5" y="327">질문을 읽은 뒤 약 10초 후</text>
+<line class="msg" x1="765" y1="385" x2="930" y2="385"/><text class="msg-label" x="847.5" y="375">R 복제 완료 (빠름)</text>
+<line class="late" x1="270" y1="455" x2="435" y2="455"/><text class="msg-label" x="352.5" y="445">Q 복제 전파 (지연)</text><text class="msg-sub" x="352.5" y="472">파티션 1 팔로워에는 아직 미도착</text>
+<line class="msg" x1="1095" y1="525" x2="930" y2="525"/><text class="msg-label" x="1012.5" y="515">대화 내역 읽기</text>
+<line class="reply" x1="930" y1="575" x2="1095" y2="575"/><text class="msg-label" x="1012.5" y="565">답변 R만 반환</text><text class="msg-sub" x="1012.5" y="592">선행 질문 Q는 아직 보이지 않음</text>
+<line class="msg" x1="1095" y1="655" x2="435" y2="655"/><text class="msg-label" x="765.0" y="645">질문 Q 조회</text>
+<line class="reply" x1="435" y1="705" x2="1095" y2="705"/><text class="msg-label" x="765.0" y="695">질문 Q 반환</text><text class="msg-sub" x="765.0" y="722">이제야 원인에 해당하는 질문이 보임</text>
+<rect class="note" x="360" y="735" width="520" height="52" rx="9"/><text class="note-text" x="620" y="757">인과관계: 질문 Q → 답변 R</text><text class="note-text" x="620" y="776">관찰 순서: 답변 R → 질문 Q (순서 역전)</text>
+<text class="time-label" x="1205" y="810">시간 흐름 ↓</text>
+</svg></div>
+<h3>해결 방법 A: 인과관계가 있는 쓰기를 같은 파티션에 배치한다</h3><p>DDIA가 설명하는 한 가지 방법은 서로 인과적으로 관련된 쓰기를 같은 파티션에 저장하는 것이다. 예를 들어 채팅 메시지를 사용자별이 아니라 대화방 ID를 파티션 키로 삼아 저장하면, 같은 대화방의 질문과 답변이 동일한 파티션의 순서에 따라 복제될 수 있다.</p>
+<div class="caption diagram-caption">해결 과정 · 시퀀스 다이어그램</div><div class="diagram"><svg aria-label="Consistent prefix reads 해결 시퀀스 다이어그램" role="img" viewbox="0 0 820 300"><defs><marker id="arrP" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#315fbd" stroke-width="1.2"></path></marker><marker id="arrPG" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#16794b" stroke-width="1.2"></path></marker></defs><g fill="#20242b" font-size="13" text-anchor="middle"><text x="105" y="25">질문자 A</text><text x="365" y="25">대화방 파티션 P</text><text x="690" y="25">관찰자 C</text></g><g stroke="#b7c0cc" stroke-dasharray="5 5"><path d="M105 38 V270"></path><path d="M365 38 V270"></path><path d="M690 38 V270"></path></g><path d="M105 70 H365" marker-end="url(#arrP)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="235" y="61">1. 질문 Q 기록</text><path d="M365 98 H105" marker-end="url(#arrP)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="235" y="90">2. 기록 순서 확정</text><path d="M105 135 H365" marker-end="url(#arrP)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="235" y="126">3. 답변 A 기록 (Q 이후)</text><rect fill="#eaf7f0" height="38" rx="8" stroke="#16794b" width="230" x="250" y="155"></rect><text fill="#16794b" font-size="12" text-anchor="middle" x="365" y="179">같은 파티션의 로그 순서: Q → A</text><path d="M365 212 H690" marker-end="url(#arrPG)" stroke="#16794b" stroke-width="1.8"></path><text fill="#16794b" font-size="12" text-anchor="middle" x="525" y="203">4. 복제된 순서대로 읽기</text><rect fill="#eaf7f0" height="40" rx="8" stroke="#16794b" width="230" x="570" y="230"></rect><text fill="#16794b" font-size="12" text-anchor="middle" x="685" y="255">질문 Q를 본 뒤 답변 A를 봄</text></svg></div>
+<h3>해결 방법 B: 인과관계 메타데이터를 추적한다</h3><p>같은 파티션에 배치하기 어렵다면, 답변이 어떤 질문에 의존하는지 인과관계 정보를 함께 기록할 수 있다. 읽기 측에서는 답변을 보여주기 전에 그 답변의 선행 사건이 모두 반영됐는지 확인한다. 예를 들어 답변 A가 질문 Q에 의존한다면, Q가 아직 도착하지 않은 복제본에서는 A를 노출하지 않고 기다리거나 다른 복제본에서 읽는다.</p>
+<div class="callout good"><strong>핵심:</strong> 단순히 각 파티션에서 최신 데이터를 읽는 것이 아니라, 서로 의존하는 데이터가 사용자에게도 인과관계가 성립하는 순서로 보이도록 해야 한다.</div>
+</section>
+<section class="section" id="flighttracker"><div class="section-kicker">05 · REAL-WORLD CASE</div><h2>실제 사례: Meta의 FlightTracker</h2><p>앞서 살펴본 세 가지 문제 중 <strong>자신이 쓴 내용 읽기(Read-your-writes)</strong>와 직접 연결되는 실제 사례가 Meta(Facebook)의 FlightTracker다.</p><p>Facebook의 소셜 그래프 저장소 TAO는 읽기 효율성과 가용성을 위해 여러 계층의 캐시와 지리적으로 분산된 데이터베이스 복제본을 비동기적으로 연결했다. TAO는 원래 Write-through caching으로 Read-your-writes를 제공했지만, 서비스와 데이터센터 규모가 커지면서 이 방식이 고정된 캐시 경로와 트래픽 라우팅에 의존한다는 한계가 드러났다.</p>
+<div class="callout"><strong>문제의 핵심</strong><br/>사용자가 쓰기를 완료한 뒤 다음 요청이 다른 웹 서버 클러스터나 다른 캐시 경로로 라우팅되면, 새 쓰기가 반영되지 않은 캐시를 읽을 수 있었다. 기존 방식은 사용자를 특정 L1 캐시 클러스터에 고정하는 등 제한적인 통신 경로에 의존했다.</div>
+<h3>FlightTracker의 핵심: Ticket</h3><p>FlightTracker는 사용자의 최근 쓰기 정보를 <strong>Ticket</strong>이라는 메타데이터로 관리한다. Ticket은 “이 사용자의 이후 읽기에서 반드시 보여야 하는 쓰기”의 하한을 나타낸다. 특정 복제본이 모든 쓰기를 최신으로 따라잡았는지를 요구하는 대신, 현재 사용자의 쓰기만큼은 읽기 결과에 포함되도록 한다.</p>
+<div class="caption diagram-caption">Ticket 기반 읽기 처리 · 시퀀스 다이어그램</div><div class="diagram"><svg aria-label="Meta FlightTracker Ticket 처리 흐름" role="img" viewbox="0 0 850 430"><defs><marker id="arrF" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#315fbd" stroke-width="1.2"></path></marker><marker id="arrFG" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#16794b" stroke-width="1.2"></path></marker></defs><g fill="#20242b" font-size="13" text-anchor="middle"><text x="105" y="25">사용자 요청</text><text x="330" y="25">웹 서버 / 클라이언트 라이브러리</text><text x="585" y="25">FlightTracker</text><text x="785" y="25">TAO 캐시</text></g><g stroke="#b7c0cc" stroke-dasharray="5 5"><path d="M105 38 V400"></path><path d="M330 38 V400"></path><path d="M585 38 V400"></path><path d="M785 38 V400"></path></g><path d="M105 65 H330" marker-end="url(#arrF)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="218" y="56">1. 로그인 요청</text><path d="M330 95 H585" marker-end="url(#arrF)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="458" y="86">2. getMergedWrites(user)</text><path d="M585 125 H330" marker-end="url(#arrFG)" stroke="#16794b" stroke-width="1.8"></path><text fill="#16794b" font-size="12" text-anchor="middle" x="458" y="116">3. 사용자의 Ticket 반환</text><path d="M105 165 H330" marker-end="url(#arrF)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="218" y="156">4. 데이터 쓰기</text><path d="M330 195 H785" marker-end="url(#arrF)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="555" y="186">5. TAO에 write 요청 → write metadata 생성</text><path d="M330 225 H585" marker-end="url(#arrF)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="458" y="216">6. appendWrite(user, Ticket)</text><path d="M585 255 H330" marker-end="url(#arrFG)" stroke="#16794b" stroke-width="1.8"></path><text fill="#16794b" font-size="12" text-anchor="middle" x="458" y="246">7. Ticket 누적 성공 후 쓰기 완료 응답</text><path d="M105 295 H330" marker-end="url(#arrF)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="218" y="286">8. 이후 읽기 요청</text><path d="M330 325 H785" marker-end="url(#arrF)" stroke="#315fbd" stroke-width="1.8"></path><text font-size="12" text-anchor="middle" x="555" y="316">9. Query + Ticket</text><rect fill="#fff4e7" height="47" rx="8" stroke="#c27a25" width="165" x="680" y="342"></rect><text fill="#a45a12" font-size="11" text-anchor="middle" x="762" y="361">Ticket보다 오래된</text><text fill="#a45a12" font-size="11" text-anchor="middle" x="762" y="376">캐시라면 Cache Miss</text><path d="M785 390 V410 H330" fill="none" marker-end="url(#arrFG)" stroke="#16794b" stroke-width="1.8"></path><text fill="#16794b" font-size="11" text-anchor="middle" x="555" y="404">상위 저장소에서 보완 / 최신 결과 반환</text></svg></div>
+<ol class="steps"><li><strong>요청 시작:</strong> 웹 요청이 사용자를 식별하면 FlightTracker에서 <code>getMergedWrites(user)</code>를 호출해 해당 사용자의 Ticket을 가져온다.</li><li><strong>쓰기:</strong> 데이터 저장소에 쓰기를 수행하고, 새 쓰기를 식별하는 메타데이터를 얻는다.</li><li><strong>Ticket 누적:</strong> 클라이언트 라이브러리가 새 메타데이터를 Ticket에 합치고 <code>appendWrite(user, ticket)</code>로 FlightTracker에 기록한다. 논문은 데이터 저장소 쓰기와 appendWrite가 모두 성공한 뒤 애플리케이션에 쓰기 완료를 알린다고 설명한다.</li><li><strong>후속 읽기:</strong> 이후 소셜 그래프 읽기 요청에 Ticket을 자동으로 붙인다.</li><li><strong>신선도 확인:</strong> 캐시는 로컬 데이터 버전과 Ticket을 비교한다. Ticket이 요구하는 쓰기를 포함하지 못하면 그 캐시 결과를 그대로 반환하지 않고 상위 저장소에서 최신 데이터를 가져와 보완한다. 이를 논문에서는 <em>consistency miss</em>라고 부른다.</li></ol>
+<div class="two"><div class="mini"><h4>기존 Write-through 방식</h4><p>특정 캐시 경로와 사용자 라우팅을 유지해야 RYW가 성립했다. 경로가 바뀌거나 다른 저장소를 읽으면 보장이 깨질 수 있었다.</p></div><div class="mini"><h4>FlightTracker 방식</h4><p>사용자의 최근 쓰기를 Ticket으로 전달한다. 읽는 저장소가 Ticket을 검사하므로 캐시·인덱스·데이터베이스를 넘나드는 읽기에도 일관성 조건을 적용할 수 있다.</p></div></div>
+<h3>왜 모든 복제본을 동기식으로 만들지 않았을까?</h3><p>모든 읽기가 모든 최신 쓰기를 기다리게 하면 읽기 지연과 가용성 비용이 커질 수 있다. Facebook의 목표는 비동기 복제의 읽기 효율성과 가용성을 유지하면서, 사용자가 직접 수행한 쓰기만 후속 읽기에 보이도록 하는 것이었다. FlightTracker는 전체 시스템을 강한 일관성으로 바꾸기보다, 읽기 요청에 Ticket을 붙여 필요한 쓰기만 확인한다.</p>
+<div class="callout good"><strong>DDIA 사례와 연결</strong><br/>DDIA의 Read-your-writes 문제에서 핵심은 “내가 쓴 변경 사항이 복제본에 도착하기 전에 다시 읽으면 보이지 않을 수 있다”는 점이었다. FlightTracker는 이 문제를 사용자별 쓰기 메타데이터(Ticket)와 읽기 시점의 신선도 검사로 해결한 실제 대규모 시스템 사례다.</div>
+</section>
+<section class="section" id="summary"><div class="section-kicker">06 · TAKEAWAYS</div><h2>세 가지 보장은 무엇이 다른가?</h2><table class="compare"><thead><tr><th>보장</th><th>막으려는 현상</th><th>대표적인 구현 아이디어</th></tr></thead><tbody><tr><td><strong>Read-your-writes</strong></td><td>내가 쓴 내용이 직후 읽기에서 보이지 않음</td><td>리더 읽기, 마지막 쓰기 버전/토큰 전달, 복제본 적용 여부 확인</td></tr><tr><td><strong>Monotonic Reads</strong></td><td>최신 데이터를 본 뒤 더 오래된 데이터를 보게 됨</td><td>사용자별 동일 복제본 라우팅, 이전 관찰 버전보다 뒤처지지 않는 복제본 선택</td></tr><tr><td><strong>Consistent Prefix Reads</strong></td><td>인과관계상 원인보다 결과가 먼저 보임</td><td>인과적으로 관련된 쓰기를 같은 파티션에 배치, 인과 의존성 추적</td></tr></tbody></table><p>세 보장은 모두 최종적 일관성 시스템에서 사용자 경험을 개선하지만, 해결하려는 이상 현상은 서로 다르다. 따라서 서비스의 요구사항에 맞춰 필요한 보장을 선택해야 한다. 이들 보장이 모든 사용자의 모든 읽기를 최신 상태로 만드는 선형화 가능성(Linearizability)과 동일한 것은 아니다.</p></section>
+<section class="section" id="references"><div class="section-kicker">FURTHER READING</div><h2>더 읽어보기</h2><ul class="sources"><li><a href="https://www.usenix.org/conference/osdi20/presentation/shi" rel="noopener" target="_blank">FlightTracker 논문 · USENIX OSDI 2020</a></li><li><a href="https://www.usenix.org/system/files/osdi20-shi.pdf" rel="noopener" target="_blank">FlightTracker 논문 PDF</a></li><li><a href="https://www.youtube.com/watch?v=noyH8x7VkyU" rel="noopener" target="_blank">FlightTracker 발표 영상</a></li></ul></section>
+</main></div><div class="footer">DDIA Chapter 5 · Replication Lag &amp; Consistency · 개인 학습 정리</div>
+</body></html>
