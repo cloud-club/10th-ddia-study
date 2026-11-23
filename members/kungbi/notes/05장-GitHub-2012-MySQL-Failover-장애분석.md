@@ -414,6 +414,83 @@ GitHub는 Pacemaker 설정을 바꿔 **운영팀 구성원이 직접 시작할 �
 
 위 항목들은 이미 완료됐다고 발표한 조치와 구분해야 한다.[1]
 
+### 6.4. 2016년: `orchestrator`는 언제 Primary를 교체할까?
+
+아래 두 사례는 **이후 GitHub가 공개한 운영 구조**다. 6.3의 캐시 워밍업, Segfault 감사, 하드웨어 테스트 결과를 보고한 글은 아니다. 두 구성 모두 한 MySQL 클러스터에서 쓰기를 맡는 Primary는 한 대였다.[7][8]
+
+`orchestrator`는 Outbrain에서 시작해 GitHub가 도입한 **오픈소스 MySQL 복제 관리 프로그램**이다. MySQL과 별도로 실행되며, 누가 누구를 복제하는지 관찰하고, 장애를 판단하고, 필요하면 Replica를 새 Primary로 승격한다. 애플리케이션의 SQL 트래픽을 전달하는 프록시는 아니다.[7]
+
+예를 들어 A가 Primary이고 B·C가 Replica라고 하자. B·C는 A에 연결해 새로운 변경 기록(binlog)을 받아온다. `orchestrator`도 각 서버에 별도로 접속해 상태를 확인한다. 이 절과 다음 절의 A·B·C는 설명용이며, 2012년 사고의 실제 노드를 가리키지 않는다.[7]
+
+```text
+상황 1: 관리 프로그램만 A에 접속하지 못함
+orchestrator ── 접속 실패 ──────→ A
+B·C          ── 복제 연결 정상 ─→ A
+
+상황 2: 관리 프로그램과 Replica 모두 A에 접속하지 못함
+orchestrator ── 접속 실패 ──────→ A
+B·C          ── 복제 연결 실패 ─→ A
+```
+
+- **상황 1 — A를 바로 교체하지 않는다.** `orchestrator`는 A에 접속하지 못했지만, B·C의 상태를 확인해 둘 다 A에서 새 변경을 계속 받아 복제가 진행 중임을 알 수 있다. `orchestrator`에서 A로 가는 경로에만 문제가 있을 수도 있다. A가 모든 앱에 정상이라는 뜻은 아니지만, 관리 프로그램 한 곳의 타임아웃만으로는 승격할 근거가 부족하다.[7]
+- **상황 2 — 전환을 판단할 근거가 생긴다.** `orchestrator`는 B·C의 상태를 확인할 수 있고, 양쪽 모두 A와의 복제 연결이 끊어졌다고 보고한다. 쓰기가 없어서 binlog가 조용한 게 아니라, 새 변경이 생겨도 이를 받아올 연결 자체가 없다는 뜻이다. A가 실제로 꺼졌는지, 살아 있지만 네트워크에서 고립됐는지는 몰라도 현재 복제 경로가 작동하지 않는다는 건 알 수 있다. 반대로 B·C의 상태도 확인할 수 없어 판단이 애매한 경우에는 알림만 보내고 자동 복구를 하지 않을 수도 있다.[7]
+
+**전환할지**와 **누구를 올릴지**는 별도 판단이다. 2016년 글이 설명한 비동기 복제 구성에서는 A의 최신 쓰기가 어느 Replica에도 도착하지 않았을 수 있다. `orchestrator`는 복제 진행 상태, 설정 호환성, 데이터센터 위치 등을 보고 승격 후보를 고른다. 또 한 번 자동 전환이 일어난 클러스터에서 역할이 연달아 바뀌는 일을 줄이기 위해, 일정 시간 또는 운영자의 확인 전까지 추가 자동 전환을 제한했다.[7]
+
+### 6.5. 2018년: 새 Primary로 앱의 연결을 어떻게 바꿀까?
+
+**B가 쓰기 가능해지는 것과 앱의 연결이 B로 향하는 것은 별개다.** 앱이 여전히 A에 붙는다면, B의 승격이 끝났어도 앱의 쓰기는 B에 도달하지 않는다. 2018년 글은 `orchestrator`로 승격을 처리하는 것은 유지하면서, 앱이 현재 Primary에 연결되는 방식을 어떻게 바꿨는지 설명한다.[8]
+
+#### 이전: VIP를 넘기거나 DNS를 바꿨다
+
+```text
+평소:               앱 → writer 이름 → VIP → A
+같은 VIP 이동 가능: 앱 → writer 이름 → 같은 VIP → B
+같은 VIP 이동 불가: 앱 → writer 이름 → B 쪽 IP (DNS 변경)
+```
+
+**VIP(Virtual IP)**는 앱이 접속하는 서비스용 IP다. 같은 VIP를 옮길 수 있는 경우, 옛 Primary A가 자기 네트워크 설정에서 해당 IP를 빼고 새 Primary B가 가져간다. 여기서 **`orchestrator`가 A에 연락할 수 없다는 것과 A가 VIP를 더 이상 쓰지 않는다는 것은 다르다.** 예를 들어 관리 프로그램이 A에 보내는 해제 요청은 닿지 않지만, 앱에서 A로 가는 연결은 살아 있을 수 있다. 이때 A가 VIP를 여전히 가지고 있는데 B도 같은 VIP를 가져가면 두 서버가 같은 주소를 사용하게 된다.[8]
+
+같은 네트워크 구간에서 두 서버가 같은 IPv4 주소를 사용하면, 장비가 ARP로 그 IP의 실제 네트워크 주소(MAC)를 알아낼 때 서로 다른 서버를 가리킬 수 있다. 그러면 같은 VIP로 접속하는 앱 중 일부는 A로, 일부는 B로 연결될 수 있다. 같은 요청을 두 서버에 전달한다는 뜻은 아니다.[8][9]
+
+```text
+가상 예시: A가 VIP를 반납하지 않았는데 B도 가져감
+
+앱 서버 1 ── 같은 VIP로 접속 ──→ A (기존 Primary)
+앱 서버 2 ── 같은 VIP로 접속 ──→ B (새 Primary)
+```
+
+A가 쓰기를 막은 상태라면 A에 도착한 쓰기가 실패할 수 있다. 반대로 A와 B 모두 독립적으로 쓰기를 받으면, 같은 클러스터에 쓴다고 생각한 두 앱의 변경이 서로 다른 DB에 쌓일 수 있다. **VIP 충돌은 접속 경로 문제이고, 두 DB가 모두 쓰기를 받는다면 데이터가 갈라지는 Split-Brain 문제로 이어진다.** 이 도식은 이전 방식의 위험을 보인 예시이지, 2012년 장애에서 두 Primary에 동시에 쓰였다는 뜻이 아니다.[8][9]
+
+**다른 데이터센터로 전환할 때는 주소를 옮길 수 있는지부터 문제였다.** GitHub의 이전 구성에서는 일부 VIP가 해당 위치의 스위치나 라우터에 묶여 있었다. 이 경우 A가 VIP를 잘 반납했더라도 다른 데이터센터의 B에 같은 주소를 붙일 수 없었다. 그래서 `writer` 이름이 B 쪽 IP를 가리키도록 DNS 응답을 바꿨다. 그러나 앱이나 DNS 리졸버가 이전 답(`writer → A 쪽 IP`)을 캐시하고 있으면, 새로 연결을 열더라도 캐시가 갱신되기 전까지 A 쪽 IP로 갈 수 있다. 이미 열린 DB 연결도 DNS 변경만으로 B에 옮겨가지 않는다.[8]
+
+#### 이후: 앱이 쓰는 주소는 그대로 두고, 프록시의 목적지를 바꿨다
+
+```text
+앱의 연결 경로
+평소: 앱 → 같은 writer 주소 → GLB/HAProxy → A
+전환: 앱 → 같은 writer 주소 → GLB/HAProxy → B
+
+전환 정보의 전달 경로
+orchestrator 리더가 B를 승격
+  → Raft로 다른 orchestrator에 변경 공유
+  → 각 데이터센터의 Consul에 현재 Primary = B 기록
+  → consul-template이 감지해 HAProxy 설정 갱신
+```
+
+| 구성 요소 | 이 구조에서 맡은 일 |
+| --- | --- |
+| `orchestrator` | 장애를 판단하고 쓰기를 맡을 MySQL Replica를 고른 뒤 승격한다. |
+| Raft | 여러 `orchestrator` 인스턴스가 과반수의 지지를 받아 관리 리더를 뽑고, 변경 결정을 공유하는 합의 방식이다. |
+| Consul | GitHub는 Consul의 Key-Value 저장소에 클러스터의 현재 Primary 주소와 포트를 기록했다. Consul은 Primary를 직접 고르거나 SQL을 전달하지 않는다. |
+| GLB / HAProxy | 앱의 DB 연결을 받아 현재 Primary 한 대에 전달한다. GLB는 GitHub의 로드밸런서이며, `consul-template`이 Consul의 변경을 읽어 HAProxy의 목적지 설정을 갱신한다. |
+
+**MySQL에만 HA(고가용성)를 붙인 게 아니라, 전환을 실행하는 `orchestrator` 자체도 여러 인스턴스로 운영했다.** Raft로 뽑는 것은 **MySQL Primary가 아니라 전환을 실행할 `orchestrator` 리더**다. 이 리더가 B를 승격하면 Raft로 변경 소식이 공유되고, 각 지역의 `orchestrator`가 자기 지역 Consul에 기록한다. 이때 데이터센터마다 Consul은 독립적이어서 Consul끼리 직접 복제하는 구조가 아니었다.[8]
+
+앱의 `writer` 이름은 **고정된 Anycast IP**를 가리켰다. 같은 IP를 써도 앱은 자기 데이터센터의 프록시로 연결되고, 프록시가 뒤에서 해당 클러스터의 실제 Primary로 보낸다. Failover 때 DB끼리 VIP를 넘기거나 앱이 새 DNS 응답을 받을 때까지 기다릴 필요가 없다. GitHub는 대부분의 전환에서 전체 중단 시간이 **10~13초**였다고 보고했다.[8]
+
+다만 **프록시의 목적지를 B로 바꾸는 것과 기존 A의 쓰기를 확실히 막는 것은 별개**다. GitHub는 데이터센터 전체가 다른 센터와 단절됐을 때, 그 안의 앱이 같은 센터에 있는 기존 Primary에 계속 쓸 가능성이 남았다고 밝혔다. 따라서 이 사례는 Split-Brain을 완전히 없앴거나 Active-Active를 의도적으로 도입한 사례가 아니다.[8]
+
 ## 7. 근본 원인과 설계적 교훈
 
 ### 7.1. 세 계층에서 문제가 이어졌다
@@ -477,3 +554,6 @@ PRM 설치 가이드는 2012년 6월 자료이고 운영 가이드는 2013년 5�
 [4] https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool.html — MySQL 8.4 Reference Manual — InnoDB Buffer Pool
 [5] https://linbit.com/drbd-user-guide/users-guide-drbd-8-4 — LINBIT — DRBD 8.4 User Guide
 [6] https://clusterlabs.org/projects/pacemaker/doc/2.1/Pacemaker_Explained/html/intro.html — Pacemaker Explained 2.1 — Introduction
+[7] https://github.blog/engineering/infrastructure/orchestrator-github — GitHub — Orchestrator at GitHub — 2016-12-08
+[8] https://github.blog/engineering/infrastructure/mysql-high-availability-at-github — GitHub — MySQL High Availability at GitHub — 2018-06-20
+[9] https://www.rfc-editor.org/rfc/rfc5227.html — IETF RFC 5227 — IPv4 Address Conflict Detection
