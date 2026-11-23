@@ -93,7 +93,7 @@ PostgreSQL 기본값은 비동기다(`synchronous_standby_names`가 비어 있�
 | 리더 재시작을 기다린다 | 프로세스만 죽고 디스크가 멀쩡하면 Failover하지 않는다 | 그동안 쓰기가 멈춘다 |
 | 팔로워끼리 빠진 로그를 맞춘다 | 가장 최신 팔로워를 새 리더로 올리고 그 팔로워에만 있는 로그를 다른 팔로워에 적용한다 | 최신 팔로워에도 없는 쓰기는 잃는다 |
 | 복제 지연을 감시한다 | 지연이 곧 잃을 수 있는 양이다 | 운영 부담 |
-| 반동기나 스토리지 동기 복제로 바꾼다 | AFTER_SYNC, RDS Multi-AZ | 쓰기가 느려진다 |
+| 반동기나 동기 복제로 바꾼다 | AFTER_SYNC, RDS Multi-AZ | 쓰기가 느려진다 |
 
 실제 사례:
 
@@ -108,10 +108,12 @@ PostgreSQL 기본값은 비동기다(`synchronous_standby_names`가 비어 있�
 |---|---|---|---|---|
 | 복제 | 동기 | 반동기(팔로워 1대 이상 확인) | 비동기 | 3개 AZ의 스토리지 노드 6개에 복제 |
 | 팔로워에서 읽기 | 안 됨 | 됨 | 됨 | 됨 |
-| 자동 Failover | 됨 | 됨 | 안 됨(수동 승격) | 됨 |
-| DB 쪽 Failover 시간 | 문서에서 수치 확인 못 함 | 보통 35초 미만 | 사람이 승격하는 시간 | 보통 60초 미만, 대개 30초 미만 |
+| Failover | 자동 | 자동 | 운영자가 직접 승격 | 자동 |
+| DB 쪽 Failover 시간 | 보통 60~120초 | 보통 35초 미만 | 사람이 승격하는 시간 | 보통 60초 미만, 대개 30초 미만 |
 
-- Read Replica는 백업이 아니다. 비동기라서 승격하면 마지막 쓰기를 잃을 수 있다.
+- Multi-AZ 인스턴스는 Failover 때 DB 인스턴스의 DNS 레코드가 팔로워를 가리키게 자동으로 바뀐다. 그래서 기존 연결은 다시 맺어야 한다.
+- Read Replica는 비동기라서 원본이 죽었을 때 최신이 아닐 수 있다. 승격은 운영자가 직접 하고, AWS 문서는 승격 전에 쓰기를 멈추고 복제 지연을 확인하라고 한다.
+- Aurora는 AWS의 MySQL·PostgreSQL 호환 DB다. DB 서버와 스토리지가 분리돼 있고 리더와 팔로워가 같은 스토리지를 함께 쓴다. AZ 하나가 죽어도 데이터를 잃지 않고 잠깐의 중단만 생기며, 팔로워 승격은 리더 서버를 복구하는 것보다 훨씬 빠르다.
 - Multi-AZ DB 클러스터에서 팔로워가 아무도 확인하지 않을 때 쓰기를 멈추는지, 비동기로 바꾸는지는 AWS 문서에 나오지 않는다.
 - 위 시간은 DB가 넘어가는 시간이다. 앱이 새 리더를 찾아 붙는 시간은 따로다.
 
@@ -175,6 +177,7 @@ GitHub 2018년 10월 장애가 실제 사례다. 동부 네트워크 허브와 �
 - MySQL 5.7.2 Release Notes: <https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-2.html>
 - Yoshinori Matsunobu, Semi-Synchronous Replication at Facebook (2014): <https://yoshinorimatsunobu.blogspot.com/2014/04/semi-synchronous-replication-at-facebook.html>
 - AWS, Multi-AZ DB cluster deployments: <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/multi-az-db-clusters-concepts.html>
+- AWS, Failing over a Multi-AZ DB instance: <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.Failover.html>
 - AWS, Aurora high availability: <https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraHighAvailability.html>
 - AWS, Setting the JVM TTL for DNS name lookups: <https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/jvm-ttl-dns.html>
 - AWS Advanced JDBC Wrapper, Failover Plugin: <https://github.com/aws/aws-advanced-jdbc-wrapper/blob/main/docs/using-the-jdbc-driver/using-plugins/UsingTheFailoverPlugin.md>
