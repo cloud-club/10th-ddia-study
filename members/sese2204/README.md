@@ -7,6 +7,7 @@
 - [05. MongoDB 저장소 엔진과 gRPC를 쓰는 이유](notes/05-mongodb-storage-engine-and-grpc.md)
 - [06. PostgreSQL과 MySQL(InnoDB), 둘 다 B 트리인데 무엇이 다른가](notes/06-pg-vs-innodb.md)
 - [07. 리더 없는 복제](notes/07-leaderless-replication.md)
+- [08. Aurora의 정족수 쓰기: 동기 복제인가, 비동기 복제인가](notes/08-aurora-quorum-write.md)
 
 ## 실습 랩
 
