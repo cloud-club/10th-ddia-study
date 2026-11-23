@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b3261e"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:17px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .r{fill:#b3261e}
+  </style>
+  <rect width="960" height="400" fill="#fff"/>
+
+  <text x="20" y="32" class="t">느슨한 정족수: 키 X를 쓰려는데 담당 노드 1·2에 닿지 못한다 (n=3, w=2)</text>
+
+  <rect x="420" y="56" width="120" height="44" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="480" y="83" text-anchor="middle" class="b">클라이언트</text>
+
+  <!-- 담당 노드 묶음 -->
+  <rect x="18" y="158" width="444" height="84" rx="10" fill="none" stroke="#bbb" stroke-dasharray="5 4"/>
+  <text x="24" y="150" class="s">키 X의 담당 노드 (n=3)</text>
+  <text x="900" y="150" text-anchor="end" class="s">담당이 아닌 노드 (4·5·6)</text>
+
+  <rect x="30" y="172" width="120" height="56" rx="8" fill="#f3f3f3" stroke="#bbb" stroke-dasharray="5 4"/>
+  <text x="90" y="196" text-anchor="middle" class="b">노드 1</text>
+  <text x="90" y="216" text-anchor="middle" class="s">닿지 않음</text>
+
+  <rect x="180" y="172" width="120" height="56" rx="8" fill="#f3f3f3" stroke="#bbb" stroke-dasharray="5 4"/>
+  <text x="240" y="196" text-anchor="middle" class="b">노드 2</text>
+  <text x="240" y="216" text-anchor="middle" class="s">닿지 않음</text>
+
+  <rect x="330" y="172" width="120" height="56" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="390" y="196" text-anchor="middle" class="b">노드 3</text>
+  <text x="390" y="216" text-anchor="middle" class="s">새 값 저장</text>
+
+  <rect x="480" y="172" width="120" height="56" rx="8" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="540" y="196" text-anchor="middle" class="b r">노드 4</text>
+  <text x="540" y="216" text-anchor="middle" class="s r">노드 1 몫 임시 보관</text>
+
+  <rect x="630" y="172" width="120" height="56" rx="8" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="690" y="196" text-anchor="middle" class="b r">노드 5</text>
+  <text x="690" y="216" text-anchor="middle" class="s r">노드 2 몫 임시 보관</text>
+
+  <rect x="780" y="172" width="120" height="56" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="840" y="196" text-anchor="middle" class="b">노드 6</text>
+  <text x="840" y="216" text-anchor="middle" class="s">쓰이지 않음</text>
+
+  <!-- 쓰기 -->
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="430" y1="102" x2="110" y2="169" stroke-dasharray="5 4"/>
+    <line x1="450" y1="102" x2="258" y2="169" stroke-dasharray="5 4"/>
+    <line x1="470" y1="102" x2="398" y2="169"/>
+  </g>
+  <g stroke="#b3261e" marker-end="url(#r)">
+    <line x1="492" y1="102" x2="532" y2="169"/>
+    <line x1="512" y1="102" x2="676" y2="169"/>
+  </g>
+
+  <!-- 암시된 핸드오프 -->
+  <g fill="none" stroke="#b3261e" stroke-dasharray="5 4" marker-end="url(#r)">
+    <path d="M540 230 C540 320, 90 320, 90 232"/>
+    <path d="M690 230 C690 345, 240 345, 240 232"/>
+  </g>
+  <text x="465" y="340" text-anchor="middle" class="s r">암시된 핸드오프: 네트워크가 복구되면 임시로 받은 쓰기를 담당 노드에 넘긴다</text>
+
+  <text x="20" y="382" class="s">w=2는 채웠지만 새 값 3벌 중 2벌이 담당 노드 밖에 있다. 핸드오프 전에 노드 1·2에서 읽으면 r=2여도 옛 값만 나온다.</text>
+</svg>
