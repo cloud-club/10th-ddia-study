@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 458" width="960" height="458">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker>
+  </defs>
+  <style>
+    text{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;fill:#222}
+    .t{font-size:17px;font-weight:700}.b{font-size:15px}.s{font-size:13px;fill:#666}
+    .r{fill:#b3261e}
+  </style>
+  <rect width="960" height="458" fill="#fff"/>
+
+  <text x="20" y="30" class="t">Aurora 쓰기 경로: 로그를 6곳에 보내고 4곳의 확인으로 커밋한다</text>
+
+  <!-- writer -->
+  <text x="30" y="176" class="s">변경 로그만 보낸다</text>
+  <rect x="30" y="187" width="150" height="56" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="105" y="211" text-anchor="middle" class="b">writer 인스턴스</text>
+  <text x="105" y="231" text-anchor="middle" class="s">커밋할 로그: LSN 100</text>
+
+  <!-- 가용 영역 a -->
+  <rect x="318" y="48" width="254" height="106" rx="8" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="328" y="64" class="s">가용 영역 a</text>
+  <rect x="330" y="70" width="230" height="36" rx="6" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="344" y="93" class="b">노드 1</text>
+  <text x="400" y="93" class="s">로그 기록, 확인 응답</text>
+  <rect x="330" y="112" width="230" height="36" rx="6" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="344" y="135" class="b">노드 2</text>
+  <text x="400" y="135" class="s">로그 기록, 확인 응답</text>
+
+  <!-- 가용 영역 b -->
+  <rect x="318" y="162" width="254" height="106" rx="8" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="328" y="178" class="s">가용 영역 b</text>
+  <rect x="330" y="184" width="230" height="36" rx="6" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="344" y="207" class="b">노드 3</text>
+  <text x="400" y="207" class="s">로그 기록, 확인 응답</text>
+  <rect x="330" y="226" width="230" height="36" rx="6" fill="#fff" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="344" y="249" class="b">노드 4</text>
+  <text x="400" y="249" class="s">로그 기록, 확인 응답</text>
+
+  <!-- 가용 영역 c -->
+  <rect x="318" y="276" width="254" height="106" rx="8" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="328" y="292" class="s">가용 영역 c</text>
+  <rect x="330" y="298" width="230" height="36" rx="6" fill="#f3f3f3" stroke="#bbb" stroke-dasharray="5 4"/>
+  <text x="344" y="321" class="b">노드 5</text>
+  <text x="400" y="321" class="s">늦음, 나중에 채워짐</text>
+  <rect x="330" y="340" width="230" height="36" rx="6" fill="#f3f3f3" stroke="#bbb" stroke-dasharray="5 4"/>
+  <text x="344" y="363" class="b">노드 6</text>
+  <text x="400" y="363" class="s">늦음, 나중에 채워짐</text>
+
+  <!-- writer -> 스토리지 노드 -->
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="182" y1="207" x2="327" y2="88"/>
+    <line x1="182" y1="210" x2="327" y2="130"/>
+    <line x1="182" y1="213" x2="327" y2="202"/>
+    <line x1="182" y1="216" x2="327" y2="244"/>
+    <line x1="182" y1="219" x2="327" y2="316" stroke-dasharray="5 4"/>
+    <line x1="182" y1="222" x2="327" y2="358" stroke-dasharray="5 4"/>
+  </g>
+
+  <!-- reader -->
+  <rect x="780" y="187" width="150" height="56" rx="8" fill="#f3f3f3" stroke="#d4d4d4"/>
+  <text x="855" y="211" text-anchor="middle" class="b">reader 인스턴스</text>
+  <text x="855" y="231" text-anchor="middle" class="s">읽기 기준점: LSN 97</text>
+
+  <g stroke="#888" marker-end="url(#a)">
+    <line x1="778" y1="212" x2="563" y2="203"/>
+  </g>
+  <text x="671" y="196" text-anchor="middle" class="s">캐시에 없는 페이지 읽기</text>
+  <text x="671" y="230" text-anchor="middle" class="s">LSN 97 기준으로 요청</text>
+
+  <!-- writer -> reader 로그 전달 -->
+  <path d="M105 245 V414 H855 V247" fill="none" stroke="#888" stroke-dasharray="5 4" marker-end="url(#a)"/>
+  <text x="480" y="404" text-anchor="middle" class="s r">변경 로그와 읽기 기준점을 비동기로 전달한다. 커밋은 이 전달을 기다리지 않는다</text>
+
+  <text x="20" y="444" class="s">커밋 응답은 6곳 중 4곳이 로그를 기록했다고 확인한 뒤에 나간다. 가용 영역 c 전체가 느리거나 죽어도 쓰기는 계속된다</text>
+</svg>
